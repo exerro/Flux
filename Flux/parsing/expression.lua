@@ -1,8 +1,10 @@
 
---! make equals operators check their lvalue
-
 local lang = require "Flux.lang"
 local types = require "common.types"
+
+local function isEqualityOperator( operator )
+	return lang.operators[operator] == 1
+end
 
 function parseIndex( source, allowMany )
 	local lexer = source.lexer
@@ -557,6 +559,10 @@ function parseBinaryExpression( source )
 			operator = operator.symbol;
 			position = operator.position;
 		}
+
+		if isEqualityOperator( operator.symbol ) and not isFormOfReference( lvalue ) then
+			throw( lexer, "invalid lvalue to operator '" .. operator.symbol .. "'", lvalue.position )
+		end
 	end
 
 	while true do

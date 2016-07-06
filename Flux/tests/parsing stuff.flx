@@ -16,3 +16,6 @@ UI::Element Button:addChild(UI::Element child) {
 
 let x = function ->int (int x, int y)
 	return x + y;
+
+x = 1;
+x += y += 6;

@@ -1,8 +1,4 @@
 
- --! Add type casting to let statements
- --!! let one_more_than(x->int)->int = x + 1
- --!! let x->int `add` y->int = x + y
-
 local types = require "common.types"
 
 types.parseMany [[
@@ -264,8 +260,10 @@ local function parseLetStatement( source, pos )
 
 	repeat
 		local name1 = parseName( source )
+		local cast1 = name1 and lexer:skip( "Symbol", "->" ) and assertType( parseType( source ) ) or "auto"
 		local backtick = lexer:skipValue "Backtick"
 		local name2 = backtick and parseName( source ) or not name1 and throw( lexer, "expected name" )
+		local cast2 = name2 and lexer:skip( "Symbol", "->" ) and assertType( parseType( source ) ) or "auto"
 		local function_parameters
 
 		if not backtick and lexer:skip( "Symbol", "(" ) then
@@ -273,7 +271,10 @@ local function parseLetStatement( source, pos )
 
 			if not lexer:skip( "Symbol", ")" ) then
 				while true do
-					function_parameters[#function_parameters + 1] = lexer:skipValue "Identifier" or throw( lexer, "expected parameter name" )
+					local name = lexer:skipValue "Identifier" or throw( lexer, "expected parameter name" )
+					local class = lexer:skip( "Symbol", "->" ) and assertType( parseType( source ) ) or "auto"
+
+					function_parameters[#function_parameters + 1] = { name = name, class = class }
 
 					if not lexer:skip( "Symbol", "," ) then
 						break
@@ -286,7 +287,7 @@ local function parseLetStatement( source, pos )
 			end
 
 		elseif backtick then
-			function_parameters = { name1 or name2, name1 and name2 or nil }
+			function_parameters = { { name = name1 or name2, class = cast1 or cast2 }, name1 and { name = name2, class = cast2 } or nil }
 			name2 = nil
 			name1 = backtick
 		end
@@ -294,12 +295,6 @@ local function parseLetStatement( source, pos )
 		local expr = lexer:skip( "Symbol", "=" ) and (parseExpression( source ) or throw( lexer, "expected expression after '='" )) or throw( lexer, "expected '='" )
 
 		if function_parameters then
-			local fmt_function_parameters = {}
-
-			for i = 1, #function_parameters do
-				fmt_function_parameters[i] = { class = "auto", name = function_parameters[i] }
-			end
-
 			source:begin "function"
 			source:push( wrapReturnStatement( expr ) )
 
@@ -309,7 +304,7 @@ local function parseLetStatement( source, pos )
 				type = "FunctionDefinition";
 				returns = "auto";
 				body = block;
-				parameters = fmt_function_parameters;
+				parameters = function_parameters;
 				const = const;
 				name = name1;
 				position = pos;

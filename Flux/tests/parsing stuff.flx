@@ -1,21 +1,17 @@
 
-int x = 1;
-const int y = 2;
+let x->int `add` y->int = x + y;
 
-float x = 1, y = 2;
+let add(x->int, y->int) = x + y;
 
-void f()
-	do int x = 1;
-	then return x - 1;
+auto add(int x, y) = x + y;
 
-UI::Element Button:addChild(UI::Element child) {
-	self.children += child;
-	child.parent = self;
-	return child;
+auto add(int x, int y) {
+	return x + y;
 }
 
-let x = function ->int (int x, int y)
+auto add(auto x, auto y) {
 	return x + y;
+}
 
-x = 1;
-x += y += 6;
+let x `add` y = x + y;
+let add(x, y) = x + y;

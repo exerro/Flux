@@ -1,0 +1,12 @@
+
+// do stuff in here
+
+1 + 2;
+-1;
+f();
+
+throw {
+		["x"] = 1;
+		[y] = 2;
+		[1] = "a thing";
+};

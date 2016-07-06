@@ -17,13 +17,23 @@ local function parseFunctionType( source ) -- function int(int) etc
 	local returns = parseType( source )
 	local parameters = {}
 
+	if not returns then
+		return false, lexer:formatError( "expected return type after 'function'", false, lexer:get().position )
+	end
+
 	if not lexer:skip( "Symbol", "(" ) then
-		throw( lexer, "expected '(' after return type" )
+		return false, lexer:formatError( "expected '(' after return type", false, lexer:get().position )
 	end
 
 	if not lexer:skip( "Symbol", ")" ) then
 		while true do
-			parameters[#parameters + 1] = parseType( source )
+			local t, err = parseType( source )
+
+			if not t then
+				return false, err
+			end
+
+			parameters[#parameters + 1] = t
 
 			if not lexer:skip( "Symbol", "," ) then
 				break
@@ -31,7 +41,7 @@ local function parseFunctionType( source ) -- function int(int) etc
 		end
 
 		if not lexer:skip( "Symbol", ")" ) then
-			throw( lexer, "expected ')' after parameters" )
+			return false, lexer:formatError( "expected ')' after parameters", false, lexer:get().position )
 		end
 	end
 
@@ -40,30 +50,48 @@ end
 
 function parseTypename( source ) -- int, string{int}, bool[], etc
 	local lexer = source.lexer
+	local start = lexer:mark()
 
 	if lexer:skip( "Keyword", "function" ) then
-		return parseFunctionType( source )
+		local v, e = parseFunctionType( source )
+		if not v then
+			lexer:jump( start )
+		end
+		return v, e
 	else
-		return { type = "Typename", name = parseName( source ) or throw( lexer, "expected typename" ) }
+		local name = parseName( source )
+
+		if name then
+			return { type = "Typename", name = name }
+		else
+			return false, lexer:formatError( "expected typename", false, lexer:get().position )
+		end
 	end
 end
 
-function parseTypeModifiers( source, v )
+function parseTypeModifiers( source, v, e )
 	local lexer = source.lexer
+	local start = lexer:mark()
+
+	if not v then
+		return false, e
+	end
 
 	while true do
 		if lexer:skip( "Symbol", "{" ) then
 			v = { type = "TableType", index = parseType( source ), value = v }
 
 			if not lexer:skip( "Symbol", "}" ) then
-				throw( lexer, "expected '}' after type" )
+				lexer:jump( start )
+				return false, lexer:formatError( "expected '}' after type", false, lexer:get().position )
 			end
 
 		elseif lexer:skip( "Symbol", "[" ) then
 			v = { type = "ArrayType", value = v }
 
 			if not lexer:skip( "Symbol", "]" ) then
-				throw( lexer, "expected ']' after '['" )
+				lexer:jump( start )
+				return false, lexer:formatError( "expected ']' after '['", false, lexer:get().position )
 			end
 
 		else

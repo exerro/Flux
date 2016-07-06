@@ -1,11 +1,14 @@
-{ 
-"folders": 
-[ 
-{ 
-"path": "C:\\Users\\Benedict\\Code\\Love2D\\common" 
-}, 
-{ 
-"path": "C:\\Users\\Benedict\\Code\\Love2D\\Flux" 
-} 
-] 
-} 
+{
+	"folders":
+	[
+		{
+			"path": "C:\\Users\\Benedict\\Code\\Love2D\\common"
+		},
+		{
+			"path": "."
+		},
+		{
+			"path": "C:\\Users\\Benedict\\AppData\\Roaming\\LOVE\\Flux"
+		}
+	]
+}

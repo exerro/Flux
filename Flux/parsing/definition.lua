@@ -53,7 +53,7 @@ function parseFunctionDefinitionParameters( source )
 		elseif lexer:test "Identifier" then
 			local start = lexer:mark()
 			
-			class = parseType( source )
+			class = assertType( parseType( source ) )
 
 			if lexer:test "Identifier" then
 				last_class = class
@@ -104,21 +104,96 @@ function parseFunctionBody( source )
 	end
 end
 
-local function parseDefinition( source )
+function parseDefinition( source )
 	-- try to parse a template
 
 	local lexer = source.lexer
-	local typename = lexer:skipValue( "Keyword", "auto" ) or lexer:skipValue( "Keyword", "void" ) or parseName( source )
+	local start = lexer:mark()
+	local const = lexer:skip( "Keyword", "const" ) and true or false
+	local class = lexer:skipValue( "Keyword", "auto" ) or lexer:skipValue( "Keyword", "void" ) or parseType( source )
+	local wasNonFuncDecl = false
 
-	if not typename then
-		return
+	if not class then
+		if const then
+			throw( lexer, "expected typename after 'const'" )
+		else
+			return false
+		end
 	end
+
+	if not lexer:test "Identifier" then
+		lexer:jump( start )
+		return false
+	end
+
+	repeat
+		local position = lexer:get().position
+		local name = parseName( source ) or throw( lexer, "expected name" )
+		local method = lexer:skip( "Symbol", ":" ) and (lexer:skipValue "Identifier" or throw( lexer, "expected name after ':'" ))
+
+		if lexer:test( "Symbol", "(" ) then
+			if wasNonFuncDecl then
+				throw( lexer, "unexpected '(', expected '='" )
+			end
+
+			local parameters = parseFunctionDefinitionParameters( source )
+			local body = parseFunctionBody( source )
+			
+			if method then
+				local object = wrapStringAsReference( name, position )
+				local object_indexed = wrapDotIndex( object, method, position )
+				local set_expression = wrapSetExpression( object_indexed, {
+					type = "FunctionExpression";
+					returns = class;
+					parameters = parameters;
+					body = body;
+					position = position;
+				}, position )
+
+				source:push( wrapExpressionStatement( set_expression ) )
+			else
+				source:push {
+					type = "FunctionDefinition";
+					returns = class;
+					parameters = parameters;
+					body = body;
+					name = name;
+					const = const;
+					position = position;
+				}
+			end
+
+			break
+
+		elseif method then
+			throw( lexer, "expected '(' after method name" )
+
+		else
+			wasNonFuncDecl = true
+
+			source:push {
+				type = "Definition";
+				value = lexer:skip( "Symbol", "=" ) and (parseExpression( source ) or throw( lexer, "expected expression after '='" ));
+				class = class;
+				const = const;
+				name = name;
+				position = position;
+			}
+		end
+
+	until not lexer:skip( "Symbol", "," )
+
+	if wasNonFuncDecl and not expectSemicolon( lexer ) then
+		throw( lexer, "expected ';'" )
+	end
+
+	return true
 end
 
 function serializeDefinition( t )
 
 	if t.type == "Definition" then
-		return (t.const and "const " or "") .. serializeType( t.class ) .. " " .. t.name .. (t.value and " = " .. serializeExpression( t.value ) or "")
+		return (t.const and "const " or "") .. serializeType( t.class ) .. " " .. t.name .. (t.value and " = " .. serializeExpression( t.value ) or "") .. ";"
 
 	elseif t.type == "FunctionDefinition" then
 		local p = {}

@@ -1,4 +1,6 @@
 
+--! make equals operators check their lvalue
+
 local lang = require "Flux.lang"
 local types = require "common.types"
 
@@ -223,12 +225,13 @@ local function parsePrimaryExpression( source )
 		}
 
 	elseif lexer:skip( "Keyword", "function" ) then
+		local returns = lexer:skip( "Symbol", "->" ) and assertType( parseType( source ) ) or "auto"
 		local parameters = parseFunctionDefinitionParameters( source )
 		local body = parseFunctionBody( source )
 
 		return {
 			type = "FunctionExpression";
-			returns = "auto";
+			returns = returns;
 			parameters = parameters;
 			body = body;
 			position = token.position;
@@ -239,7 +242,7 @@ local function parsePrimaryExpression( source )
 		local parameters = {}
 
 		while word do
-			local class = lexer:skip( "Symbol", "->" ) and (parseType( source ) or throw( lexer, "expected type after '->'" )) or "auto"
+			local class = lexer:skip( "Symbol", "->" ) and assertType( parseType( source ) ) or "auto"
 
 			parameters[#parameters + 1] = { name = word, class = class }
 			word = lexer:skipValue "Identifier"
@@ -259,7 +262,7 @@ local function parsePrimaryExpression( source )
 		return parseMatchExpression( source, token )
 
 	elseif lexer:skip( "Keyword", "new" ) then
-		local class = parseType( source )
+		local class = assertType( parseType( source ) )
 		local parameters = {}
 
 		if lexer:skip( "Symbol", "(" ) then
@@ -356,7 +359,7 @@ function parseRightUnaryExpression( source )
 	local lexer = source.lexer
 	local expr = parsePrimaryExpression( source )
 
-	while true do
+	while expr do
 		local token = lexer:get()
 
 		if lexer:test( "Symbol", "++" ) or lexer:test( "Symbol", "--" ) then
@@ -401,12 +404,10 @@ function parseRightUnaryExpression( source )
 			expr = { type = "Index", value = expr, index = index, position = token.position }
 
 		elseif lexer:skip( "Symbol", "." ) then
-			local index = lexer:skipValue "Identifier" or throw( lexer, "expected name after '.'" )
-
-			expr = { type = "DotIndex", value = expr, index = index, position = token.position }
+			expr = wrapDotIndex( expr, lexer:skipValue "Identifier" or throw( lexer, "expected name after '.'" ), token.position )
 
 		elseif lexer:skip( "Symbol", "->" ) then
-			local class = parseType( source )
+			local class = assertType( parseType( source ) )
 
 			expr = { type = "Cast", value = expr, class = class, position = token.position }
 
@@ -416,7 +417,7 @@ function parseRightUnaryExpression( source )
 			expr = { type = "OperatorImplements", lvalue = expr, rvalue = name, position = token.position }
 
 		elseif lexer:skip( "Keyword", "typeof" ) then
-			local class = parseType( source )
+			local class = assertType( parseType( source ) )
 
 			expr = { type = "OperatorTypeOf", lvalue = expr, rvalue = class, position = token.position }
 
@@ -619,7 +620,7 @@ function serializeExpression( t )
 			p[i] = serializeType( t.parameters[i].class ) .. " " .. t.parameters[i].name
 		end
 
-		return "function(" .. table.concat( p, ", " ) .. ")"
+		return "function ->" .. serializeType( t.returns ) .. " (" .. table.concat( p, ", " ) .. ")"
 			.. " " .. serializeBlock( t.body )
 
 	elseif t.type == "ArrayExpression" then

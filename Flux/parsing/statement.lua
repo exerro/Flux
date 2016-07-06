@@ -17,7 +17,6 @@ TryStatement: { "type" = "TryStatement", "block" = Block, "catches" = { number =
 ReturnStatement: { "type" = "ReturnStatement", "value" = Expression } & HasPosition
 BreakStatement: { "type" = "BreakStatement" } & HasPosition
 ContinueStatement: { "type" = "ContinueStatement" } & HasPosition
-DefinitionStatement: { "type" = "DefinitionStatement", "definition" = FunctionDefinition | Definition } & HasPosition
 ExpressionStatement: { "type" = "ExpressionStatement", "value" = Expression } & HasPosition
 
 Statement:
@@ -32,7 +31,8 @@ Statement:
 	| ReturnStatement
 	| BreakStatement
 	| ContinueStatement
-	| DefinitionStatement
+	| Definition
+	| FunctionDefinition
 	| ExpressionStatement
 ]]
 
@@ -106,9 +106,8 @@ end
 local function parseForLoop( source, pos )
 	local lexer = source.lexer
 	local openbracket = lexer:skip( "Symbol", "(" )
-	local init_typename = lexer:skipValue( "Keyword", "auto" ) or parseTypename( source )
+	local init_class = lexer:skipValue( "Keyword", "auto" ) or assertType( parseType( source ) )
 	local init_name = lexer:skipValue "Identifier" or throw( lexer, "expected initialiser variable name" )
-	local init_class = parseTypeModifiers( source, init_typename )
 	local init_value = lexer:skip( "Symbol", "=" ) and (parseExpression( source ) or throw( lexer, "expected expression after '='" )) or nil
 	local comma = lexer:skip( "Symbol", ";" ) or lexer:skip( "Symbol", "," ) or throw( lexer, "expected ';' after for loop initialiser" )
 	local test_expr = parseExpression( source ) or throw( lexer, "expeced for loop test expression" )
@@ -191,7 +190,7 @@ local function parseTryStatement( source, pos )
 	local default
 
 	while lexer:skip( "Keyword", "catch" ) do
-		local class = parseType( source )
+		local class = assertType( parseType( source ) )
 		local name = lexer:skipValue "Identifier" or throw( lexer, "expected exception name after type" )
 		local block = parseBlock( source, "general" )
 
@@ -293,7 +292,6 @@ local function parseLetStatement( source, pos )
 		end
 
 		local expr = lexer:skip( "Symbol", "=" ) and (parseExpression( source ) or throw( lexer, "expected expression after '='" )) or throw( lexer, "expected '='" )
-		local def
 
 		if function_parameters then
 			local fmt_function_parameters = {}
@@ -307,7 +305,7 @@ local function parseLetStatement( source, pos )
 
 			local block = source:pop()
 
-			def = {
+			source:push {
 				type = "FunctionDefinition";
 				returns = "auto";
 				body = block;
@@ -317,7 +315,7 @@ local function parseLetStatement( source, pos )
 				position = pos;
 			}
 		else
-			def = {
+			source:push {
 				type = "Definition";
 				class = "auto";
 				name = name1;
@@ -327,12 +325,6 @@ local function parseLetStatement( source, pos )
 			}
 
 		end
-
-		source:push {
-			type = "DefinitionStatement";
-			definition = def;
-			position = pos;
-		}
 
 		pos = lexer:get().position
 
@@ -388,55 +380,22 @@ function parseStatement( source )
 
 		else
 			lexer:back()
-			local expr = parseExpression( source )
-
-			if expr then
-				if not expectSemicolon( lexer ) then
-					throw( lexer, "expected ';' after expression" )
-				end
-
-				source:push {
-					type = "ExpressionStatement";
-					value = expr;
-					position = position;
-				}
-			else
-				throw( lexer, "unexpected keyword '" .. keyword.value .. "'" )
-			end
 
 		end
-
-	elseif lexer:test "Identifier" then
-		if isDefinition then
-
-		else
-			local expr = parseExpression( source ) or throw( lexer, "expected expression" )
-
-			if not expectSemicolon( lexer ) then
-				throw( lexer, "expected ';' after expression" )
-			end
-
-			source:push {
-				type = "ExpressionStatement";
-				value = expr;
-				position = position;
-			}
-		end
-
-	else
-		local expr = parseExpression( source ) or throw( lexer, "unexpected token: " .. lexer:get():tostring() )
-
-		if not expectSemicolon( lexer ) then
-			throw( lexer, "expected ';' after expression" )
-		end
-
-		source:push {
-			type = "ExpressionStatement";
-			value = expr;
-			position = position;
-		}
-
 	end
+
+	if parseDefinition( source ) then
+		return
+	end
+
+	local expr = parseExpression( source ) or throw( lexer, "unexpected token: " .. lexer:get():tostring() )
+
+	if not expectSemicolon( lexer ) then
+		throw( lexer, "expected ';' after expression" )
+	end
+
+	source:push( wrapExpressionStatement( expr, position ) )
+
 end
 
 function serializeStatement( t )
@@ -486,8 +445,8 @@ function serializeStatement( t )
 	elseif t.type == "ContinueStatement" then
 		return "continue;"
 
-	elseif t.type == "DefinitionStatement" then
-		return serializeDefinition( t.definition ) .. (t.definition.type == "Definition" and ";" or "")
+	elseif t.type == "Definition" or t.type == "FunctionDefinition" then
+		return serializeDefinition( t )
 
 	elseif t.type == "ExpressionStatement" then
 		return serializeExpression( t.value ) .. ";"

@@ -2,7 +2,7 @@
 local Flux = require "Flux"
 local types = require "common.types"
 
-local test_case = "statements"
+local test_case = "stuff"
 
 local source = Source()
 local code = love.filesystem.read( "Flux/tests/parsing " .. test_case .. ".flx" )
@@ -13,14 +13,6 @@ print( string.rep( "-", 50 ) )
 print ""
 
 source.lexer = Lexer( code )
-
---[[
-throw {
-		["x"] = 1;
-		[y] = 2;
-		[1] = "a thing";
-}
-]]
 
 while not source.lexer:isEOF() do
 	parseStatement( source )

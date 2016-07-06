@@ -1,0 +1,40 @@
+
+class A {
+	int x = 1;
+
+	static float PI = math::PI;
+}
+
+class B extends A {
+	int y = 2;
+}
+
+interface I {
+	int z = 3;
+	int t = 3;
+}
+
+class C extends B implements I {
+	C(int _t) {
+		t = _t;
+	}
+}
+
+void test() {
+	print( a.PI );
+	print( b.PI );
+
+	new A a;
+	new B b;
+	new C c( 4 );
+
+	print( a.x );
+	print( b.x );
+	print( b.y );
+	print( c.x );
+	print( c.y );
+	print( c.z );
+	print( c.t );
+
+	print( new C(2).t == 2 );
+}

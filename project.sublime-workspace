@@ -1,0 +1,1502 @@
+{
+	"auto_complete":
+	{
+		"selected_items":
+		[
+			[
+				"Oper",
+				"OperatorImplements"
+			],
+			[
+				"oper",
+				"OperatorTypeOf"
+			],
+			[
+				"Operat",
+				"OperatorTypeOf"
+			],
+			[
+				"Impl",
+				"OperatorImplements"
+			],
+			[
+				"is",
+				"isDefault"
+			],
+			[
+				"case",
+				"cases_local"
+			],
+			[
+				"paese",
+				"parseTableExpression"
+			],
+			[
+				"seria",
+				"serializeExpression"
+			],
+			[
+				"parseBinar",
+				"parseBinaryOperator"
+			],
+			[
+				"Bin",
+				"BinaryExpression"
+			],
+			[
+				"seri",
+				"serializeExpression"
+			],
+			[
+				"Lef",
+				"LeftUnaryExpression"
+			],
+			[
+				"parseRI",
+				"parseRightUnaryExpression"
+			],
+			[
+				"parseL",
+				"parseLeftUnaryExpression"
+			],
+			[
+				"S",
+				"Symbol"
+			],
+			[
+				"Ch",
+				"CharacterConstant"
+			],
+			[
+				"parse",
+				"parseExpression"
+			],
+			[
+				"String",
+				"StringConstant"
+			],
+			[
+				"In",
+				"IntegerConstant"
+			],
+			[
+				"Func",
+				"FunctionExpression"
+			],
+			[
+				"Binary",
+				"BinaryOperator"
+			],
+			[
+				"RightUn",
+				"RightUnaryOperator"
+			],
+			[
+				"par",
+				"parameters"
+			],
+			[
+				"Ty",
+				"Typename"
+			],
+			[
+				"ty",
+				"type"
+			],
+			[
+				"A",
+				"ArrayType"
+			],
+			[
+				"parseT",
+				"parseTypename"
+			],
+			[
+				"index",
+				"indexType"
+			],
+			[
+				"read",
+				"readfile"
+			],
+			[
+				"Op",
+				"OperatorExtends"
+			],
+			[
+				"Mt",
+				"MethodStringCall"
+			],
+			[
+				"pos",
+				"position"
+			],
+			[
+				"c",
+				"character"
+			],
+			[
+				"get",
+				"getPosition"
+			],
+			[
+				"es",
+				"escaped_characters"
+			],
+			[
+				"near",
+				"near_text"
+			],
+			[
+				"h",
+				"HasPosition"
+			],
+			[
+				"L",
+				"LeftUnaryExpressionType"
+			],
+			[
+				"T",
+				"TypeOfExpression"
+			],
+			[
+				"Con",
+				"ConstantExpression"
+			],
+			[
+				"B",
+				"BinaryExpression"
+			],
+			[
+				"name",
+				"names"
+			],
+			[
+				"inter",
+				"intersection"
+			],
+			[
+				"in",
+				"intersectioncheck"
+			],
+			[
+				"un",
+				"unary_operators"
+			],
+			[
+				"for",
+				"forp	for k,v in pairs()"
+			],
+			[
+				"col",
+				"colour_light"
+			],
+			[
+				"colour",
+				"colour_dark"
+			],
+			[
+				"MOD",
+				"MODIFIER_ONE_OR_NONE"
+			],
+			[
+				"ONE",
+				"MODIFIER_ONE_OR_MORE"
+			],
+			[
+				"MODIFIER_ONE",
+				"MODIFIER_ONE_OR_MORE"
+			],
+			[
+				"subl",
+				"sublime-project"
+			],
+			[
+				"Project",
+				"ProjectName"
+			],
+			[
+				"Proj",
+				"ProjectName"
+			],
+			[
+				"tou",
+				"touch_down"
+			],
+			[
+				"touch",
+				"touch_down"
+			],
+			[
+				"cl",
+				"closetabiconpath"
+			],
+			[
+				"close",
+				"closetabicon"
+			],
+			[
+				"dis",
+				"displayIcon"
+			],
+			[
+				"draw",
+				"drawField"
+			],
+			[
+				"newLo",
+				"newRemoteFile"
+			],
+			[
+				"displ",
+				"displayIcon"
+			],
+			[
+				"text",
+				"textEvent"
+			],
+			[
+				"toc",
+				"touchEvent"
+			],
+			[
+				"win",
+				"window_height"
+			],
+			[
+				"pan",
+				"panel_right"
+			],
+			[
+				"windo",
+				"window_width"
+			],
+			[
+				"PAN",
+				"PANEL_SIZE_SIDE"
+			],
+			[
+				"wind",
+				"window_width"
+			],
+			[
+				"PA",
+				"PANEL_SIZE_SIDE"
+			],
+			[
+				"gr",
+				"gradient"
+			],
+			[
+				"g",
+				"gradient_reverse"
+			],
+			[
+				"gra",
+				"gradient"
+			],
+			[
+				"newT",
+				"newText"
+			],
+			[
+				"ha",
+				"handler"
+			],
+			[
+				"han",
+				"handled"
+			],
+			[
+				"net",
+				"network_thread"
+			],
+			[
+				"thre",
+				"network_thread"
+			],
+			[
+				"line",
+				"lineIntersectCircle"
+			],
+			[
+				"vec",
+				"vec_new"
+			],
+			[
+				"OPER",
+				"OPERATOR_ADD"
+			],
+			[
+				"vet",
+				"vector_new"
+			],
+			[
+				"fu",
+				"function	function"
+			],
+			[
+				"pla",
+				"plane_normal"
+			],
+			[
+				"ver",
+				"vertex"
+			],
+			[
+				"fl_",
+				"fl_VertexBuffer"
+			],
+			[
+				"fl",
+				"fl_VertexBuffer"
+			],
+			[
+				"time",
+				"timewarp"
+			],
+			[
+				"lo",
+				"longest_survived"
+			],
+			[
+				"fi",
+				"fittest"
+			],
+			[
+				"en",
+				"energy"
+			],
+			[
+				"dist",
+				"dist_normal"
+			],
+			[
+				"max",
+				"maxnodes"
+			],
+			[
+				"to",
+				"toggle_l"
+			],
+			[
+				"upda",
+				"updateBufferTransformation"
+			],
+			[
+				"random",
+				"random_counter"
+			],
+			[
+				"x",
+				"xstep"
+			],
+			[
+				"light",
+				"light_index"
+			],
+			[
+				"setVe",
+				"setVertex"
+			],
+			[
+				"pot",
+				"point_light"
+			],
+			[
+				"inte",
+				"intensity"
+			],
+			[
+				"getT",
+				"getTransformedVertex"
+			],
+			[
+				"point",
+				"point_list"
+			],
+			[
+				"add",
+				"addChild"
+			],
+			[
+				"new",
+				"newParticleGenerator"
+			],
+			[
+				"spawn",
+				"spawnFireParticle"
+			],
+			[
+				"sc",
+				"screenheight"
+			],
+			[
+				"tex",
+				"text_offset_vertical"
+			],
+			[
+				"te",
+				"text_offset_horizontal"
+			],
+			[
+				"DON",
+				"DRONE_COLOUR"
+			],
+			[
+				"prop",
+				"prop_right_force"
+			],
+			[
+				"app",
+				"applyForce"
+			],
+			[
+				"ap",
+				"applyForce"
+			],
+			[
+				"getM",
+				"getMass"
+			],
+			[
+				"DRON",
+				"DRONE_SPEED"
+			],
+			[
+				"D",
+				"DRONE_Y_OFFSET"
+			],
+			[
+				"DRONE",
+				"DRONE_PROP_WIDTH"
+			],
+			[
+				"DR",
+				"DRONE_PROP_HEIGHT"
+			],
+			[
+				"jit",
+				"jit.on	([func], [recursive])"
+			],
+			[
+				"C",
+				"Compiler"
+			],
+			[
+				"ser",
+				"serializeImpl"
+			],
+			[
+				"condi",
+				"conditionmode"
+			],
+			[
+				"parseFunction",
+				"parseFunctionParameters"
+			],
+			[
+				"parseB",
+				"parseBlock"
+			],
+			[
+				"met",
+				"methodname"
+			],
+			[
+				"parseEx",
+				"parseExpression"
+			],
+			[
+				"st",
+				"statement"
+			],
+			[
+				"was",
+				"wasMethodName"
+			]
+		]
+	},
+	"buffers":
+	[
+		{
+			"file": "main.lua",
+			"settings":
+			{
+				"buffer_size": 527,
+				"line_ending": "Windows"
+			}
+		},
+		{
+			"file": "Flux/parsing/block.lua",
+			"settings":
+			{
+				"buffer_size": 514,
+				"line_ending": "Windows"
+			}
+		},
+		{
+			"file": "Flux/parsing/statement.lua",
+			"settings":
+			{
+				"buffer_size": 673,
+				"line_ending": "Windows"
+			}
+		},
+		{
+			"file": "Flux/Source.lua",
+			"settings":
+			{
+				"buffer_size": 1944,
+				"line_ending": "Windows"
+			}
+		},
+		{
+			"file": "Flux/parsing/generic.lua",
+			"settings":
+			{
+				"buffer_size": 2033,
+				"line_ending": "Windows"
+			}
+		},
+		{
+			"file": "Flux/lang.lua",
+			"settings":
+			{
+				"buffer_size": 1803,
+				"line_ending": "Windows"
+			}
+		},
+		{
+			"file": "Flux/parsing/expression.lua",
+			"settings":
+			{
+				"buffer_size": 20847,
+				"line_ending": "Windows"
+			}
+		},
+		{
+			"file": "Flux/parsing/type.lua",
+			"settings":
+			{
+				"buffer_size": 2482,
+				"line_ending": "Windows"
+			}
+		},
+		{
+			"contents": "\nstring getAge();\nint getAge();\n\nstring myStringAge = getAge();\nint myNumberAge = getAge();\n\nprint( myStringAge == myNumberAge ) // false\n\n\n\n\n\n\ntemplate (A, B) auto add(A a, B b) = a + b;\nprint( 5 `add` 2 )\n\n\n\n\n\n\nint add( int a, int b ) { // ints only\n	return a + b;\n}\n\nlet a `plus` b = a + b // any types\n\ntemplate(A, B) auto addition(A a, B b) // any types\n	= a + b\n\nassert( x `plus` y == addition( x, y ) )\nassert( x typeof int && y typeof int and add( x, y ) == x `plus` y == addition( x, y ) or true )\n\n\n\n\n\n\n\ntemplate(T)\nfinal class __AddWrapper {\n	T value;\n	__AddWrapper(T v) value = v;\n}\n\nlet `add` x = __AddWrapper(x)\n\n<A, B> B `to`(__AddWrapper<A> a, A b[])\n	b[#b + 1] = a.value;\n\n`add` x `to` array // A -> typeof x, B -> void\n\n\n\n\n\n\nlet `button` location = new Button(location);\n-> auto `button`(Location location) = new Button(location)\n-> auto `button`(Location location) {\n	return new Button(location);\n}\n\n\n\n\n\nint x = 1\n-> `let x = 1 -> int`\n-> `let x = 1`\n\n\n\n\n\n\n<A, B> auto add(A a, B b) = a + b;\n<A> auto add(A a, int b) = a + b + 1;\nauto add(int a, int b) = a + b + 2;\n\nassert( add(5.0, 2.0) == 7.0 )\nassert( add(5.0, 2) == 8.0 )\nassert( add(5, 2) == 9 )\n\n\n\n\n\n\n\n\nfunction matching:\n	get list based on name\n	filter out bad matches (no type match, template match, or cast)\n	assign weights\n	return highest weighted or throw if equal weights\n\n\n\n\n\n\n\n\ntemplate (R, P {IAddable})\nR add_one_to(P p)\n	= p + 1\n\nassert( add_one_to( 5 ) == 6 )\nassert( typeof add_one_to( 5 ) == int )\n\ntemplate (T)\nT getElement(T a[], int i)\n	if a[i] == null\n		throw IndexOutOfBounds \"Index \" + i + \" is out of bounds\"\n	else if a[i] typeof T\n		return a[i]\n	else\n		throw CastException \"Element at (\" + i + \") cannot cast to \" + typeof T\n\nimport UIElement\n\nclass Container extends Element (int, Element) {\n	template ( C {Element} ) C getChildById(ID id);\n	template ( C {Element} ) C getChildById(string id);\n}\n\nnew Container container\nButton c = container:getChildById(new ID)\n	::= let c = (container:getChildById( new UI::ID() ) -> UI::Button)\n	::= let c = (container:getChildById<C = UI::Button>( new UI::ID() ) -> UI::Button)\n	::= let c = container:getChildById<C = UI::Button>( new UI::ID() )\n",
+			"settings":
+			{
+				"buffer_size": 2182,
+				"line_ending": "Windows"
+			}
+		},
+		{
+			"contents": "\ntemplate (R, P {IAddable})\nR add_one_to(P p)\n	= p + 1\n\nassert( add_one_to( 5 ) == 6 )\nassert( typeof add_one_to( 5 ) == int )\n\ntemplate (T)\nT getElement(T a[], int i)\n	if a[i] == null\n		throw IndexOutOfBounds \"Index \" + i + \" is out of bounds\"\n	else if a[i] typeof T\n		return a[i]\n	else\n		throw CastException \"Element at (\" + i + \") cannot cast to \" + typeof T\n\nimport UIElement\n\nclass Container extends Element (int, Element) {\n	template ( C {Element} ) C getChildById(ID id);\n	template ( C {Element} ) C getChildById(string id);\n}\n\nnew Container container\nButton c = container:getChildById(new ID)\n	::= let c = (container:getChildById( new UI::ID() ) -> UI::Button)\n	::= let c = (container:getChildById<C = UI::Button>( new UI::ID() ) -> UI::Button)\n	::= let c = container:getChildById<C = UI::Button>( new UI::ID() )\n\nButton x = f(ID)\n=> let x = f(ID) -> Button\n\nget all matchings to name\n	Button(ID)\n	<C | Element>(ID)\n	<C | Element>(string)\n\nfilter based on parameters\n	Button(ID)\n	<C | Element>(ID)\n\nfilter based on return type\n	Button(ID)\n\ntype matching:\n	exact match, P == D\n	parent match, P typeof D\n	casting match, P -> D\n",
+			"settings":
+			{
+				"buffer_size": 1133,
+				"line_ending": "Windows"
+			}
+		}
+	],
+	"build_system": "",
+	"build_system_choices":
+	[
+	],
+	"build_varint": "",
+	"command_palette":
+	{
+		"height": 357.0,
+		"last_filter": "Package Control: ",
+		"selected_items":
+		[
+			[
+				"Package Control: ",
+				"Package Control: Upgrade/Overwrite All Packages"
+			],
+			[
+				"Package Control: instal",
+				"Package Control: Install Package"
+			],
+			[
+				"Package Control: remove",
+				"Package Control: Remove Package"
+			],
+			[
+				"Package Control: ins",
+				"Package Control: Install Package"
+			],
+			[
+				"Package Control: remo",
+				"Package Control: Remove Package"
+			],
+			[
+				"markdown ",
+				"Markdown Preview: Preview in Browser"
+			],
+			[
+				"package in",
+				"Package Control: Install Package"
+			],
+			[
+				"package install",
+				"Package Control: Install Package"
+			],
+			[
+				"floo",
+				"Floobits - Join Workspace"
+			],
+			[
+				"Package Control: install",
+				"Package Control: Install Package"
+			],
+			[
+				"Package Control: install ",
+				"Package Control: Install Package"
+			],
+			[
+				"package",
+				"Preferences: Browse Packages"
+			]
+		],
+		"width": 382.0
+	},
+	"console":
+	{
+		"height": 120.0,
+		"history":
+		[
+			"import urllib.request,os,hashlib; h = 'eb2297e1a458f27d836c04bb0cbaf282' + 'd0e7a3098092775ccb37ca9d6b2e4b7d'; pf = 'Package Control.sublime-package'; ipp = sublime.installed_packages_path(); urllib.request.install_opener( urllib.request.build_opener( urllib.request.ProxyHandler()) ); by = urllib.request.urlopen( 'http://packagecontrol.io/' + pf.replace(' ', '%20')).read(); dh = hashlib.sha256(by).hexdigest(); print('Error validating download (got %s instead of %s), please try manual install' % (dh, h)) if dh != h else open(os.path.join( ipp, pf), 'wb' ).write(by)",
+			"cd C:\\Users\\Benedict\\AppData\\Roaming\\Sublime Text 3\\Packages",
+			"$ cd ~/Library/Application\\ Support/Sublime\\ Text\\ 3/Packages",
+			"sublime.packages_path()"
+		]
+	},
+	"distraction_free":
+	{
+		"menu_visible": true,
+		"show_minimap": false,
+		"show_open_files": false,
+		"show_tabs": false,
+		"side_bar_visible": false,
+		"status_bar_visible": false
+	},
+	"expanded_folders":
+	[
+		"/C/Users/Benedict/Code/Love2D/common",
+		"/C/Users/Benedict/Code/Love2D/Flux",
+		"/C/Users/Benedict/Code/Love2D/Flux/Flux",
+		"/C/Users/Benedict/Code/Love2D/Flux/Flux/parsing"
+	],
+	"file_history":
+	[
+		"/C/Users/Benedict/Code/Love2D/common/types.lua",
+		"/C/Users/Benedict/Downloads/sky_sysinfo.debugLog",
+		"/C/Users/Benedict/Code/Love2D/Flux/Flux/parsing/statement.lua",
+		"/C/Users/Benedict/Code/Love2D/Flux/Flux/init.lua",
+		"/C/Users/Benedict/AppData/Roaming/LOVE/ccemu/data/10/sheetslib.lua",
+		"/C/Users/Benedict/Downloads/api.lua",
+		"/C/Users/Benedict/AppData/Roaming/LOVE/ccemu/data/10/sheetstest",
+		"/C/Users/Benedict/AppData/Roaming/LOVE/ccemu/CCLite.cfg",
+		"/C/Users/Benedict/Code/CC Emulator/main.lua",
+		"/C/Users/Benedict/Code/CC Emulator/emu.lua",
+		"/C/Users/Benedict/AppData/Roaming/LOVE/ccemu/data/10/sheets-archived/sheets.lua",
+		"/C/Users/Benedict/AppData/Roaming/Sublime Text 3/Packages/Default/Preferences.sublime-settings",
+		"/C/Users/Benedict/AppData/Roaming/Sublime Text 3/Packages/User/Preferences.sublime-settings",
+		"/C/Users/Benedict/AppData/Roaming/Sublime Text 3/Packages/User/Batch File.sublime-settings",
+		"/C/Users/Benedict/Code/Love2D/Flux/Flux/parsing/generic.lua",
+		"/C/Users/Benedict/Code/Love2D/Flux/Flux/parsing/definition.lua",
+		"/C/Users/Benedict/Code/Love2D/Flux/Flux/parsing/type.lua",
+		"/C/Users/Benedict/Code/Love2D/Flux/Flux/Lexer.lua",
+		"/C/Users/Benedict/Code/Love2D/Flux/spec.txt",
+		"/C/Users/Benedict/Code/Love2D/Flux/Flux/tests/parsing definitions.flx",
+		"/C/Users/Benedict/AppData/Roaming/Factorio/factorio-current.log",
+		"/C/Users/Benedict/Code/Love2D/Flux/Flux/lang.lua",
+		"/C/Users/Benedict/AppData/Roaming/Factorio/config.ini",
+		"/C/Users/Benedict/Code/Love2D/Flux/common/parsing.lua",
+		"/C/Users/Benedict/Code/Love2D/Flux/Flux/parsing/class.lua",
+		"/C/Users/Benedict/Code/Love2D/Flux/Flux/parsing/body.lua",
+		"/C/Users/Benedict/Code/Love2D/Flux/Flux/Token.lua",
+		"/C/Users/Benedict/Code/Love2D/Flux/Flux/std/math.flx",
+		"/C/Users/Benedict/Code/Love2D/Flux/Flux/Source.lua",
+		"/C/Users/Benedict/Code/Love2D/Flux/Flux/tests/classes.flx",
+		"/C/Users/Benedict/Code/Love2D/Flux/Flux/tests/definitions.flx",
+		"/C/Users/Benedict/Code/GitHub/CCJam-2016/README.md",
+		"/C/Users/Benedict/Code/Love2D/Flux/Flux-old/init.lua",
+		"/C/Users/Benedict/Code/Love2D/Flux/Flux-old/Lexer.lua",
+		"/C/Users/Benedict/Code/Love2D/Flux/Flux/Position.lua",
+		"/C/Users/Benedict/Code/Love2D/Flux/Flux-old/stdtypes.lua",
+		"/C/Users/Benedict/Code/Love2D/Flux/Flux/class.lua",
+		"/C/Users/Benedict/Desktop/Open Project/Flux - Rust.bat",
+		"/C/Users/Benedict/Code/Love2D/3D/views/create_entity.lua",
+		"/C/Users/Benedict/Code/Love2D/3D/flow/lib/Render3D/Graph.lua",
+		"/C/Users/Benedict/Code/Love2D/3D/views/create_map.lua",
+		"/C/Users/Benedict/Code/Love2D/3D/main.lua",
+		"/C/Users/Benedict/Desktop/Open Project/Template.bat",
+		"/C/Users/Benedict/Desktop/New Project.bat",
+		"/C/Users/Benedict/Desktop/new project.bat",
+		"/C/Users/Benedict/Code/Love2D/abc/project.sublime-project",
+		"/C/Users/Benedict/Code/Love2D/Template/main.lua",
+		"/C/Users/Benedict/Code/Love2D/Gestures/conf.lua",
+		"/C/Users/Benedict/Code/Love2D/Editor/drawing.lua",
+		"/C/Users/Benedict/Code/Love2D/common/net.lua",
+		"/C/Users/Benedict/Code/Love2D/neural nets/net.lua",
+		"/C/Users/Benedict/Code/Love2D/Editor/file.lua",
+		"/C/Users/Benedict/Code/Love2D/Editor/field.lua",
+		"/C/Users/Benedict/Code/Love2D/common/animation.lua",
+		"/C/Users/Benedict/Code/Love2D/Editor/conf.lua",
+		"/C/Users/Benedict/Code/Love2D/Editor/config.lua",
+		"/C/Users/Benedict/Code/Love2D/common/font.lua",
+		"/C/Users/Benedict/Code/Love2D/Editor/codefield.lua",
+		"/C/Users/Benedict/Code/Love2D/Editor/main.lua",
+		"/C/Users/Benedict/Downloads/Swingers/main.lua",
+		"/C/Users/Benedict/Desktop/EGS-master/main.lua",
+		"/C/Users/Benedict/Downloads/Swingers/swingers.lua",
+		"/C/Users/Benedict/Code/Love2D/Editor/local/def.lua",
+		"/C/Users/Benedict/Code/Love2D/Editor/local/abc.lua",
+		"/C/Users/Benedict/Code/Love2D/Gestures/main.lua",
+		"/C/Users/Benedict/Code/Love2D/Editor/eventmanager.lua",
+		"/C/Users/Benedict/Code/Love2D/Editor/common/font.lua",
+		"/C/Users/Benedict/Code/Love2D/Editor/event.lua",
+		"/C/Users/Benedict/Code/Love2D/Editor/common/animation.lua",
+		"/C/Users/Benedict/Code/Love2D/Editor/animation.lua",
+		"/C/Users/Benedict/Code/Love2D/Editor/host.lua",
+		"/C/Users/Benedict/Code/Love2D/Editor/client.lua",
+		"/C/Users/Benedict/Code/Love2D/Editor/debug.lua",
+		"/C/Users/Benedict/Downloads/debug.lua",
+		"/C/Users/Benedict/Code/Love2D/Gestures/common/socket/socket.lua",
+		"/C/Users/Benedict/Downloads/luasocket-2.0.2-lua-5.1.2-Win32-vc8/lua/socket.lua",
+		"/C/Users/Benedict/Code/Love2D/Gestures/vector.lua",
+		"/C/Users/Benedict/Code/Love2D/Computing Project/resources/init.lua",
+		"/C/Users/Benedict/Code/Love2D/fl_3D/main.lua",
+		"/C/Users/Benedict/Code/Love2D/Computing Project/main.lua",
+		"/C/Users/Benedict/Code/Love2D/Computing Project/UIKit/init.lua",
+		"/C/Users/Benedict/Code/Love2D/Computing Project/states/init.lua",
+		"/C/Users/Benedict/Code/Love2D/mathy/main.lua",
+		"/C/Users/Benedict/Code/Love2D/mathy/mathy/init.lua",
+		"/C/Users/Benedict/Code/Love2D/mathy/mathy/constants.lua",
+		"/C/Users/Benedict/Code/Love2D/Workspace/main.lua",
+		"/C/Users/Benedict/Code/Love2D/Workspace/shape-collision.lua",
+		"/C/Users/Benedict/Code/Love2D/Workspace/Shape.lua",
+		"/C/Users/Benedict/Code/Love2D/fl_3D/fl_3D/fl_matrix.lua",
+		"/C/Users/Benedict/Code/Love2D/Workspace/class.lua",
+		"/C/Users/Benedict/Code/Love2D/Computing Project/game/Entity.lua",
+		"/C/Users/Benedict/Code/Love2D/Computing Project/game/Player.lua",
+		"/C/Users/Benedict/Code/Love2D/Computing Project/game/Level.lua",
+		"/C/Users/Benedict/Code/Love2D/Computing Project/game/World.lua",
+		"/C/Users/Benedict/Code/Love2D/Computing Project/game/Inventory.lua",
+		"/C/Users/Benedict/Code/Love2D/Computing Project/game/TerrainGenerator.lua",
+		"/C/Users/Benedict/Code/Love2D/Computing Project/.gitignore",
+		"/C/Users/Benedict/Code/Love2D/Computing Project/body.lua",
+		"/C/Users/Benedict/Code/Love2D/Computing Project/support.lua",
+		"/C/Users/Benedict/Code/Love2D/Computing Project/world.lua",
+		"/C/Users/Benedict/Code/Love2D/Computing Project/vector.lua",
+		"/C/Users/Benedict/Code/Love2D/particles/main.lua",
+		"/C/Users/Benedict/Code/Love2D/Workspace/collision.lua",
+		"/C/Users/Benedict/Code/Love2D/Computing Project/shape.lua",
+		"/C/Users/Benedict/Code/Love2D/Computing Project/conf.lua",
+		"/C/Users/Benedict/Code/Love2D/Workspace/arrow.lua",
+		"/C/Users/Benedict/Code/Love2D/3D/flow/lib/Render3D/VertexBuffer.lua",
+		"/C/Users/Benedict/Code/Love2D/fl_3D/fl_3D/fl_project.lua",
+		"/C/Users/Benedict/Code/Love2D/fl_3D/fl_3D/fl_vector.lua",
+		"/C/Users/Benedict/Code/Love2D/fl_3D/fl_3D/fl_Scene.lua",
+		"/C/Users/Benedict/Code/Love2D/fl_3D/fl_3D/fl_VertexBuffer.lua",
+		"/C/Users/Benedict/Code/Love2D/neural nets/world.lua",
+		"/C/Users/Benedict/Code/Love2D/neural nets/main.lua",
+		"/C/Users/Benedict/Code/Love2D/neural nets/food.lua",
+		"/C/Users/Benedict/Code/Love2D/neural nets/cell.lua",
+		"/C/Users/Benedict/Code/Love2D/neural nets/boid.lua",
+		"/C/Users/Benedict/Code/Love2D/fl_3D/fl_3D/fl_View.lua",
+		"/C/Users/Benedict/Code/Love2D/aderone/views/enter.lua",
+		"/C/Users/Benedict/Code/Love2D/3D/flow/lib/Render3D/init.lua",
+		"/C/Users/Benedict/Code/Love2D/3D/flow/lib/Render3D/Viewport.lua",
+		"/C/Users/Benedict/Code/Love2D/3D/flow/lib/UI/components/I3DViewport.lua",
+		"/C/Users/Benedict/Code/Love2D/fl_3D/fl_3D/init.lua",
+		"/C/Users/Benedict/Code/Love2D/3D/flow/lib/Math/Vec3.lua",
+		"/C/Users/Benedict/Code/Love2D/Workspace/game.lua",
+		"/C/Users/Benedict/Code/Love2D/particles/game.lua",
+		"/C/Users/Benedict/Code/Love2D/aderone/flow/lib/UI/init.lua",
+		"/C/Users/Benedict/Code/Love2D/aderone/views/help.lua",
+		"/C/Users/Benedict/Code/Love2D/aderone/flow/lib/UI/components/ICanvas.lua"
+	],
+	"find":
+	{
+		"height": 50.0
+	},
+	"find_in_files":
+	{
+		"height": 96.0,
+		"where_history":
+		[
+			"<open folders>",
+			"C:\\Users\\Benedict\\Documents\\GitHub\\Silica\\src",
+			"C:\\Users\\Benedict\\AppData\\Roaming\\LOVE\\ccemu\\data\\4\\Flare",
+			"C:\\Users\\Benedict\\AppData\\Roaming\\LOVE\\ccemu\\data\\4",
+			"C:\\Users\\Benedict\\Code\\CC Emulator",
+			"C:\\Users\\Benedict\\floobits\\oeed\\Silica",
+			"C:\\Users\\Benedict\\Desktop\\Flare"
+		]
+	},
+	"find_state":
+	{
+		"case_sensitive": true,
+		"find_history":
+		[
+			"wrapExpressionReturn",
+			"parseType",
+			"Reference",
+			"match",
+			"print",
+			"[rint",
+			"print",
+			"lambda",
+			"print",
+			"write",
+			"print",
+			"([^\\s]+)",
+			"parseIndex",
+			"formatError",
+			"throw",
+			"3",
+			" \\* ",
+			"\\\\t",
+			"\\n([^\\n])",
+			"\\t",
+			"\\^",
+			"Benedict",
+			"@echo off ",
+			"rem",
+			"/\\* (.*) \\*/",
+			"\\/\\*(.*)\\*\\/",
+			"function",
+			"btn",
+			"isDown",
+			"flow/res",
+			"getw",
+			"clamp",
+			"-- x^2 - 2*x*ccentre[1] + ccentre[1]^2 + y^2 - 2*y*ccentre[2] + ccentre[2]^2 = r^2",
+			"\n	-- x^2 - 2*x*ccentre[1] + ccentre[1]^2 + y^2 - 2*y*ccentre[2] + ccentre[2]^2 = r^2",
+			"fl_vector",
+			"fl_([[:w:]][[:w:]][[:w:]])v",
+			"fl_[:w:]",
+			" a",
+			" a, b",
+			"t",
+			"([xz])%20",
+			"5",
+			"layers",
+			"a",
+			"p3",
+			"Surface",
+			"abstract",
+			"throw",
+			"warn",
+			"vararg",
+			"parseBinaryEx",
+			"unary_operator_left",
+			"binary_operator",
+			"unary_operators_right",
+			"getNearString",
+			"parseNewStatement",
+			"WERR_TYPE",
+			"STDFUNCTION",
+			"STDTABLE",
+			"STDARRAY",
+			"FUNCTION_NO_BODY",
+			"parseTypedDefinition",
+			"determine",
+			"template",
+			"parseFunctionBody",
+			"template",
+			"get",
+			"expected expression",
+			"copyPositionInfo",
+			"continue",
+			"newType",
+			"name",
+			"determine",
+			"parse",
+			"determine",
+			"parseTypename",
+			".operator",
+			"collapse()",
+			"@parseBinary",
+			"type",
+			"@parseDe",
+			"0",
+			"SYM_TEMPLATE",
+			"while",
+			"determine",
+			"buffer_pos",
+			"buffer",
+			"table.remove",
+			"lexingSourceCode",
+			"MouseEvent",
+			"IContainerElement",
+			"self.",
+			"x",
+			"Surface",
+			"print",
+			"Sphere",
+			"Obj3D",
+			"Math3D",
+			"15",
+			"Math.Vec3",
+			"Math.Mat4",
+			"facing",
+			"sin",
+			"1",
+			"setOrientation",
+			"play",
+			"ILayer",
+			"TextRenderer",
+			"Size",
+			"Position",
+			"Padding",
+			"Margin",
+			"LayerContainer",
+			"ImageRenderer",
+			"Event",
+			"Element",
+			"ContainerElement",
+			"Clickable",
+			"BackgroundRenderer",
+			"Animation",
+			"AbsolutePositionData",
+			"View",
+			"Mat4",
+			"Vec3",
+			"ImageButton",
+			"push",
+			"text",
+			"Text"
+		],
+		"highlight": true,
+		"in_selection": false,
+		"preserve_case": false,
+		"regex": true,
+		"replace_history":
+		[
+			"wrapReturnStatement",
+			"\\*",
+			"",
+			"\\n@\\1",
+			"",
+			"\" >> C:\\\\Users\\\\%USERNAME%\\\\Code\\\\Love2D\\\\%ProjectName%\\\\project.sublime-project",
+			"\" >> C:\\Users\\%USERNAME%\\Code\\Love2D\\%ProjectName%\\project.sublime-project",
+			"%USERNAME%",
+			"",
+			"@echo off rem",
+			"rem \\1",
+			"common",
+			"vector",
+			"vec_\\1",
+			"",
+			", fl_vector",
+			"1",
+			"\\(\\1+10\\)%20-10",
+			"3",
+			"topology",
+			"m",
+			"b",
+			"p1",
+			"Graph",
+			"Flux.throw",
+			"Flux.warn",
+			"Flux.WERR_TYPE",
+			"Flux.STDFUNCTION",
+			"Flux.STDTABLE",
+			"Flux.STDARRAY",
+			"Flux.FUNCTION_NO_BODY",
+			"true",
+			"TouchEvent",
+			"IDropdownContainer",
+			"",
+			"y",
+			"Texture",
+			"Cuboid",
+			"Surface",
+			"Render3D",
+			"Math",
+			"10",
+			"Vec3",
+			"Mat4",
+			"0.5",
+			"back",
+			"ILayerContainer",
+			"ITextRenderer",
+			"ISize",
+			"IPosition",
+			"IPadding",
+			"IMargin",
+			"ILayer",
+			"IImageRenderer",
+			"IEvent",
+			"IElement",
+			"IContainerElement",
+			"IClickable",
+			"IBackgroundRenderer",
+			"IAnimation",
+			"IAbsolutePositionData",
+			"LayerContainer",
+			"Mat3",
+			"Vec4",
+			"Image",
+			"image",
+			"Image",
+			"padding",
+			"Padding",
+			"object",
+			"\\n",
+			"",
+			"text",
+			"window",
+			"depth",
+			"(_ENV or getfenv(2))",
+			"animate",
+			"IHasText",
+			"",
+			"to, time",
+			"",
+			"IPosition",
+			"IAnimation",
+			"IPosition",
+			"KeyFrame",
+			"SML",
+			"table options",
+			"number",
+			"height",
+			"width",
+			"other",
+			"",
+			"TurtlePosition",
+			"",
+			"line, char",
+			"",
+			"XMLParser",
+			"Sheet",
+			"draw",
+			"",
+			";\\n\\t",
+			"preprocessor",
+			"env",
+			"bit32",
+			"UIUserCreationFrame",
+			"Icon",
+			"b",
+			"process",
+			"Call",
+			"Identifier",
+			"Bracket",
+			"boolean",
+			"Boolean",
+			"Parameters",
+			"scy",
+			"scx",
+			"cy",
+			"cx",
+			"_ENV",
+			"*",
+			"\\n*",
+			"*",
+			"\\n*",
+			"*",
+			"UIMenu",
+			"radio button",
+			"UIRadioButton",
+			"( number y, string easing )"
+		],
+		"reverse": false,
+		"show_context": true,
+		"use_buffer2": true,
+		"whole_word": false,
+		"wrap": true
+	},
+	"groups":
+	[
+		{
+			"selected": 2,
+			"sheets":
+			[
+				{
+					"buffer": 0,
+					"file": "main.lua",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 527,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								142,
+								142
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/Lua/Lua.sublime-syntax"
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 5,
+					"type": "text"
+				},
+				{
+					"buffer": 1,
+					"file": "Flux/parsing/block.lua",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 514,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								514,
+								514
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/LuaExtended/LuaExtended.sublime-syntax"
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 6,
+					"type": "text"
+				},
+				{
+					"buffer": 2,
+					"file": "Flux/parsing/statement.lua",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 673,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								673,
+								673
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/LuaExtended/LuaExtended.sublime-syntax"
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 0,
+					"type": "text"
+				},
+				{
+					"buffer": 3,
+					"file": "Flux/Source.lua",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 1944,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								1124,
+								1124
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/LuaExtended/LuaExtended.sublime-syntax",
+							"translate_tabs_to_spaces": false
+						},
+						"translation.x": 0.0,
+						"translation.y": 360.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 3,
+					"type": "text"
+				},
+				{
+					"buffer": 4,
+					"file": "Flux/parsing/generic.lua",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 2033,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								1587,
+								1587
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/LuaExtended/LuaExtended.sublime-syntax",
+							"translate_tabs_to_spaces": false
+						},
+						"translation.x": 0.0,
+						"translation.y": 617.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 4,
+					"type": "text"
+				},
+				{
+					"buffer": 5,
+					"file": "Flux/lang.lua",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 1803,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								94,
+								94
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/LuaExtended/LuaExtended.sublime-syntax",
+							"translate_tabs_to_spaces": false
+						},
+						"translation.x": 0.0,
+						"translation.y": 90.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 2,
+					"type": "text"
+				},
+				{
+					"buffer": 6,
+					"file": "Flux/parsing/expression.lua",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 20847,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								17857,
+								17857
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/Lua/Lua.sublime-syntax",
+							"translate_tabs_to_spaces": false
+						},
+						"translation.x": 0.0,
+						"translation.y": 8607.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 1,
+					"type": "text"
+				},
+				{
+					"buffer": 7,
+					"file": "Flux/parsing/type.lua",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 2482,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								389,
+								389
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/LuaExtended/LuaExtended.sublime-syntax",
+							"translate_tabs_to_spaces": false
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 7,
+					"type": "text"
+				},
+				{
+					"buffer": 8,
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 2182,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								139,
+								139
+							]
+						],
+						"settings":
+						{
+							"auto_name": "",
+							"syntax": "Packages/Text/Plain text.tmLanguage",
+							"translate_tabs_to_spaces": false
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 8,
+					"type": "text"
+				},
+				{
+					"buffer": 9,
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 1133,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								140,
+								140
+							]
+						],
+						"settings":
+						{
+							"auto_name": "",
+							"syntax": "Packages/Text/Plain text.tmLanguage",
+							"translate_tabs_to_spaces": false
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 9,
+					"type": "text"
+				}
+			]
+		}
+	],
+	"incremental_find":
+	{
+		"height": 23.0
+	},
+	"input":
+	{
+		"height": 30.0
+	},
+	"layout":
+	{
+		"cells":
+		[
+			[
+				0,
+				0,
+				1,
+				1
+			]
+		],
+		"cols":
+		[
+			0.0,
+			1.0
+		],
+		"rows":
+		[
+			0.0,
+			1.0
+		]
+	},
+	"menu_visible": true,
+	"output.find_results":
+	{
+		"height": 0.0
+	},
+	"pinned_build_system": "",
+	"project": "project.sublime-project",
+	"replace":
+	{
+		"height": 92.0
+	},
+	"save_all_on_build": true,
+	"select_file":
+	{
+		"height": 0.0,
+		"last_filter": "",
+		"selected_items":
+		[
+			[
+				"",
+				"Flux-backup-templates\\parsing\\NewStatement.lua"
+			],
+			[
+				"main.lua",
+				"main.lua"
+			]
+		],
+		"width": 0.0
+	},
+	"select_project":
+	{
+		"height": 500.0,
+		"last_filter": "",
+		"selected_items":
+		[
+		],
+		"width": 380.0
+	},
+	"select_symbol":
+	{
+		"height": 0.0,
+		"last_filter": "",
+		"selected_items":
+		[
+		],
+		"width": 0.0
+	},
+	"selected_group": 0,
+	"settings":
+	{
+	},
+	"show_minimap": true,
+	"show_open_files": false,
+	"show_tabs": true,
+	"side_bar_visible": true,
+	"side_bar_width": 208.0,
+	"status_bar_visible": true,
+	"template_settings":
+	{
+	}
+}

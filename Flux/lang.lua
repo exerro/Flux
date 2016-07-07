@@ -46,6 +46,8 @@ match { ... }
 
 and or
 
+null
+
 template
 ]]):gmatch "%w+" do
 	lang.keywords[word] = true;

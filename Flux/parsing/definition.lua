@@ -2,7 +2,7 @@
 local types = require "common.types"
 
 types.parseMany [[
-FunctionDefinitionParameters: { number = { "class" = Type, "name" = string } } | {}
+FunctionDefinitionParameters: { number = { "class" = Type, "name" = string, "nullable" = boolean } } | {}
 GenericDefinition: { "const" = boolean, "name" = string } & HasPosition
 
 FunctionDefinition: { "type" = "FunctionDefinition", "body" = Block | nil, "parameters" = FunctionDefinitionParameters, "returns" = Type } & GenericDefinition
@@ -70,27 +70,34 @@ function parseFunctionDefinitionParameters( source )
 	end
 
 	local last_class
+	local last_nullable = false
 	local parameters = {}
 
 	while true do
-		local class
+		local thisNullable = lexer:skip( "Keyword", "null" )
 
 		if lexer:skip( "Keyword", "auto" ) then
-			class = "auto"
+			last_class = "auto"
 
-		elseif lexer:test "Identifier" then
+		else
 			local start = lexer:mark()
-			
-			class = assertType( parseType( source ) )
+			local class, err = parseType( source )
 
-			if lexer:test "Identifier" then
+			if class and lexer:test "Identifier" then -- [null] type pname
 				last_class = class
-			elseif last_class then
+				last_nullable = thisNullable
+
+			elseif class and thisNullable then -- null pname ,(
+				throw( lexer, "expected parameter name after type" )
+
+			elseif class and last_class then -- pname
 				lexer:jump( start )
-				class = last_class
-			else
-				lexer:jump( start )
-				throw( lexer, "expected type" )
+
+			elseif class then -- pname without prior class
+				throw( lexer, "expected parameter name after type" )
+
+			else -- null ,
+				error( err, 0 )
 			end
 		end
 
@@ -98,7 +105,8 @@ function parseFunctionDefinitionParameters( source )
 
 		parameters[#parameters + 1] = {
 			name = name;
-			class = class;
+			class = last_class;
+			nullable = last_nullable;
 		}
 
 		if not lexer:skip( "Symbol", "," ) then
@@ -228,7 +236,7 @@ function serializeDefinition( t )
 		local p = {}
 
 		for i = 1, #t.parameters do
-			p[i] = serializeType( t.parameters[i].class ) .. " " .. t.parameters[i].name
+			p[i] = (t.parameters[i].nullable and "null " or "") .. serializeType( t.parameters[i].class ) .. " " .. t.parameters[i].name
 		end
 
 		return (t.const and "const " or "") .. serializeType( t.returns ) .. " " .. t.name .. "(" .. table.concat( p, ", " ) .. ") " .. (t.body and serializeBlock( t.body ) or ";")

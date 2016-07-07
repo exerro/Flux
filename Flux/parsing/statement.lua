@@ -275,7 +275,7 @@ function parseLetStatement( source, pos, expectFunction )
 					local name = lexer:skipValue "Identifier" or throw( lexer, "expected parameter name" )
 					local class = lexer:skip( "Symbol", "->" ) and assertType( parseType( source ) ) or "auto"
 
-					function_parameters[#function_parameters + 1] = { name = name, class = class }
+					function_parameters[#function_parameters + 1] = { name = name, class = class, nullable = false }
 
 					if not lexer:skip( "Symbol", "," ) then
 						break
@@ -288,7 +288,7 @@ function parseLetStatement( source, pos, expectFunction )
 			end
 
 		elseif backtick then
-			function_parameters = { { name = name1 or name2, class = cast1 or cast2 }, name1 and name2 and { name = name2, class = cast2 } or nil }
+			function_parameters = { { name = name1 or name2, class = cast1 or cast2, nullable = false }, name1 and name2 and { name = name2, class = cast2, nullable = false } or nil }
 			name2 = nil
 			name1 = backtick
 

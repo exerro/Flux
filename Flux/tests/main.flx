@@ -1,45 +1,12 @@
 
-int x;
+template <T>
+auto f(T x) = x + 1;
 
-import libfolder.test;
+template<T>
+let f(x->T) = x + 1;
 
-namespace UI;
+template<T>
+let x `add` y->T = x + y;
 
-namespace Colour {
-	enum CC {
-		WHITE;
-		LIGHT_GREY;
-		GREY;
-		BLACK;
-	}
-}
-
-namespace Shader {
-	Pixel shader(Pixel p);
-}
-
-
-enum PositionMode {
-	LEFT, RIGHT;
-	BOTTOM, TOP;
-}
-
-void addButtonToElement( Button b, Element e )
-	e:addChild( b );
-
-void positionButtonInContainer( Button b, Container c, PositionMode p ) {
-	switch p;
-	case PositionMode.LEFT
-		b.x = 0;
-	case PositionMode.RIGHT
-		b.x = c.width - b.width;
-	case PositionMode.TOP
-		b.y = 0;
-	case PositionMode.BOTTOM
-		b.y = c.height - b.height;
-}
-
-let `add` x = __AddWrapper(x);
-let x->__AddWrapper `to` y = y + x;
-
-let a = `add` 1 `to` 2;
+let f(x) = x;
+let y = 1;

@@ -7,10 +7,56 @@ GenericDefinition: { "const" = boolean, "name" = string } & HasPosition
 
 FunctionDefinition: { "type" = "FunctionDefinition", "body" = Block | nil, "parameters" = FunctionDefinitionParameters, "returns" = Type } & GenericDefinition
 Definition: { "type" = "Definition", "value" = Expression | nil, "class" = Type } & GenericDefinition
+TemplateDefinition: { "type" = "TemplateDefinition", "definition" = FunctionDefinition, "template" = { number = { "name" = string, "limits" = {} } } } & HasPosition
 
 ClassFunctionDefinition: { "public" = boolean, "static" = boolean } & FunctionDefinition
 ClassDefinition: { "public" = boolean, "static" = boolean } & Definition
 ]]
+
+local function parseTemplateLimits( source )
+	return {}
+end
+
+function parseFunctionTemplate( source, pos )
+	local lexer = source.lexer
+
+	if not lexer:skip( "Symbol", "<" ) then
+		throw( lexer, "expected '<' after 'template'" )
+	end
+
+	local template_classes = { {
+		name = lexer:skipValue "Identifier" or throw( lexer, "expected name for template class" );
+		limits = parseTemplateLimits( source );
+	} }
+
+	while lexer:skip( "Symbol", "," ) or lexer:skip( "Symbol", ";" ) and not lexer:test( "Symbol", ">" ) do
+		template_classes[#template_classes + 1] = {
+			name = lexer:skipValue "Identifier" or throw( lexer, "expected name for template class" );
+			limits = parseTemplateLimits( source );
+		}
+	end
+
+	if not lexer:skip( "Symbol", ">" ) then
+		throw( lexer, "expected '>' after template classes" )
+	end
+
+	source:begin "template"
+
+	if lexer:skip( "Keyword", "let" ) then
+		parseLetStatement( source, lexer:peek( -1 ).position, true )
+	else
+		parseDefinition( source, true )
+	end
+
+	local block = source:pop()
+
+	source:push {
+		type = "TemplateDefinition";
+		definition = block[1];
+		template = template_classes;
+		position = pos;
+	}
+end
 
 function parseFunctionDefinitionParameters( source )
 	local lexer = source.lexer
@@ -87,9 +133,7 @@ function parseFunctionBody( source )
 	end
 end
 
-function parseDefinition( source )
-	-- try to parse a template
-
+function parseDefinition( source, expectFunction )
 	local lexer = source.lexer
 	local start = lexer:mark()
 	local const = lexer:skip( "Keyword", "const" ) and true or false
@@ -148,6 +192,9 @@ function parseDefinition( source )
 
 			break
 
+		elseif expectFunction then
+			throw( lexer, "expected '(' for function definition" )
+
 		elseif method then
 			throw( lexer, "expected '(' after method name" )
 
@@ -186,6 +233,15 @@ function serializeDefinition( t )
 		end
 
 		return (t.const and "const " or "") .. serializeType( t.returns ) .. " " .. t.name .. "(" .. table.concat( p, ", " ) .. ") " .. (t.body and serializeBlock( t.body ) or ";")
+
+	elseif t.type == "TemplateDefinition" then
+		local c = {}
+
+		for i = 1, #t.template do
+			c[i] = t.template[i].name
+		end
+
+		return "template <" .. table.concat( c, ", " ) .. ">\n" .. serializeDefinition( t.definition )
 
 	else
 		return "<serialization of " .. t.type .. " isn't written>"

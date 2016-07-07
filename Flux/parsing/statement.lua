@@ -29,6 +29,7 @@ Statement:
 	| ContinueStatement
 	| Definition
 	| FunctionDefinition
+	| TemplateDefinition
 	| ExpressionStatement
 ]]
 
@@ -254,7 +255,7 @@ local function parseContinueStatement( source, pos )
 	end
 end
 
-function parseLetStatement( source, pos )
+function parseLetStatement( source, pos, expectFunction )
 	local lexer = source.lexer
 	local const = lexer:skip( "Keyword", "const" ) and true or false
 
@@ -290,6 +291,10 @@ function parseLetStatement( source, pos )
 			function_parameters = { { name = name1 or name2, class = cast1 or cast2 }, name1 and { name = name2, class = cast2 } or nil }
 			name2 = nil
 			name1 = backtick
+
+		elseif expectFunction then
+			throw( lexer, "expected '(' for function definition" )
+
 		end
 
 		local expr = lexer:skip( "Symbol", "=" ) and (parseExpression( source ) or throw( lexer, "expected expression after '='" )) or throw( lexer, "expected '='" )
@@ -309,6 +314,9 @@ function parseLetStatement( source, pos )
 				name = source:resolveDefinitionName( name1 );
 				position = pos;
 			}
+
+			break
+
 		else
 			source:push {
 				type = "Definition";
@@ -372,6 +380,9 @@ function parseStatement( source )
 
 		elseif keyword.value == "let" then
 			return parseLetStatement( source, position )
+
+		elseif keyword.value == "template" then
+			return parseFunctionTemplate( source, position )
 
 		else
 			lexer:back()
@@ -440,7 +451,7 @@ function serializeStatement( t )
 	elseif t.type == "ContinueStatement" then
 		return "continue;"
 
-	elseif t.type == "Definition" or t.type == "FunctionDefinition" then
+	elseif t.type == "Definition" or t.type == "FunctionDefinition" or t.type == "TemplateDefinition" then
 		return serializeDefinition( t )
 
 	elseif t.type == "ExpressionStatement" then

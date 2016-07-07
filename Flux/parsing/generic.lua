@@ -1,9 +1,4 @@
 
--- TODO
---! type X {} in parameter list
---! change detectDoubleWord to allow for a type at first
---!! possibly change syntax of definitions to reduce backtracking here
-
 function throw( lexer, err, pos )
 	return error( lexer:formatError( err, false, pos or lexer:get().position ), 0 )
 end
@@ -14,19 +9,6 @@ end
 
 function expectSemicolon( lexer )
 	return lexer:test( "Symbol", ";", -1 ) or lexer:skip( "Symbol", ";" )
-end
-
-function detectDoubleWord( source )
-	local lexer = source.lexer
-	local start = lexer:mark()
-	
-	if parseName( source ) and lexer:test "Identifier" then
-		lexer:jump( start )
-		return true
-	end
-
-	lexer:jump( start )
-	return false
 end
 
 function isFormOfReference( expr )

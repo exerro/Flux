@@ -16,6 +16,7 @@ RootStatement:
 	| EnumDefinition
 	| Definition
 	| FunctionDefinition
+	| TemplateDefinition
 
 RootBlock: { "meta" = { "type" = string }, number = RootStatement } | {}
 ]]
@@ -135,6 +136,9 @@ function parseRootStatement( source )
 		elseif keyword.value == "let" then
 			return parseLetStatement( source, keyword.position )
 
+		elseif keyword.value == "template" then
+			return parseFunctionTemplate( source, keyword.position )
+
 		end
 
 		lexer:back()
@@ -159,7 +163,7 @@ function parseFileBody( source )
 end
 
 function serializeRootStatement( t )
-	local initial = t.filename and "@" .. ("%q"):format( t.filename ) .. " " or ""
+	local initial = t.filename and "@" .. ("%q"):format( t.filename ) .. "\n" or ""
 	
 	if t.type == "NamespaceStatement" then
 		local b = {}
@@ -182,7 +186,7 @@ function serializeRootStatement( t )
 	elseif t.type == "EnumDefinition" then
 		return initial .. "enum " .. t.name .. " {\n\t" .. table.concat( t.members, ";\n\t" ) .. ";\n}"
 
-	elseif t.type == "Definition" or t.type == "FunctionDefinition" then
+	elseif t.type == "Definition" or t.type == "FunctionDefinition" or t.type == "TemplateDefinition" then
 		return initial .. serializeDefinition( t )
 
 	else

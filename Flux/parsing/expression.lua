@@ -27,6 +27,7 @@ types.parseMany [[
 ConstantExpressionType: "CharacterConstant" | "StringConstant" | "FloatConstant" | "IntegerConstant" | "ByteConstant" | "HexadecimalConstant" | "BinaryConstant" | "BooleanConstant"
 
 ConstantExpression: { "type" = ConstantExpressionType, "value" = string } & HasPosition
+NullExpression: { "type" = "NullExpression" } & HasPosition
 ThrowExpression: { "type" = "ThrowExpression", "value" = Expression } & HasPosition
 FunctionExpression: { "type" = "FunctionExpression", "returns" = Type, "parameters" = FunctionDefinitionParameters, "body" = Block } & HasPosition
 BracketExpression: { "type" = "BracketExpression", "value" = Expression }
@@ -35,8 +36,18 @@ ArrayExpression: { "type" = "ArrayExpression", "value" = { number = Expression }
 Reference: { "type" = "Reference", "name" = string } & HasPosition
 MatchExpression: { "type" = "MatchExpression", "condition" = Expression, "cases" = { number = { "matches" = { number = Expression }, "value" = Expression } }, "default" = Expression | nil } & HasPosition
 NewExpression: { "type" = "NewExpression", "class" = string } & HasPosition
-PrimaryExpression: ConstantExpression | ThrowExpression | FunctionExpression | BracketExpression | TableExpression | ArrayExpression | MatchExpression | NewExpression | Reference
 
+PrimaryExpression:
+	  ConstantExpression
+	| NullExpression
+	| ThrowExpression
+	| FunctionExpression
+	| BracketExpression
+	| TableExpression 
+	| ArrayExpression
+	| MatchExpression
+	| NewExpression
+	| Reference
 ]]
 
 --[[
@@ -215,6 +226,9 @@ local function parsePrimaryExpression( source )
 			value = token.value;
 			position = token.position;
 		}
+
+	elseif lexer:skip( "Keyword", "null" ) then
+		return nullExpression( token.position )
 
 	elseif lexer:test "Identifier" then
 		return wrapStringAsReference( parseName( source ), token.position )
@@ -612,6 +626,9 @@ function serializeExpression( t )
 
 	elseif t.type == "Reference" then
 		return t.name
+
+	elseif t.type == "NullExpression" then
+		return "null"
 
 	elseif t.type == "ThrowExpression" then
 		return "throw " .. serializeExpression( t.value )

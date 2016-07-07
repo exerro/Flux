@@ -216,7 +216,7 @@ new ...
 ]]
 
 local function parseReturnStatement( source, pos )
-	source:push( wrapReturnStatement( parseExpression( source ) ) )
+	source:push( wrapReturnStatement( parseExpression( source ) or nullExpression( pos ) ) )
 
 	if not expectSemicolon( source.lexer ) then
 		throw( source.lexer, "expected ';' after return statement" )
@@ -288,7 +288,7 @@ function parseLetStatement( source, pos, expectFunction )
 			end
 
 		elseif backtick then
-			function_parameters = { { name = name1 or name2, class = cast1 or cast2 }, name1 and { name = name2, class = cast2 } or nil }
+			function_parameters = { { name = name1 or name2, class = cast1 or cast2 }, name1 and name2 and { name = name2, class = cast2 } or nil }
 			name2 = nil
 			name1 = backtick
 

@@ -4,7 +4,7 @@ int x;
 int y = 1;
 
 // function definitions
-int f(float a, float b)
+int f(float a, float b);
 
 // overloaded function definitions
 int f(string c) {

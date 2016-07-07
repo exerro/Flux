@@ -1,12 +1,4 @@
 
-template <T>
-auto f(T x) = x + 1;
-
-template<T>
-let f(x->T) = x + 1;
-
-template<T>
-let x `add` y->T = x + y;
-
-let f(x) = x;
-let y = 1;
+import "parsing definitions";
+import "parsing expressions";
+import "parsing statements";

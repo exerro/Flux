@@ -74,7 +74,6 @@ function parseFunctionDefinitionParameters( source )
 
 	while true do
 		local class
-		local name
 
 		if lexer:skip( "Keyword", "auto" ) then
 			class = "auto"
@@ -95,7 +94,7 @@ function parseFunctionDefinitionParameters( source )
 			end
 		end
 
-		name = lexer:skipValue "Identifier" or throw( lexer, "expected parameter name" )
+		local name = lexer:skipValue "Identifier" or throw( lexer, "expected parameter name" )
 
 		parameters[#parameters + 1] = {
 			name = name;

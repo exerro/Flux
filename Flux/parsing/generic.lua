@@ -71,3 +71,7 @@ function wrapReturnStatement( value )
 		position = value.position;
 	}
 end
+
+function nullExpression( position )
+	return { type = "NullExpression", position = position }
+end

@@ -1,17 +1,19 @@
 
-let x->int `add` y->int = x + y;
+void test() {
+	let x->int `add` y->int = x + y;
 
-let add(x->int, y->int) = x + y;
+	let add(x->int, y->int) = x + y;
 
-auto add(int x, y) = x + y;
+	auto add(int x, y) = x + y;
 
-auto add(int x, int y) {
-	return x + y;
+	auto add(int x, int y) {
+		return x + y;
+	}
+
+	auto add(auto x, auto y) {
+		return x + y;
+	}
+
+	let x `add` y = x + y;
+	let add(x, y) = x + y;
 }
-
-auto add(auto x, auto y) {
-	return x + y;
-}
-
-let x `add` y = x + y;
-let add(x, y) = x + y;

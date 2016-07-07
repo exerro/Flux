@@ -1,12 +1,14 @@
 
-// do stuff in here
+void test() {
+	// do stuff in here
 
-1 + 2;
--1;
-f();
+	1 + 2;
+	-1;
+	f();
 
-throw {
-		["x"] = 1;
-		[y] = 2;
-		[1] = "a thing";
-};
+	throw {
+			["x"] = 1;
+			[y] = 2;
+			[1] = "a thing";
+	};
+}

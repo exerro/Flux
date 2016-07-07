@@ -1,21 +1,4 @@
 
---[[
-int x;
-int x = 1;
-int x[] = [1];
-int x = 1, y = 2;
-
-type T {} f() {}
-type T {} f() = v;
-type T {} f();
-
-type T {} a:b() {}
-
-void -> function
-auto -> any
-type T -> function
-]]
-
 local types = require "common.types"
 
 types.parseMany [[
@@ -137,7 +120,7 @@ function parseDefinition( source )
 			end
 
 			local parameters = parseFunctionDefinitionParameters( source )
-			local body = parseFunctionBody( source )
+			local body = not lexer:skip( "Symbol", ";" ) and parseFunctionBody( source ) or nil
 			
 			if method then
 				local object = wrapStringAsReference( name, position )
@@ -202,7 +185,7 @@ function serializeDefinition( t )
 			p[i] = serializeType( t.parameters[i].class ) .. " " .. t.parameters[i].name
 		end
 
-		return (t.const and "const " or "") .. serializeType( t.returns ) .. " " .. t.name .. "(" .. table.concat( p, ", " ) .. ") " .. (t.body and serializeBlock( t.body ) or "")
+		return (t.const and "const " or "") .. serializeType( t.returns ) .. " " .. t.name .. "(" .. table.concat( p, ", " ) .. ") " .. (t.body and serializeBlock( t.body ) or ";")
 
 	else
 		return "<serialization of " .. t.type .. " isn't written>"

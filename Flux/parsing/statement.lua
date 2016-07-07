@@ -254,7 +254,7 @@ local function parseContinueStatement( source, pos )
 	end
 end
 
-local function parseLetStatement( source, pos )
+function parseLetStatement( source, pos )
 	local lexer = source.lexer
 	local const = lexer:skip( "Keyword", "const" ) and true or false
 

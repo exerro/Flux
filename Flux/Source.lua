@@ -21,16 +21,33 @@ end
 
 class "Source" {
 	path = "";
-	statements = {}
+	filename = "";
+	current_include_path = {};
+	statements = {};
+	imported = {};
+	hasMainFile = false;
 }
 
 function Source:Source( path )
 	self.path = (path or "") .. ";" .. FLUX_STD_LIB_PATH
 	self.statements = { meta = { type = "dobody" } }
 	self.blocks = { self.statements }
+	self.imported = {}
+	self.current_include_path = {}
+
+	for path in self.path:gmatch "[^;]+" do
+		if isfile( path .. "/main.flx" ) then
+			self.hasMainFile = true
+			break
+		end
+	end
 end
 
 function Source:push( statement )
+	if #self.blocks == 1 then
+		statement.filename = self.filename
+	end
+
 	self.blocks[#self.blocks][#self.blocks[#self.blocks] + 1] = statement
 end
 
@@ -63,32 +80,58 @@ end
 
 function Source:import( name, position )
 	for path in self.path:gmatch "[^;]+" do
-		local p = path .. "/" .. name:gsub( "%.", "/" )
+		local ip = self.current_include_path
+		local p = path .. "/" .. (ip[1] and ip[#ip] .. "/" or "") .. name:gsub( "%.", "/" )
+		local found = isfile( p .. ".flxh" ) or isfile( p .. ".flxc" ) or isfile( p .. ".flx" )
 
-		if isfile( p .. ".flxh" ) then
-			self:parseContent( readfile( path .. "/" .. name .. ".flxh" ), name .. " header" )
-
+		if not found and ip[1] then
+			p = path .. "/" .. name:gsub( "%.", "/" )
+			found = isfile( p .. ".flxh" ) or isfile( p .. ".flxc" ) or isfile( p .. ".flx" )
 		end
 
-		if isfile( p .. ".flxc" ) then
-			self:push { source = position.source, line = position.line, character = position.character, strline = position.strline;
-				type = "lua-embed";
-				value = readfile( path .. "/" .. name .. ".flxc" );
-			}
+		if self.imported[p] then
+			return
 
-		elseif isfile( p .. ".flx" ) then
-			self:parseContent( readfile( path .. "/" .. name .. ".flx" ), name )
+		elseif found then
+			self.imported[p] = true
+			self.current_include_path[#self.current_include_path + 1] = p:sub( #path + 2 ):match "^.+/" or ""
+
+			if isfile( p .. ".flxh" ) then
+				self:parseContent( readfile( p .. ".flxh" ), name .. " header", p )
+
+			end
+
+			if isfile( p .. ".flxc" ) then
+				self:push {
+					type = "LuaScript";
+					value = readfile( p .. ".flxc" );
+					position = position;
+				}
+
+			elseif isfile( p .. ".flx" ) then
+				self:parseContent( readfile( p .. ".flx" ), name, p )
+
+			end
+
+			self.current_include_path[#self.current_include_path] = nil
+
+			return
 
 		end
 	end
+
+	throw( self.lexer, "attempt to import file '" .. name .. "': file not found", position )
 end
 
-function Source:parseContent( content, source )
+function Source:parseContent( content, source, filename )
 	local l = self.lexer
+	local n = self.filename
 
 	self.lexer = Lexer( content, source )
+	self.filename = filename or n
 
-	 -- parse it
+	parseFileBody( self )
 
 	self.lexer = l
+	self.filename = n
 end

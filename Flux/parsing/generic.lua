@@ -72,6 +72,15 @@ function wrapReturnStatement( value )
 	}
 end
 
+function wrapNewExpression( class, parameters, position )
+	return {
+		type = "NewExpression";
+		class = class;
+		parameters = parameters;
+		position = position;
+	}
+end
+
 function nullExpression( position )
 	return { type = "NullExpression", position = position }
 end

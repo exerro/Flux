@@ -211,9 +211,29 @@ local function parseTryStatement( source, pos )
 	}
 end
 
---[[
-new ...
-]]
+function parseNewStatement( source, pos )
+	local lexer = source.lexer
+	local class = assertType( parseType( source ) )
+	local name = parseName( source ) or throw( lexer, "expected name" )
+	local parameters = {}
+
+	if lexer:skip( "Symbol", "(" ) then
+		parameters = parseFunctionCallParameters( source )
+	end
+
+	if not expectSemicolon( lexer ) then
+		throw( lexer, "expected ';'" )
+	end
+
+	source:push {
+		type = "Definition";
+		name = name;
+		class = class;
+		const = false;
+		value = wrapNewExpression( class, parameters, pos );
+		position = pos;
+	}
+end
 
 local function parseReturnStatement( source, pos )
 	source:push( wrapReturnStatement( parseExpression( source ) or nullExpression( pos ) ) )
@@ -384,10 +404,19 @@ function parseStatement( source )
 		elseif keyword.value == "template" then
 			return parseFunctionTemplate( source, position )
 
-		else
-			lexer:back()
+		elseif keyword.value == "new" then
+			local pos = lexer:mark()
+
+			if parseType( source ) and lexer:test "Identifier" then
+				lexer:jump( pos )
+				return parseNewStatement( source )
+			else
+				lexer:jump( pos )
+			end
 
 		end
+		
+		lexer:back()
 	end
 
 	if parseDefinition( source ) then
@@ -407,7 +436,8 @@ end
 function serializeStatement( t )
 
 	if t.type == "IfStatement" then
-		return "if " .. serializeExpression( t.condition ) .. " " .. serializeBlock( t.block ) .. (t.elseblock and "\nelse " .. serializeBlock( t.elseblock ) or "")
+		return "if " .. serializeExpression( t.condition ) .. " " .. serializeBlock( t.block )
+		.. (t.elseblock and "\nelse " .. (#t.elseblock == 1 and t.elseblock[1].type == "IfStatement" and serializeStatement( t.elseblock[1] ) or serializeBlock( t.elseblock )) or "")
 
 	elseif t.type == "WhileLoop" then
 		return "while " .. serializeExpression( t.condition ) .. " " .. serializeBlock( t.block )

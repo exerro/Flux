@@ -2,12 +2,13 @@
 // plain definitions
 int x;
 int y = 1;
+const auto z = 2;
 
 // function definitions
 int f(float a, float b);
 
 // overloaded function definitions
-int f(string c) {
+const int f(string c) {
 	return 0;
 }
 
@@ -26,13 +27,13 @@ string temp() {
 	return "";
 }
 
-int temp() = 5;
+const int temp() = 5;
 
 // let variable definitions
 let a = 1, b = 2.3;
 
 // let function definitions
 let x `add` y = x + y;
-let `add one to` x = x + 1;
+let const `add one to` x = x + 1;
 let x `degrees` = x / 180 * math::PI;
 let sum(x, y, z) = x + y + z;

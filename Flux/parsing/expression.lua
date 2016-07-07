@@ -290,12 +290,7 @@ local function parsePrimaryExpression( source )
 
 		end
 
-		return {
-			type = "NewExpression";
-			class = class;
-			parameters = parameters;
-			position = token.position;
-		}
+		return wrapNewExpression( class, parameters, token.position )
 
 	elseif lexer:skip( "Symbol", "(" ) then
 		return parseBracketExpression( source, token )
@@ -320,7 +315,7 @@ Index: { "type" = "Index", "value" = Expression, "index" = { number = Expression
 DotIndex: { "type" = "DotIndex", "value" = Expression, "index" = string } & HasPosition
 Cast: { "type" = "Cast", "value" = Expression, "class" = Type } & HasPosition
 OperatorImplements: { "type" = "OperatorImplements", "lvalue" = string, "rvalue" = Expression } & HasPosition
-OperatorTypeOf: { "type" = "OperatorTypeOf", "lvalue" = Type | nil, "rvalue" = Expression } & HasPosition
+OperatorTypeOf: { "type" = "OperatorTypeOf", "class" = Type | nil, "value" = Expression } & HasPosition
 OperatorExtends: { "type" = "OperatorExtends", "lvalue" = string, "rvalue" = Expression } & HasPosition
 
 RightUnaryExpression: { "type" = "RightUnaryExpression", "value" = Expression, "operator" = RightUnaryOperator } & HasPosition
@@ -435,7 +430,7 @@ function parseRightUnaryExpression( source )
 		elseif lexer:skip( "Keyword", "typeof" ) then
 			local class = assertType( parseType( source ) )
 
-			expr = { type = "OperatorTypeOf", lvalue = expr, rvalue = class, position = token.position }
+			expr = { type = "OperatorTypeOf", value = expr, class = class, position = token.position }
 
 		elseif lexer:skip( "Keyword", "extends" ) then
 			local name = lexer:skipValue "Identifier" or throw( lexer, "expected class name after 'extends'" )
@@ -466,9 +461,9 @@ function parseLeftUnaryExpression( source )
 		return { type = "LeftUnaryExpression", operator = operator, value = rvalue or throw( lexer, "expected expression after operator '" .. operator .. "'" ), position = token.position }
 	elseif lexer:skip( "Keyword", "typeof" ) then
 		local position = lexer:peek( -1 ).position
-		local rvalue = parseLeftUnaryExpression( source )
+		local value = parseLeftUnaryExpression( source )
 
-		return { type = "OperatorTypeOf", rvalue = rvalue, position = position }
+		return { type = "OperatorTypeOf", value = value, position = position }
 	else
 		return parseRightUnaryExpression( source )
 	end
@@ -736,7 +731,7 @@ function serializeExpression( t )
 		return serializeExpression( t.lvalue ) .. " extends " .. t.rvalue
 
 	elseif t.type == "OperatorTypeOf" then
-		return serializeExpression( t.lvalue ) .. " typeof " .. serializeType( t.rvalue )
+		return (t.class and serializeType( t.class ) .. " " or "") .. " typeof " .. serializeExpression( t.value )
 
 	elseif t.type == "OperatorImplements" then
 		return serializeExpression( t.lvalue ) .. " implements " .. t.rvalue

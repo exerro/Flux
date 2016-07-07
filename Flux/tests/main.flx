@@ -2,3 +2,31 @@
 import "parsing definitions";
 import "parsing expressions";
 import "parsing statements";
+
+void f() {
+
+
+auto add_one_to(auto p)
+	= p + 1;
+
+assert( add_one_to( 5 ) == 6 );
+assert( typeof add_one_to( 5 ) == int );
+
+}
+
+template <T>
+T getElement(T[] a, int i)
+	if a[i] == null
+		throw new IndexOutOfBoundsException "Index " + i + " is out of bounds";
+	else if a[i] typeof T
+		return a[i];
+	else
+		throw CastException "Element at (" + i + ") cannot cast to " + typeof T;
+
+// import UIElement;
+
+new Container container;
+Button c = container:getChildById(new ID);
+//	::= let c = (container:getChildById( new UI::ID() ) -> UI::Button)
+//	::= let c = (container:getChildById<C = UI::Button>( new UI::ID() ) -> UI::Button)
+//	::= let c = container:getChildById<C = UI::Button>( new UI::ID() )

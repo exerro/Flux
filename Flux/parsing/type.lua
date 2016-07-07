@@ -104,7 +104,14 @@ function parseTypeModifiers( source, v, e )
 end
 
 function parseType( source )
-	return parseTypeModifiers( source, parseTypename( source ) )
+	local start = source.lexer:mark()
+	local class, err = parseTypeModifiers( source, parseTypename( source ) )
+
+	if not class then
+		source.lexer:jump( start )
+	end
+
+	return class, err
 end
 
 function serializeType( t )

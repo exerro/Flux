@@ -136,6 +136,9 @@ function parseRootStatement( source )
 		elseif keyword.value == "let" then
 			return parseLetStatement( source, keyword.position )
 
+		elseif keyword.value == "new" then
+			return parseNewStatement( source, keyword.position )
+
 		elseif keyword.value == "template" then
 			return parseFunctionTemplate( source, keyword.position )
 

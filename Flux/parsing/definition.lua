@@ -111,7 +111,7 @@ function parseDefinition( source )
 
 	repeat
 		local position = lexer:get().position
-		local name = parseName( source ) or throw( lexer, "expected name" )
+		local name = source:resolveDefinitionName( parseName( source ) or throw( lexer, "expected name" ) )
 		local method = lexer:skip( "Symbol", ":" ) and (lexer:skipValue "Identifier" or throw( lexer, "expected name after ':'" ))
 
 		if lexer:test( "Symbol", "(" ) then

@@ -37,9 +37,9 @@ end
 
 local function parseNamespaceStatement( source, pos )
 	local lexer = source.lexer
-	local name = parseName( source )
+	local name = source:resolveDefinitionName( parseName( source ) or throw( lexer, "expected namespace name" ) )
 
-	source:begin "namespace"
+	source:begin "namespace" .name = name
 
 	if lexer:skip( "Symbol", "{" ) then
 		while not lexer:skip( "Symbol", "}" ) do
@@ -88,7 +88,7 @@ end
 
 local function parseEnumDefinition( source, pos )
 	local lexer = source.lexer
-	local name = parseName( source )
+	local name = source:resolveDefinitionName( parseName( source ) or throw( lexer, "expected enum name" ) )
 
 	if not lexer:skip( "Symbol", "{" ) then
 		throw( lexer, "expected '{' after enum name" )
@@ -159,6 +159,8 @@ function parseFileBody( source )
 end
 
 function serializeRootStatement( t )
+	local initial = t.filename and "@" .. ("%q"):format( t.filename ) .. " " or ""
+	
 	if t.type == "NamespaceStatement" then
 		local b = {}
 
@@ -166,22 +168,22 @@ function serializeRootStatement( t )
 			b[i] = serializeRootStatement( t.block[i] )
 		end
 
-		return "namespace " .. t.name .. " {\n\t" .. table.concat( b, "\n" ):gsub( "\n", "\n\t" ) .. "\n}"
+		return initial .. "namespace " .. t.name .. " {\n\t" .. table.concat( b, "\n" ):gsub( "\n", "\n\t" ) .. "\n}"
 
 	elseif t.type == "UsingStatement" then
-		return "using " .. t.name .. ";"
+		return initial .. "using " .. t.name .. ";"
 
 	elseif t.type == "ClassDefinition" then
-		return serializeClassDefinition( t )
+		return initial .. serializeClassDefinition( t )
 
 	elseif t.type == "InterfaceDefinition" then
-		return serializeInterfaceDefinition( t )
+		return initial .. serializeInterfaceDefinition( t )
 
 	elseif t.type == "EnumDefinition" then
-		return "enum " .. t.name .. " {\n\t" .. table.concat( t.members, ";\n\t" ) .. ";\n}"
+		return initial .. "enum " .. t.name .. " {\n\t" .. table.concat( t.members, ";\n\t" ) .. ";\n}"
 
 	elseif t.type == "Definition" or t.type == "FunctionDefinition" then
-		return serializeDefinition( t )
+		return initial .. serializeDefinition( t )
 
 	else
 		return "<serialization of " .. t.type .. " isn't written>"

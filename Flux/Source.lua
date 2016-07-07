@@ -43,6 +43,16 @@ function Source:Source( path )
 	end
 end
 
+function Source:resolveDefinitionName( name )
+	local block = self.blocks[#self.blocks]
+
+	if block and block.meta.type == "namespace" then
+		return block.meta.name .. "::" .. name
+	end
+
+	return name
+end
+
 function Source:push( statement )
 	if #self.blocks == 1 then
 		statement.filename = self.filename
@@ -52,7 +62,9 @@ function Source:push( statement )
 end
 
 function Source:begin( blocktype )
-	self.blocks[#self.blocks + 1] = { meta = { type = blocktype } }
+	local b = { meta = { type = blocktype } }
+	self.blocks[#self.blocks + 1] = b
+	return b.meta
 end
 
 function Source:pop()
@@ -81,7 +93,7 @@ end
 function Source:import( name, position )
 	for path in self.path:gmatch "[^;]+" do
 		local ip = self.current_include_path
-		local p = path .. "/" .. (ip[1] and ip[#ip] .. "/" or "") .. name:gsub( "%.", "/" )
+		local p = path .. "/" .. (ip[1] and #ip[#ip] > 0 and ip[#ip] .. "/" or "") .. name:gsub( "%.", "/" )
 		local found = isfile( p .. ".flxh" ) or isfile( p .. ".flxc" ) or isfile( p .. ".flx" )
 
 		if not found and ip[1] then
@@ -94,7 +106,7 @@ function Source:import( name, position )
 
 		elseif found then
 			self.imported[p] = true
-			self.current_include_path[#self.current_include_path + 1] = p:sub( #path + 2 ):match "^.+/" or ""
+			self.current_include_path[#self.current_include_path + 1] = p:sub( #path + 2 ):match "^(.+)/" or ""
 
 			if isfile( p .. ".flxh" ) then
 				self:parseContent( readfile( p .. ".flxh" ), name .. " header", p )

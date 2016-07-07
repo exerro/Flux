@@ -306,14 +306,14 @@ function parseLetStatement( source, pos )
 				body = block;
 				parameters = function_parameters;
 				const = const;
-				name = name1;
+				name = source:resolveDefinitionName( name1 );
 				position = pos;
 			}
 		else
 			source:push {
 				type = "Definition";
 				class = "auto";
-				name = name1;
+				name = source:resolveDefinitionName( name1 );
 				value = expr;
 				const = const;
 				position = pos;

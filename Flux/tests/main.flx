@@ -1,4 +1,8 @@
 
+int x;
+
+import libfolder.test;
+
 namespace UI;
 
 namespace Colour {

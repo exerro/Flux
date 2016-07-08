@@ -1,10 +1,11 @@
 
-void wrapper()
-template <T: IAddable>
-void f(null T x = 1, y, z = 2)
-	= null;
+import "parsing definitions";
+import "parsing statements";
+import "parsing expressions";
 
-template <T [a, b, c]>
-void f() = null;
+// changed:
 
-let f(x, y) = 1 + 2 + 3;
+template<T: IAddable>
+auto f(T v)
+	let x = math::sin( v );
+	then return x + x**2 + x**3;

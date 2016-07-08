@@ -62,7 +62,7 @@ function parseTypename( source ) -- int, string{int}, bool[], etc
 		local name = parseName( source )
 
 		if name then
-			return { type = "Typename", name = name }
+			return wrapTypename( name )
 		else
 			return false, lexer:formatError( "expected typename", false, lexer:get().position )
 		end
@@ -105,6 +105,10 @@ end
 
 function wrapFunctionType( returns, parameters )
 	return { type = "FunctionType", returns = returns, parameters = parameters }
+end
+
+function wrapTypename( name )
+	return { type = "Typename", name = name }
 end
 
 function parseType( source )

@@ -18,8 +18,8 @@ void test() {
 	while x > 5;
 
 	do this();
-	then do this();
-	then do that();
+	then this();
+	then that();
 	then `finally` this();
 
 	for (int i = 0, i < 5, i++)

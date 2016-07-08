@@ -19,7 +19,9 @@ function parseBlock( source, blocktype )
 			parseStatement( source )
 		end
 	else
-		parseStatement( source )
+		repeat
+			parseStatement( source )
+		until not lexer:skip( "Keyword", "then" )
 	end
 
 	local t = source:pop()

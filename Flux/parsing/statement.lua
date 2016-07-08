@@ -76,15 +76,6 @@ end
 local function parseDoStatement( source, pos )
 	local lexer = source.lexer
 	local block = parseBlock( source, "general" )
-	local thenblock = lexer:skip( "Keyword", "then" ) and parseBlock( source, "general" )
-
-	if thenblock then
-		local bc = #block + 1
-		for i = 1, #thenblock do
-			block[bc] = thenblock[i]
-			bc = bc + 1
-		end
-	end
 
 	source:push {
 		type = "DoStatement";

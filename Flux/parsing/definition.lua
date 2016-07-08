@@ -7,8 +7,6 @@ GenericDefinition: { "const" = boolean, "name" = string } & HasPosition
 
 Definition: { "type" = "Definition", "value" = Expression | nil, "class" = Type } & GenericDefinition
 TemplateDefinition: { "type" = "TemplateDefinition", "definition" = Definition, "template" = { number = { "name" = string, "limits" = {} } } } & HasPosition
-
-ClassDefinition: { "public" = boolean, "static" = boolean } & Definition
 ]]
 
 local function trimParameters( p, i )
@@ -265,7 +263,7 @@ function parseDefinition( source, expectFunction )
 					type = "Definition";
 					name = name;
 					class = wrapFunctionType( class, parameter_types );
-					value = wrapFunction( class, parameters, body );
+					value = body and wrapFunction( class, parameters, body ) or nil;
 					const = const;
 					position = position;
 				}

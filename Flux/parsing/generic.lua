@@ -81,6 +81,15 @@ function wrapNewExpression( class, parameters, position )
 	}
 end
 
+function wrapFunctionCall( value, parameters, position )
+	return {
+		type = "FunctionCall";
+		value = value;
+		parameters = parameters;
+		position = position or value.position;
+	}
+end
+
 function nullExpression( position )
 	return { type = "NullExpression", position = position }
 end

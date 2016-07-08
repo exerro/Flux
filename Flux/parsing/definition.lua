@@ -2,7 +2,7 @@
 local types = require "common.types"
 
 types.parseMany [[
-FunctionDefinitionParameters: { number = { "class" = Type, "name" = string, "nullable" = boolean } } | {}
+FunctionDefinitionParameters: { number = { "class" = Type, "name" = string, "nullable" = boolean, "default" = Expression | nil } } | {}
 GenericDefinition: { "const" = boolean, "name" = string } & HasPosition
 
 FunctionDefinition: { "type" = "FunctionDefinition", "body" = Block | nil, "parameters" = FunctionDefinitionParameters, "returns" = Type } & GenericDefinition
@@ -12,6 +12,16 @@ TemplateDefinition: { "type" = "TemplateDefinition", "definition" = FunctionDefi
 ClassFunctionDefinition: { "public" = boolean, "static" = boolean } & FunctionDefinition
 ClassDefinition: { "public" = boolean, "static" = boolean } & Definition
 ]]
+
+local function trimParameters( p, i )
+	local t = {}
+
+	for i = 1, i do
+		t[i] = p[i]
+	end
+
+	return t
+end
 
 local function parseTemplateLimits( source )
 	return {}
@@ -60,7 +70,7 @@ function parseFunctionTemplate( source, pos )
 	end
 end
 
-function parseFunctionDefinitionParameters( source )
+function parseFunctionDefinitionParameters( source, allowDefaults )
 	local lexer = source.lexer
 
 	if not lexer:skip( "Symbol", "(" ) then
@@ -68,12 +78,14 @@ function parseFunctionDefinitionParameters( source )
 	end
 
 	if lexer:skip( "Symbol", ")" ) then
-		return {}
+		return {}, {}
 	end
 
 	local last_class
 	local last_nullable = false
 	local parameters = {}
+	local defaults = {}
+	local finalDefaultsStarted = false
 
 	while true do
 		local thisNullable = lexer:skip( "Keyword", "null" )
@@ -104,12 +116,23 @@ function parseFunctionDefinitionParameters( source )
 		end
 
 		local name = lexer:skipValue "Identifier" or throw( lexer, "expected parameter name" )
+		local default = lexer:skip( "Symbol", "=" ) and
+			(
+			 (allowDefaults or last_nullable) and (parseExpression( source ) or throw( lexer, "expected expression after '='" ))
+			 or throw( lexer, "default values for non-nullable parameters aren't permitted here" )
+			)
+			or finalDefaultsStarted and throw( lexer, "expected '=' for default value" )
+
+		finalDefaultsStarted = finalDefaultsStarted or allowDefaults and default and not last_nullable
 
 		parameters[#parameters + 1] = {
 			name = name;
 			class = last_class;
 			nullable = last_nullable;
+			default = last_nullable and default or nil;
 		}
+
+		defaults[#parameters] = default
 
 		if not lexer:skip( "Symbol", "," ) then
 			break
@@ -120,7 +143,7 @@ function parseFunctionDefinitionParameters( source )
 		throw( lexer, "expected ')' to close parameter list" )
 	end
 
-	return parameters
+	return parameters, defaults
 end
 
 function parseFunctionBody( source )
@@ -172,7 +195,7 @@ function parseDefinition( source, expectFunction )
 				throw( lexer, "unexpected '(', expected '='" )
 			end
 
-			local parameters = parseFunctionDefinitionParameters( source )
+			local parameters, defaults = parseFunctionDefinitionParameters( source, not method )
 			local body = not lexer:skip( "Symbol", ";" ) and parseFunctionBody( source ) or nil
 			
 			if method then
@@ -188,6 +211,15 @@ function parseDefinition( source, expectFunction )
 
 				source:push( wrapExpressionStatement( set_expression ) )
 			else
+				local llim = #defaults + 1
+
+				for i = #defaults, 1, -1 do
+					if not defaults[i] then
+						break
+					end
+					llim = llim - 1
+				end
+
 				source:push {
 					type = "FunctionDefinition";
 					returns = class;
@@ -197,6 +229,28 @@ function parseDefinition( source, expectFunction )
 					const = const;
 					position = position;
 				}
+
+				for i = #defaults, llim, -1 do
+					local p = {}
+					local body = { meta = { type = "function" } }
+
+					for n = 1, i-1 do
+						p[n] = wrapStringAsReference( parameters[n].name, position )
+					end
+
+					p[i] = defaults[i]
+					body[1] = wrapReturnStatement( wrapFunctionCall( wrapStringAsReference( name, position ), p ) )
+
+					source:push {
+						type = "FunctionDefinition";
+						returns = class;
+						parameters = trimParameters( parameters, i - 1 );
+						body = body;
+						name = name;
+						const = const;
+						position = position;
+					}
+				end
 			end
 
 			break
@@ -229,19 +283,23 @@ function parseDefinition( source, expectFunction )
 	return true
 end
 
+function serializeFunctionDefinitionParameters( t )
+	local p = {}
+
+	for i = 1, #t do
+		p[i] = (t[i].nullable and "null " or "") .. serializeType( t[i].class ) .. " " .. t[i].name .. (t[i].default and " = " .. serializeExpression( t[i].default ) or "")
+	end
+
+	return "(" .. table.concat( p, ", " ) .. ")"
+end
+
 function serializeDefinition( t )
 
 	if t.type == "Definition" then
 		return (t.const and "const " or "") .. serializeType( t.class ) .. " " .. t.name .. (t.value and " = " .. serializeExpression( t.value ) or "") .. ";"
 
 	elseif t.type == "FunctionDefinition" then
-		local p = {}
-
-		for i = 1, #t.parameters do
-			p[i] = (t.parameters[i].nullable and "null " or "") .. serializeType( t.parameters[i].class ) .. " " .. t.parameters[i].name
-		end
-
-		return (t.const and "const " or "") .. serializeType( t.returns ) .. " " .. t.name .. "(" .. table.concat( p, ", " ) .. ") " .. (t.body and serializeBlock( t.body ) or ";")
+		return (t.const and "const " or "") .. serializeType( t.returns ) .. " " .. t.name .. serializeFunctionDefinitionParameters( t.parameters ) .. " " .. (t.body and serializeBlock( t.body ) or ";")
 
 	elseif t.type == "TemplateDefinition" then
 		local c = {}

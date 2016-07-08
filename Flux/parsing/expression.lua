@@ -634,13 +634,7 @@ function serializeExpression( t )
 		return "(" .. serializeExpression( t.value ) .. ")"
 
 	elseif t.type == "FunctionExpression" then
-		local p = {}
-
-		for i = 1, #t.parameters do
-			p[i] = serializeType( t.parameters[i].class ) .. " " .. t.parameters[i].name
-		end
-
-		return "function ->" .. serializeType( t.returns ) .. " (" .. table.concat( p, ", " ) .. ")"
+		return "function ->" .. serializeType( t.returns ) .. " " .. serializeFunctionDefinitionParameters( t.parameters )
 			.. " " .. serializeBlock( t.body )
 
 	elseif t.type == "ArrayExpression" then

@@ -481,6 +481,7 @@ BinaryOperator:
  	| "and" | "or"
 
 BinaryExpression: { "type" = "BinaryExpression", "lvalue" = Expression, "rvalue" = Expression, "operator" = BinaryOperator } & HasPosition
+BacktickExpression: { "type" = "BacktickExpression", "lvalue" = Expression | nil, "rvalue" = Expression | nil, "operator" = string } & HasPosition
 
 Expression: PrimaryExpression | BinaryExpression | UnaryExpression
 
@@ -495,9 +496,9 @@ local function parseUnaryTerm( source )
 
 	if term and backtick then
 		term = {
-			type = "FunctionCall";
-			value = wrapStringAsReference( backtick, position );
-			parameters = { term };
+			type = "BacktickExpression";
+			rvalue = term;
+			operator = backtick;
 			position = position;
 		}
 	elseif not term then
@@ -520,9 +521,10 @@ local function parseTerm( source )
 
 	while backtick do
 		term = {
-			type = "FunctionCall";
-			value = wrapStringAsReference( backtick, position );
-			parameters = { term, parseUnaryTerm( source ) };
+			type = "BacktickExpression";
+			lvalue = term;
+			rvalue = parseUnaryTerm( source );
+			operator = backtick;
 			position = position;
 		}
 
@@ -721,7 +723,7 @@ function serializeExpression( t )
 
 		return "new " .. serializeType( t.class ) .. "(" .. table.concat( s, ", " ) .. ")"
 
-	elseif t.type == "BinaryExpressionCall" then
+	elseif t.type == "BacktickExpression" then
 		return "(" .. (t.lvalue and serializeExpression( t.lvalue ) .. " " or "") .. "`" .. t.operator .. "`" .. (t.rvalue and " " .. serializeExpression( t.rvalue ) or "") .. ")"
 
 	elseif t.type == "BinaryExpression" then

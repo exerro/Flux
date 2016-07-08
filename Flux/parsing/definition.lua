@@ -50,12 +50,14 @@ function parseFunctionTemplate( source, pos )
 
 	local block = source:pop()
 
-	source:push {
-		type = "TemplateDefinition";
-		definition = block[1];
-		template = template_classes;
-		position = pos;
-	}
+	for i = 1, #block do
+		source:push {
+			type = "TemplateDefinition";
+			definition = block[i];
+			template = template_classes;
+			position = pos;
+		}
+	end
 end
 
 function parseFunctionDefinitionParameters( source )

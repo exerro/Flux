@@ -40,7 +40,27 @@ function dealWithDefaults( block, parameters )
 end
 
 local function parseTemplateLimits( source )
-	return {}
+	local lexer = source.lexer
+
+	if lexer:skip( "Symbol", ":" ) then
+		return { assertType( parseType( source ) ) }
+
+	elseif lexer:skip( "Symbol", "[" ) then
+		local classes = {}
+
+		repeat
+			classes[#classes + 1] = assertType( parseType( source ) )
+		until not lexer:skip( "Symbol", "," )
+
+		if not lexer:skip( "Symbol", "]" ) then
+			throw( lexer, "expected ']'" )
+		end
+
+		return classes
+	else
+		return {}
+
+	end
 end
 
 function parseFunctionTemplate( source, pos )
@@ -323,7 +343,13 @@ function serializeDefinition( t )
 		local c = {}
 
 		for i = 1, #t.template do
-			c[i] = t.template[i].name
+			local l = {}
+
+			for n = 1, #t.template[i].limits do
+				l[n] = serializeType( t.template[i].limits[n] )
+			end
+
+			c[i] = t.template[i].name .. (#t.template[i].limits > 0 and " [" .. table.concat( l, ", " ) .. "]" or "")
 		end
 
 		return "template <" .. table.concat( c, ", " ) .. ">\n" .. serializeDefinition( t.definition )

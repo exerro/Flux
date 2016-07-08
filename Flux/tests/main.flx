@@ -1,7 +1,10 @@
 
 void wrapper()
-template <T>
+template <T: IAddable>
 void f(null T x = 1, y, z = 2)
 	= null;
+
+template <T [a, b, c]>
+void f() = null;
 
 let f(x, y) = 1 + 2 + 3;

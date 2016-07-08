@@ -8,10 +8,6 @@ ClassDefinition: any
 InterfaceDefinition: any
 ]]
 
-local function parseClassBodyStatement( source, name, public, static )
-
-end
-
 local function parseClassBodyStatements( source, name )
 	local lexer = source.lexer
 	local public = true
@@ -55,7 +51,7 @@ local function parseClassBodyStatements( source, name )
 			elseif lexer:skip( "Keyword", "template" ) then
 				parseFunctionTemplate( source, lexer:peek(-1).position )
 
-			else -- it's a definition
+			else
 				if parseDefinition( source, false ) == 0 then
 					throw( lexer, "expected definition" )
 				end
@@ -66,7 +62,6 @@ local function parseClassBodyStatements( source, name )
 
 			for i = 1, #block do
 				block[i].public = this_public
-				block[i].static = static
 
 				classblock[#classblock + 1] = block[i]
 			end
@@ -97,7 +92,7 @@ function parseClassDefinition( source, pos )
 		throw( lexer, "expected ')'" )
 	end
 
-	if not container2 then
+	if container1 and not container2 then
 		container2 = container1
 		container1 = wrapTypename "int"
 	end
@@ -131,6 +126,31 @@ function parseClassDefinition( source, pos )
 end
 
 function parseInterfaceDefinition( source, pos )
+	local lexer = source.lexer
+	local name = source:resolveDefinitionName( parseName( source ) or throw( lexer, "expected interface name" ) )
+
+	local implements = {}
+
+	if lexer:skip( "Keyword", "implements" ) then
+		repeat
+			implements[#implements + 1] = parseName( source ) or throw( lexer, "expected interface name" )
+		until not lexer:skip( "Symbol", "," )
+	end
+
+	if lexer:skip( "Symbol", "{" ) then
+		local block = parseClassBodyStatements( source, name )
+
+		source:push {
+			type = "InterfaceDefinition";
+			name = name;
+			implements = implements;
+			block = block;
+		}
+
+	else
+		throw( lexer, "expected '{' for interface body" )
+
+	end
 
 end
 
@@ -158,5 +178,22 @@ function serializeClassDefinition( t )
 end
 
 function serializeInterfaceDefinition( t )
+	local i = {}
+	local b = {}
 
+	for n = 1, #t.implements do
+		i[n] = t.implements[n]
+	end
+
+	for i = 1, #t.block do
+		b[i] = (t.block[i].public and "public " or "private ")
+			.. (t.block[i].static and "static " or "")
+			.. ((t.block[i].type == "TemplateDefinition" or t.block[i].type == "Definition")
+			    and serializeDefinition( t.block[i] )
+			    or ("<serialization of " .. t.block[i].type .. " isn't implemented yet>"))
+	end
+
+	return "interface " .. t.name .. " "
+		.. (#i > 0 and "implements " .. table.concat( i, ", " ) .. " " or "")
+		.. " {\n\t" .. table.concat( b, "\n" ):gsub( "\n", "\n\t" ) .. "\n}"
 end

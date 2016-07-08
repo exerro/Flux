@@ -2,6 +2,7 @@
 import "parsing definitions";
 import "parsing statements";
 import "parsing expressions";
+import "parsing classes";
 
 // changed:
 

@@ -37,7 +37,7 @@ function dealWithDefaultBody( block, parameters )
 	return block
 end
 
-function dealWithDefaultOverloads( source, const, class, name, defaults, parameters, position )
+function dealWithDefaultOverloads( source, const, class, name, defaults, parameters, static, position )
 	local llim = #defaults + 1
 
 	for i = #defaults, 1, -1 do
@@ -66,6 +66,7 @@ function dealWithDefaultOverloads( source, const, class, name, defaults, paramet
 			class = wrapFunctionType( class, parameter_types );
 			value = wrapFunction( class, trimParameters( parameters, i - 1 ), body );
 			const = const;
+			static = static;
 			position = position;
 		}
 	end
@@ -248,6 +249,10 @@ function parseDefinition( source, expectFunction )
 	local static = classname and lexer:skip( "Keyword", "static" ) and true or false
 	local position = lexer:get().position
 
+	if not classname then
+		static = nil
+	end
+
 	if classname and not static and lexer:skip( "Identifier", classname:gsub( ".+::", "" ) ) then
 		if lexer:test( "Symbol", "(" ) then
 			local parameters, defaults = parseFunctionDefinitionParameters( source, true )
@@ -258,6 +263,7 @@ function parseDefinition( source, expectFunction )
 
 			table.insert( parameters, 1, { class = wrapTypename( classname ), name = "self", nullable = false, default = nil } )
 			table.insert( defaults, 1, false )
+			table.insert( body, wrapReturnStatement( wrapStringAsReference( "self", position ) ) )
 		
 			for i = 1, #parameters do
 				parameter_types[i] = parameters[i].class
@@ -269,10 +275,11 @@ function parseDefinition( source, expectFunction )
 				class = wrapFunctionType( class, parameter_types );
 				value = body and wrapFunction( class, parameters, body ) or nil;
 				const = const;
+				static = static;
 				position = position;
 			}
 
-			dealWithDefaultOverloads( source, const, class, methodname, defaults, parameters, position )
+			dealWithDefaultOverloads( source, const, class, methodname, defaults, parameters, static, position )
 
 			return true
 
@@ -312,10 +319,11 @@ function parseDefinition( source, expectFunction )
 			class = wrapFunctionType( class, parameter_types );
 			value = body and wrapFunction( class, parameters, body ) or nil;
 			const = const;
+			static = static;
 			position = position;
 		}
 
-		dealWithDefaultOverloads( source, const, class, methodname, defaults, parameters, position )
+		dealWithDefaultOverloads( source, const, class, methodname, defaults, parameters, static, position )
 
 		return true
 
@@ -345,6 +353,7 @@ function parseDefinition( source, expectFunction )
 			class = wrapFunctionType( class, parameter_types );
 			value = body and wrapFunction( class, parameters, body ) or nil;
 			const = const;
+			static = static;
 			position = position;
 		}
 
@@ -421,10 +430,11 @@ function parseDefinition( source, expectFunction )
 					class = wrapFunctionType( class, parameter_types );
 					value = body and wrapFunction( class, parameters, body ) or nil;
 					const = const;
+					static = static;
 					position = position;
 				}
 
-				dealWithDefaultOverloads( source, const, class, name, defaults, parameters, position )
+				dealWithDefaultOverloads( source, const, class, name, defaults, parameters, static, position )
 			end
 
 			return true
@@ -447,6 +457,7 @@ function parseDefinition( source, expectFunction )
 				class = class;
 				const = const;
 				name = name;
+				static = static;
 				position = position;
 			}
 		end

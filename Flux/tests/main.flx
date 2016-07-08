@@ -1,5 +1,7 @@
 
 void wrapper()
 template <T>
-void f(T x = 1, y = 2, z = x)
+void f(null T x = 1, y, z = 2)
 	= null;
+
+let f(x, y) = 1 + 2 + 3;

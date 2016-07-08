@@ -45,7 +45,7 @@ local function parseFunctionType( source ) -- function int(int) etc
 		end
 	end
 
-	return { type = "FunctionType", returns = returns, parameters = parameters }
+	return wrapFunctionType( returns, parameters )
 end
 
 function parseTypename( source ) -- int, string{int}, bool[], etc
@@ -101,6 +101,10 @@ function parseTypeModifiers( source, v, e )
 	end
 
 	return v
+end
+
+function wrapFunctionType( returns, parameters )
+	return { type = "FunctionType", returns = returns, parameters = parameters }
 end
 
 function parseType( source )

@@ -28,7 +28,6 @@ Statement:
 	| BreakStatement
 	| ContinueStatement
 	| Definition
-	| FunctionDefinition
 	| TemplateDefinition
 	| ExpressionStatement
 ]]
@@ -39,13 +38,7 @@ local function parseIfStatement( source, pos )
 	local block = parseBlock( source, "general" )
 	local elseblock = lexer:skip( "Keyword", "else" ) and parseBlock( source ) or nil
 
-	source:push {
-		type = "IfStatement";
-		condition = condition;
-		block = block;
-		elseblock = elseblock;
-		position = pos;
-	}
+	source:push( wrapIfStatement( condition, block, elseblock, pos ) )
 end
 
 local function parseWhileLoop( source, pos )
@@ -324,14 +317,18 @@ function parseLetStatement( source, pos, expectFunction )
 			source:push( wrapReturnStatement( expr ) )
 
 			local block = source:pop()
+			local function_parameter_types = {}
+
+			for i = 1, #function_parameters do
+				function_parameter_types[i] = function_parameters[i].class
+			end
 
 			source:push {
-				type = "FunctionDefinition";
-				returns = "auto";
-				body = block;
-				parameters = function_parameters;
-				const = const;
+				type = "Definition";
 				name = source:resolveDefinitionName( name1 );
+				class = wrapFunctionType( "auto", function_parameter_types );
+				value = wrapFunction( "auto", function_parameters, block );
+				const = const;
 				position = pos;
 			}
 
@@ -481,7 +478,7 @@ function serializeStatement( t )
 	elseif t.type == "ContinueStatement" then
 		return "continue;"
 
-	elseif t.type == "Definition" or t.type == "FunctionDefinition" or t.type == "TemplateDefinition" then
+	elseif t.type == "Definition" or t.type == "TemplateDefinition" then
 		return serializeDefinition( t )
 
 	elseif t.type == "ExpressionStatement" then

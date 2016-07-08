@@ -5,11 +5,9 @@ types.parseMany [[
 FunctionDefinitionParameters: { number = { "class" = Type, "name" = string, "nullable" = boolean, "default" = Expression | nil } } | {}
 GenericDefinition: { "const" = boolean, "name" = string } & HasPosition
 
-FunctionDefinition: { "type" = "FunctionDefinition", "body" = Block | nil, "parameters" = FunctionDefinitionParameters, "returns" = Type } & GenericDefinition
 Definition: { "type" = "Definition", "value" = Expression | nil, "class" = Type } & GenericDefinition
-TemplateDefinition: { "type" = "TemplateDefinition", "definition" = FunctionDefinition, "template" = { number = { "name" = string, "limits" = {} } } } & HasPosition
+TemplateDefinition: { "type" = "TemplateDefinition", "definition" = Definition, "template" = { number = { "name" = string, "limits" = {} } } } & HasPosition
 
-ClassFunctionDefinition: { "public" = boolean, "static" = boolean } & FunctionDefinition
 ClassDefinition: { "public" = boolean, "static" = boolean } & Definition
 ]]
 
@@ -17,10 +15,28 @@ local function trimParameters( p, i )
 	local t = {}
 
 	for i = 1, i do
-		t[i] = p[i]
+		t[i] = p[i].default and { name = p[i].name, class = p[i].class, nullable = p[i].nullable } or p[i]
 	end
 
 	return t
+end
+
+function dealWithDefaults( block, parameters )
+	for i = 1, #parameters do
+		if parameters[i].default then
+			local parameter_name = wrapStringAsReference( parameters[i].name, parameters[i].default.position )
+			local condition_if_parameter_is_null = wrapEqualityCheck( parameter_name, nullExpression( parameters[i].default.position ) )
+			local block_if_parameter_is_null = {
+				meta = { type = "general" };
+				[1] = wrapExpressionStatement( wrapSetExpression( parameter_name, parameters[i].default ) );
+			}
+
+			parameters[i].default = nil
+			table.insert( block, 1, wrapIfStatement( condition_if_parameter_is_null, block_if_parameter_is_null ) )
+		end
+	end
+
+	return block
 end
 
 local function parseTemplateLimits( source )
@@ -132,7 +148,7 @@ function parseFunctionDefinitionParameters( source, allowDefaults )
 			default = last_nullable and default or nil;
 		}
 
-		defaults[#parameters] = default
+		defaults[#parameters] = default or false
 
 		if not lexer:skip( "Symbol", "," ) then
 			break
@@ -196,7 +212,12 @@ function parseDefinition( source, expectFunction )
 			end
 
 			local parameters, defaults = parseFunctionDefinitionParameters( source, not method )
-			local body = not lexer:skip( "Symbol", ";" ) and parseFunctionBody( source ) or nil
+			local body = not lexer:skip( "Symbol", ";" ) and dealWithDefaults( parseFunctionBody( source ), parameters ) or nil
+			local parameter_types = {}
+
+			for i = 1, #parameters do
+				parameter_types[i] = parameters[i].class
+			end
 			
 			if method then
 				local object = wrapStringAsReference( name, position )
@@ -221,11 +242,10 @@ function parseDefinition( source, expectFunction )
 				end
 
 				source:push {
-					type = "FunctionDefinition";
-					returns = class;
-					parameters = parameters;
-					body = body;
+					type = "Definition";
 					name = name;
+					class = wrapFunctionType( class, parameter_types );
+					value = wrapFunction( class, parameters, body );
 					const = const;
 					position = position;
 				}
@@ -233,20 +253,21 @@ function parseDefinition( source, expectFunction )
 				for i = #defaults, llim, -1 do
 					local p = {}
 					local body = { meta = { type = "function" } }
+					local parameter_types = {}
 
 					for n = 1, i-1 do
 						p[n] = wrapStringAsReference( parameters[n].name, position )
+						parameter_types[n] = parameters[n].class
 					end
 
 					p[i] = defaults[i]
 					body[1] = wrapReturnStatement( wrapFunctionCall( wrapStringAsReference( name, position ), p ) )
 
 					source:push {
-						type = "FunctionDefinition";
-						returns = class;
-						parameters = trimParameters( parameters, i - 1 );
-						body = body;
+						type = "Definition";
 						name = name;
+						class = wrapFunctionType( class, parameter_types );
+						value = wrapFunction( class, trimParameters( parameters, i - 1 ), body );
 						const = const;
 						position = position;
 					}
@@ -297,9 +318,6 @@ function serializeDefinition( t )
 
 	if t.type == "Definition" then
 		return (t.const and "const " or "") .. serializeType( t.class ) .. " " .. t.name .. (t.value and " = " .. serializeExpression( t.value ) or "") .. ";"
-
-	elseif t.type == "FunctionDefinition" then
-		return (t.const and "const " or "") .. serializeType( t.returns ) .. " " .. t.name .. serializeFunctionDefinitionParameters( t.parameters ) .. " " .. (t.body and serializeBlock( t.body ) or ";")
 
 	elseif t.type == "TemplateDefinition" then
 		local c = {}

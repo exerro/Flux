@@ -15,7 +15,6 @@ RootStatement:
 	| InterfaceDefinition
 	| EnumDefinition
 	| Definition
-	| FunctionDefinition
 	| TemplateDefinition
 
 RootBlock: { "meta" = { "type" = string }, number = RootStatement } | {}
@@ -189,7 +188,7 @@ function serializeRootStatement( t )
 	elseif t.type == "EnumDefinition" then
 		return initial .. "enum " .. t.name .. " {\n\t" .. table.concat( t.members, ";\n\t" ) .. ";\n}"
 
-	elseif t.type == "Definition" or t.type == "FunctionDefinition" or t.type == "TemplateDefinition" then
+	elseif t.type == "Definition" or t.type == "TemplateDefinition" then
 		return initial .. serializeDefinition( t )
 
 	else

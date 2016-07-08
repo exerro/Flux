@@ -56,7 +56,27 @@ function wrapSetExpression( lvalue, rvalue, position )
 		lvalue = lvalue;
 		rvalue = rvalue;
 		operator = "=";
-		position = position;
+		position = position or lvalue.position;
+	}
+end
+
+function wrapEqualityCheck( lvalue, rvalue, position )
+	return {
+		type = "BinaryExpression";
+		lvalue = lvalue;
+		rvalue = rvalue;
+		operator = "==";
+		position = position or lvalue.position;
+	}
+end
+
+function wrapIfStatement( condition, block, elseblock, position )
+	return {
+		type = "IfStatement";
+		condition = condition;
+		block = block;
+		elseblock = elseblock;
+		position = position or condition.position;
 	}
 end
 
@@ -92,4 +112,14 @@ end
 
 function nullExpression( position )
 	return { type = "NullExpression", position = position }
+end
+
+function wrapFunction( returns, parameters, body, position )
+	return {
+		type = "FunctionExpression";
+		returns = returns;
+		parameters = parameters;
+		body = body;
+		position = position;
+	}
 end

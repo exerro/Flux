@@ -245,13 +245,7 @@ local function parsePrimaryExpression( source )
 		local parameters = parseFunctionDefinitionParameters( source )
 		local body = parseFunctionBody( source )
 
-		return {
-			type = "FunctionExpression";
-			returns = returns;
-			parameters = parameters;
-			body = body;
-			position = token.position;
-		}
+		return wrapFunction( returns, parameters, body, token.position )
 
 	elseif lexer:skip( "Keyword", "lambda" ) then
 		local word = lexer:skipValue "Identifier"

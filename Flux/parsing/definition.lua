@@ -19,7 +19,7 @@ local function trimParameters( p, i )
 	return t
 end
 
-function dealWithDefaults( block, parameters )
+function dealWithDefaultBody( block, parameters )
 	for i = 1, #parameters do
 		if parameters[i].default then
 			local parameter_name = wrapStringAsReference( parameters[i].name, parameters[i].default.position )
@@ -35,6 +35,40 @@ function dealWithDefaults( block, parameters )
 	end
 
 	return block
+end
+
+function dealWithDefaultOverloads( source, const, class, name, defaults, parameters, position )
+	local llim = #defaults + 1
+
+	for i = #defaults, 1, -1 do
+		if not defaults[i] then
+			break
+		end
+		llim = llim - 1
+	end
+
+	for i = #defaults, llim, -1 do
+		local p = {}
+		local body = { meta = { type = "function" } }
+		local parameter_types = {}
+
+		for n = 1, i-1 do
+			p[n] = wrapStringAsReference( parameters[n].name, position )
+			parameter_types[n] = parameters[n].class
+		end
+
+		p[i] = defaults[i]
+		body[1] = wrapReturnStatement( wrapFunctionCall( wrapStringAsReference( name, position ), p ) )
+
+		source:push {
+			type = "Definition";
+			name = name;
+			class = wrapFunctionType( class, parameter_types );
+			value = wrapFunction( class, trimParameters( parameters, i - 1 ), body );
+			const = const;
+			position = position;
+		}
+	end
 end
 
 local function parseTemplateLimits( source )
@@ -84,12 +118,14 @@ function parseFunctionTemplate( source, pos )
 		throw( lexer, "expected '>' after template classes" )
 	end
 
-	source:begin "template"
+	source:beginCopy()
 
-	if lexer:skip( "Keyword", "let" ) then
+	if lexer:skip( "Keyword", "let" ) and not source:getClassName() then
 		parseLetStatement( source, lexer:peek( -1 ).position, true )
-	else
-		parseDefinition( source, true )
+
+	elseif not parseDefinition( source, true ) then
+		throw( lexer, "expected definition after template" )
+
 	end
 
 	local block = source:pop()
@@ -104,7 +140,7 @@ function parseFunctionTemplate( source, pos )
 	end
 end
 
-function parseFunctionDefinitionParameters( source, allowDefaults )
+function parseFunctionDefinitionParameters( source, allowDefaults, limitToOneParameter )
 	local lexer = source.lexer
 
 	if not lexer:skip( "Symbol", "(" ) then
@@ -170,6 +206,11 @@ function parseFunctionDefinitionParameters( source, allowDefaults )
 
 		if not lexer:skip( "Symbol", "," ) then
 			break
+
+		elseif limitToOneParameter then
+			lexer:back()
+			throw( lexer, "expected ')'" )
+
 		end
 	end
 
@@ -203,6 +244,114 @@ function parseDefinition( source, expectFunction )
 	local lexer = source.lexer
 	local start = lexer:mark()
 	local const = lexer:skip( "Keyword", "const" ) and true or false
+	local classname = source:getClassName()
+	local static = classname and lexer:skip( "Keyword", "static" ) and true or false
+	local position = lexer:get().position
+
+	if classname and not static and lexer:skip( "Identifier", classname:gsub( ".+::", "" ) ) then
+		if lexer:test( "Symbol", "(" ) then
+			local parameters, defaults = parseFunctionDefinitionParameters( source, true )
+			local body = not lexer:skip( "Symbol", ";" ) and dealWithDefaultBody( parseFunctionBody( source ), parameters ) or nil
+			local methodname = classname:gsub( ".+::", "" )
+			local parameter_types = {}
+			local class = wrapTypename( classname )
+
+			table.insert( parameters, 1, { class = wrapTypename( classname ), name = "self", nullable = false, default = nil } )
+			table.insert( defaults, 1, false )
+		
+			for i = 1, #parameters do
+				parameter_types[i] = parameters[i].class
+			end
+
+			source:push {
+				type = "Definition";
+				name = methodname;
+				class = wrapFunctionType( class, parameter_types );
+				value = body and wrapFunction( class, parameters, body ) or nil;
+				const = const;
+				position = position;
+			}
+
+			dealWithDefaultOverloads( source, const, class, methodname, defaults, parameters, position )
+
+			return true
+
+		else
+			lexer:jump( start )
+		end
+
+	elseif classname and lexer:skip( "Keyword", "setter" ) then -- it's a setter
+		local name = lexer:skipValue "Identifier" or throw( lexer, "expected variable name" )
+
+		if not lexer:test( "Symbol", "(" ) then
+			throw( lexer, "expected '('" )
+		end
+
+		local parameters, defaults = parseFunctionDefinitionParameters( source, true, true )
+		local body = not lexer:skip( "Symbol", ";" ) and dealWithDefaultBody( parseFunctionBody( source ), parameters ) or nil
+		local methodname = "setter " .. name
+		local parameter_types = {}
+		local class = wrapTypename( classname )
+
+		if body == nil then
+			body = { meta = { type = "function" } }
+			body[1] = wrapExpressionStatement( wrapSetExpression( wrapDotIndex( wrapStringAsReference( "self", position ), name ), wrapStringAsReference( name, position ) ) )
+		end
+
+		table.insert( parameters, 1, { class = wrapTypename( classname ), name = "self", nullable = false, default = nil } )
+		table.insert( defaults, 1, false )
+		table.insert( body, wrapReturnStatement( wrapStringAsReference( "self", position ) ) )
+	
+		for i = 1, #parameters do
+			parameter_types[i] = parameters[i].class
+		end
+
+		source:push {
+			type = "Definition";
+			name = methodname;
+			class = wrapFunctionType( class, parameter_types );
+			value = body and wrapFunction( class, parameters, body ) or nil;
+			const = const;
+			position = position;
+		}
+
+		dealWithDefaultOverloads( source, const, class, methodname, defaults, parameters, position )
+
+		return true
+
+	elseif classname and lexer:skip( "Keyword", "getter" ) then -- it's a getter
+		local name = lexer:skipValue "Identifier" or throw( lexer, "expected variable name" )
+
+		if lexer:skip( "Symbol", "(" ) then
+			if not lexer:skip( "Symbol", ")" ) then
+				throw( lexer, "expected ')'" )
+			end
+		end
+
+		local body = not lexer:skip( "Symbol", ";" ) and parseFunctionBody( source ) or nil
+		local methodname = "getter " .. name
+		local parameter_types = { wrapTypename( classname ) }
+		local class = "auto"
+		local parameters = { { class = wrapTypename( classname ), name = "self", nullable = false, default = nil } }
+
+		if body == nil then
+			body = { meta = { type = "function" } }
+			body[1] = wrapReturnStatement( wrapDotIndex( wrapStringAsReference( "self", position ), name ) )
+		end
+
+		source:push {
+			type = "Definition";
+			name = methodname;
+			class = wrapFunctionType( class, parameter_types );
+			value = body and wrapFunction( class, parameters, body ) or nil;
+			const = const;
+			position = position;
+		}
+
+		return true
+
+	end
+
 	local class = lexer:skipValue( "Keyword", "auto" ) or lexer:skipValue( "Keyword", "void" ) or parseType( source )
 	local wasNonFuncDecl = false
 
@@ -214,15 +363,25 @@ function parseDefinition( source, expectFunction )
 		end
 	end
 
-	if not lexer:test "Identifier" then
+	if not lexer:test "Identifier" and (not classname or not lexer:test( "Keyword", "operator" )) then
 		lexer:jump( start )
 		return false
 	end
 
 	repeat
 		local position = lexer:get().position
-		local name = source:resolveDefinitionName( parseName( source ) or throw( lexer, "expected name" ) )
-		local method = lexer:skip( "Symbol", ":" ) and (lexer:skipValue "Identifier" or throw( lexer, "expected name after ':'" ))
+		local name, wasOperator, method = nil, false, nil
+
+		if classname then
+			name, wasOperator = parseMethodName( source )
+			name = source:resolveDefinitionName( name or throw( lexer, "expected name" ) )
+			method = lexer:skip( "Symbol", ":" ) and throw( lexer, "unexpected method name in class definition" )
+
+		else
+			name = source:resolveDefinitionName( parseName( source ) or throw( lexer, "expected name" ) )
+			method = lexer:skip( "Symbol", ":" ) and (parseMethodName( source ) or throw( lexer, "expected name after ':'" ))
+
+		end
 
 		if lexer:test( "Symbol", "(" ) then
 			if wasNonFuncDecl then
@@ -230,9 +389,14 @@ function parseDefinition( source, expectFunction )
 			end
 
 			local parameters, defaults = parseFunctionDefinitionParameters( source, not method )
-			local body = not lexer:skip( "Symbol", ";" ) and dealWithDefaults( parseFunctionBody( source ), parameters ) or nil
+			local body = not lexer:skip( "Symbol", ";" ) and dealWithDefaultBody( parseFunctionBody( source ), parameters ) or nil
 			local parameter_types = {}
 
+			if classname then
+				table.insert( parameters, 1, { class = wrapTypename( classname ), name = "self", nullable = false, default = nil } )
+				table.insert( defaults, 1, false )
+			end
+			
 			for i = 1, #parameters do
 				parameter_types[i] = parameters[i].class
 			end
@@ -249,16 +413,8 @@ function parseDefinition( source, expectFunction )
 				}, position )
 
 				source:push( wrapExpressionStatement( set_expression ) )
+
 			else
-				local llim = #defaults + 1
-
-				for i = #defaults, 1, -1 do
-					if not defaults[i] then
-						break
-					end
-					llim = llim - 1
-				end
-
 				source:push {
 					type = "Definition";
 					name = name;
@@ -268,34 +424,16 @@ function parseDefinition( source, expectFunction )
 					position = position;
 				}
 
-				for i = #defaults, llim, -1 do
-					local p = {}
-					local body = { meta = { type = "function" } }
-					local parameter_types = {}
-
-					for n = 1, i-1 do
-						p[n] = wrapStringAsReference( parameters[n].name, position )
-						parameter_types[n] = parameters[n].class
-					end
-
-					p[i] = defaults[i]
-					body[1] = wrapReturnStatement( wrapFunctionCall( wrapStringAsReference( name, position ), p ) )
-
-					source:push {
-						type = "Definition";
-						name = name;
-						class = wrapFunctionType( class, parameter_types );
-						value = wrapFunction( class, trimParameters( parameters, i - 1 ), body );
-						const = const;
-						position = position;
-					}
-				end
+				dealWithDefaultOverloads( source, const, class, name, defaults, parameters, position )
 			end
 
-			break
+			return true
 
 		elseif expectFunction then
 			throw( lexer, "expected '(' for function definition" )
+
+		elseif wasOperator then
+			throw( lexer, "expected '(' after operator name" )
 
 		elseif method then
 			throw( lexer, "expected '(' after method name" )
@@ -315,7 +453,7 @@ function parseDefinition( source, expectFunction )
 
 	until not lexer:skip( "Symbol", "," )
 
-	if wasNonFuncDecl and not expectSemicolon( lexer ) then
+	if not expectSemicolon( lexer ) then
 		throw( lexer, "expected ';'" )
 	end
 

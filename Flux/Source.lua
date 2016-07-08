@@ -67,6 +67,12 @@ function Source:begin( blocktype )
 	return b.meta
 end
 
+function Source:beginCopy()
+	local b = { meta = self:block().meta }
+	self.blocks[#self.blocks + 1] = b
+	return b.meta
+end
+
 function Source:pop()
 	return table.remove( self.blocks, #self.blocks )
 end
@@ -89,6 +95,12 @@ function Source:isLoop()
 		i = i + 1
 	end
 end
+
+function Source:getClassName()
+	local b = self:block()
+	return b and b.meta.type == "class" and b.meta.name
+end
+
 
 function Source:import( name, position )
 	for path in self.path:gmatch "[^;]+" do

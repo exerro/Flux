@@ -16,6 +16,7 @@ RootStatement:
 	| EnumDefinition
 	| Definition
 	| TemplateDefinition
+	| ExpressionStatement
 
 RootBlock: { "meta" = { "type" = string }, number = RootStatement } | {}
 ]]
@@ -190,6 +191,9 @@ function serializeRootStatement( t )
 
 	elseif t.type == "Definition" or t.type == "TemplateDefinition" then
 		return initial .. serializeDefinition( t )
+
+	elseif t.type == "ExpressionStatement" then
+		return serializeExpression( t.value ) .. ";"
 
 	else
 		return "<serialization of " .. t.type .. " isn't written>"

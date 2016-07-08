@@ -2,7 +2,7 @@
 local types = require "common.types"
 
 types.parseMany [[
-BlockType: "whileloop" | "repeatloop" | "foreachloop" | "forloop" | "function" | "general"
+BlockType: "whileloop" | "repeatloop" | "foreachloop" | "forloop" | "function" | "general" | "class"
 Block: { "meta" = { "type" = BlockType }, number = Statement } | {}
 ]]
 

@@ -36,7 +36,7 @@ continue
 let [const] ... = ...
 
 const [auto] ... = ...
-[template (...)] [const] [auto | void] ... (...) ...
+[template <...>] [const] [auto | void] ... (...) ...
 
 throw ...
 ... typeof ...
@@ -47,6 +47,10 @@ match { ... }
 and or
 
 null
+
+public private static
+setter getter
+operator +
 
 template
 ]]):gmatch "%w+" do

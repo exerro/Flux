@@ -37,3 +37,8 @@ let x `add` y = x + y;
 let const `add one to` x = x + 1;
 let x `degrees` = x / 180 * math::PI;
 let sum(x, y, z) = x + y + z;
+
+// function defaults
+void f(int x = 1) = null;
+void f(null int x = 0, int y = 2, int z = 3) = null;
+void f(null int x = 0) = null;

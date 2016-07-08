@@ -1,4 +1,6 @@
 
+local lang = require "Flux.lang"
+
 function throw( lexer, err, pos )
 	return error( lexer:formatError( err, false, pos or lexer:get().position ), 0 )
 end
@@ -24,6 +26,29 @@ function parseName( source )
 	end
 
 	return word
+end
+
+function parseMethodName( source )
+	local lexer = source.lexer
+
+	if lexer:skip( "Keyword", "operator" ) then
+		if lexer:skip( "Symbol", "(" ) then
+			return lexer:skip( "Symbol", ")" ) and "operator()" or throw( lexer, "expected ')'" ), true
+
+		elseif lexer:skip( "Symbol", "[" ) then
+			return lexer:skip( "Symbol", "]" ) and (lexer:skip( "Symbol", "=" ) and "operator[]=" or "operator[]") or throw( lexer, "expected ']'" ), true
+
+		elseif lexer:test "Symbol" and lang.operators[lexer:get().value] then
+			return "operator" .. lexer:next().value, true
+
+		else
+			throw( lexer, "expected operator after 'operator'" )
+
+		end
+
+	end
+
+	return lexer:skipValue "Identifier", false
 end
 
 function logicalNotExpression( expr )
@@ -81,7 +106,7 @@ function wrapIfStatement( condition, block, elseblock, position )
 end
 
 function wrapDotIndex( value, index, position )
-	return { type = "DotIndex", value = value, index = index, position = position }
+	return { type = "DotIndex", value = value, index = index, position = position or value.position }
 end
 
 function wrapReturnStatement( value )

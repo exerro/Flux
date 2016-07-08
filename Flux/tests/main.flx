@@ -5,7 +5,33 @@ import "parsing expressions";
 
 // changed:
 
-template<T: IAddable>
-auto f(T v)
-	let x = math::sin( v );
-	then return x + x**2 + x**3;
+void x:operator+() {
+	
+}
+
+class X::A (int, float) extends Y  implements abc, def, ghi {
+	int x;
+
+	void f() {
+		return null;
+	}
+
+	auto operator+(A other) {
+		return A(x + other.x);
+	}
+
+	A(int x = 0, null int y = 1) {
+		return 2;
+	}
+
+	template<T>
+	setter x(T _x)
+		x = _x;
+
+	getter x() = x;
+
+	template<T>
+	setter x(T _abc);
+
+	getter y();
+}

@@ -305,6 +305,15 @@ function parseLetStatement( source, pos, expectFunction )
 
 		if function_parameters then
 			source:begin "function"
+
+			while lexer:skip( "Keyword", "where" ) do
+				local position = lexer:peek(-1).position
+				local name = lexer:skipValue "Identifier" or throw( lexer, "expected name" )
+				local value = lexer:skip( "Symbol", "=" ) and (parseExpression( source ) or throw( lexer, "expected expression after '='" )) or throw( lexer, "expected '='" )
+
+				source:push( wrapDefinition( name, "auto", value, true, nil, position ) )
+			end
+
 			source:push( wrapReturnStatement( expr ) )
 
 			local block = source:pop()

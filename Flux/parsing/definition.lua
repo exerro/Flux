@@ -19,6 +19,18 @@ local function trimParameters( p, i )
 	return t
 end
 
+function wrapDefinition( name, class, value, const, static, position )
+	return {
+		type = "Definition";
+		name = name;
+		class = class;
+		value = value;
+		const = const;
+		static = static;
+		position = position;
+	}
+end
+
 function dealWithDefaultBody( block, parameters )
 	for i = 1, #parameters do
 		if parameters[i].default then
@@ -60,15 +72,7 @@ function dealWithDefaultOverloads( source, const, class, name, defaults, paramet
 		p[i] = defaults[i]
 		body[1] = wrapReturnStatement( wrapFunctionCall( wrapStringAsReference( name, position ), p ) )
 
-		source:push {
-			type = "Definition";
-			name = name;
-			class = wrapFunctionType( class, parameter_types );
-			value = wrapFunction( class, trimParameters( parameters, i - 1 ), body );
-			const = const;
-			static = static;
-			position = position;
-		}
+		source:push( wrapDefinition( name, wrapFunctionType( class, parameter_types ), wrapFunction( class, trimParameters( parameters, i - 1 ), body ), const, static, position ) )
 	end
 end
 
@@ -227,13 +231,22 @@ function parseFunctionBody( source )
 
 	if lexer:skip( "Symbol", "=" ) then
 		local expr = parseExpression( source ) or throw( lexer, "expected expression after '='" )
+		
+		source:begin "function"
+
+		while lexer:skip( "Keyword", "where" ) do
+			local position = lexer:peek(-1).position
+			local name = lexer:skipValue "Identifier" or throw( lexer, "expected name" )
+			local value = lexer:skip( "Symbol", "=" ) and (parseExpression( source ) or throw( lexer, "expected expression after '='" )) or throw( lexer, "expected '='" )
+
+			source:push( wrapDefinition( name, "auto", value, true, nil, position ) )
+		end
+
+		source:push( wrapReturnStatement( expr ) )
 
 		if not expectSemicolon( lexer ) then
 			throw( source, "expected ';' after expression" )
 		end
-
-		source:begin "function"
-		source:push( wrapReturnStatement( expr ) )
 
 		return source:pop()
 	else
@@ -269,15 +282,7 @@ function parseDefinition( source, expectFunction )
 				parameter_types[i] = parameters[i].class
 			end
 
-			source:push {
-				type = "Definition";
-				name = methodname;
-				class = wrapFunctionType( class, parameter_types );
-				value = body and wrapFunction( class, parameters, body ) or nil;
-				const = const;
-				static = static;
-				position = position;
-			}
+			source:push( wrapDefinition( methodname, wrapFunctionType( class, parameter_types ), body and wrapFunction( class, parameters, body ) or nil, const, static, position ) )
 
 			dealWithDefaultOverloads( source, const, class, methodname, defaults, parameters, static, position )
 
@@ -313,16 +318,7 @@ function parseDefinition( source, expectFunction )
 			parameter_types[i] = parameters[i].class
 		end
 
-		source:push {
-			type = "Definition";
-			name = methodname;
-			class = wrapFunctionType( class, parameter_types );
-			value = body and wrapFunction( class, parameters, body ) or nil;
-			const = const;
-			static = static;
-			position = position;
-		}
-
+		source:push( wrapDefinition( methodname, wrapFunctionType( class, parameter_types ), body and wrapFunction( class, parameters, body ) or nil, const, static, position ) )
 		dealWithDefaultOverloads( source, const, class, methodname, defaults, parameters, static, position )
 
 		return true
@@ -347,15 +343,7 @@ function parseDefinition( source, expectFunction )
 			body[1] = wrapReturnStatement( wrapDotIndex( wrapStringAsReference( "self", position ), name ) )
 		end
 
-		source:push {
-			type = "Definition";
-			name = methodname;
-			class = wrapFunctionType( class, parameter_types );
-			value = body and wrapFunction( class, parameters, body ) or nil;
-			const = const;
-			static = static;
-			position = position;
-		}
+		source:push( wrapDefinition( methodname, wrapFunctionType( class, parameter_types ), body and wrapFunction( class, parameters, body ) or nil, const, static, position ) )
 
 		return true
 
@@ -424,16 +412,7 @@ function parseDefinition( source, expectFunction )
 				source:push( wrapExpressionStatement( set_expression ) )
 
 			else
-				source:push {
-					type = "Definition";
-					name = name;
-					class = wrapFunctionType( class, parameter_types );
-					value = body and wrapFunction( class, parameters, body ) or nil;
-					const = const;
-					static = static;
-					position = position;
-				}
-
+				source:push( wrapDefinition( name, wrapFunctionType( class, parameter_types ), body and wrapFunction( class, parameters, body ) or nil, const, static, position ) )
 				dealWithDefaultOverloads( source, const, class, name, defaults, parameters, static, position )
 			end
 
@@ -451,15 +430,7 @@ function parseDefinition( source, expectFunction )
 		else
 			wasNonFuncDecl = true
 
-			source:push {
-				type = "Definition";
-				value = lexer:skip( "Symbol", "=" ) and (parseExpression( source ) or throw( lexer, "expected expression after '='" ));
-				class = class;
-				const = const;
-				name = name;
-				static = static;
-				position = position;
-			}
+			source:push( wrapDefinition( name, class, lexer:skip( "Symbol", "=" ) and (parseExpression( source ) or throw( lexer, "expected expression after '='" )), const, static, position ) )
 		end
 
 	until not lexer:skip( "Symbol", "," )

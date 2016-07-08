@@ -6,33 +6,17 @@ import "parsing classes";
 
 // changed:
 
-void x:operator+() {
-	
-}
+let roots(A, B, C) = [(-B + sqrt(disc)) / 2A, (-B - sqrt(disc)) / 2A]
+	where disc = B ** 2 - 4 * A * C
+	where 2A = 2 * A;
 
-class X::A (int, float) extends Y  implements abc, def, ghi {
-	int x;
+let expand(A, B, C, D) = [A * C, A * D + B * C, B * D];
 
-	void f() {
-		return null;
-	}
+void main() {
+	// (x + 2)(4x + 3)
+	let coeff = expand( 1, 2, 4, 3 );
+	let r = roots( coeff[1], coeff[2], coeff[3] );
 
-	auto operator+(A other) {
-		return A(x + other.x);
-	}
-
-	A(int x = 0, null int y = 1) {
-		return 2;
-	}
-
-	template<T>
-	setter x(T _x)
-		x = _x;
-
-	getter x() = x;
-
-	template<T>
-	setter x(T _abc);
-
-	getter y();
+	foreach root in r
+		print( r ); // -2, -3/4
 }

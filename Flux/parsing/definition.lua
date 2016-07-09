@@ -399,6 +399,12 @@ function parseDefinition( source, expectFunction )
 			end
 			
 			if method then
+				table.insert( parameters, 1, {
+					class = wrapTypename( name );
+					name = "self";
+					nullable = false;
+				} )
+
 				local object = wrapStringAsReference( name, position )
 				local object_indexed = wrapDotIndex( object, method, position )
 				local set_expression = wrapSetExpression( object_indexed, {

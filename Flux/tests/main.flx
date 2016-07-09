@@ -1,22 +1,15 @@
 
-import "parsing definitions";
-import "parsing statements";
-import "parsing expressions";
-import "parsing classes";
+interface I {
+	int a, b = 2;
+}
 
-// changed:
+class X {
+	const int x, y;
+	int z = 1;
 
-let roots(A, B, C) = [(-B + sqrt(disc)) / 2A, (-B - sqrt(disc)) / 2A]
-	where disc = B ** 2 - 4 * A * C
-	where 2A = 2 * A;
+	float f();
+}
 
-let expand(A, B, C, D) = [A * C, A * D + B * C, B * D];
-
-void main() {
-	// (x + 2)(4x + 3)
-	let coeff = expand( 1, 2, 4, 3 );
-	let r = roots( coeff[1], coeff[2], coeff[3] );
-
-	foreach root in r
-		print( r ); // -2, -3/4
+float X:f() {
+	return 2;
 }

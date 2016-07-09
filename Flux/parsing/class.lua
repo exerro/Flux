@@ -2,7 +2,11 @@
 local types = require "common.types"
 
 types.parseMany [[
-ClassDefinition: { "public" = boolean, "static" = boolean } & Definition
+NotYetImplemented: nil
+
+ClassBlockMember:
+	  { "type" = "Member", "name" = string, "class" = Type, "public" = boolean, "static" = boolean, "const" = boolean } & HasPosition
+	| { "type" = "Cast" } & NotYetImplemented & HasPosition
 
 ClassDefinition: any
 InterfaceDefinition: any
@@ -52,7 +56,7 @@ local function parseClassBodyStatements( source, name )
 				parseFunctionTemplate( source, lexer:peek(-1).position )
 
 			else
-				if parseDefinition( source, false ) == 0 then
+				if not parseDefinition( source, false ) then
 					throw( lexer, "expected definition" )
 				end
 
@@ -107,7 +111,20 @@ function parseClassDefinition( source, pos )
 	end
 
 	if lexer:skip( "Symbol", "{" ) then
-		local block = parseClassBodyStatements( source, name )
+		local statements = parseClassBodyStatements( source, name )
+		local block = {}
+
+		for i = 1, #statements do
+			block[i] = {
+				type = "Member";
+				name = statements[i].name;
+				class = statements[i].class;
+				public = statements[i].public;
+				static = statements[i].static;
+				position = statements[i].position;
+				const = statements[i].const;
+			}
+		end
 
 		source:push {
 			type = "ClassDefinition";
@@ -116,7 +133,23 @@ function parseClassDefinition( source, pos )
 			extends = extends;
 			implements = implements;
 			block = block;
+			position = pos;
 		}
+
+		local classref = wrapStringAsReference( name, position )
+
+		for i = 1, #statements do
+			if statements[i].value then
+
+				source:push( wrapExpressionStatement(
+					wrapSetExpression( 
+						wrapDotIndex( classref, statements[i].name ),
+						statements[i].value
+					)
+				) )
+
+			end
+		end
 
 	elseif extends or #implements > 0 or container1 then
 		throw( lexer, "expected '{' for class body" )
@@ -138,7 +171,20 @@ function parseInterfaceDefinition( source, pos )
 	end
 
 	if lexer:skip( "Symbol", "{" ) then
-		local block = parseClassBodyStatements( source, name )
+		local statements = parseClassBodyStatements( source, name )
+		local block = {}
+
+		for i = 1, #statements do
+			block[i] = {
+				type = "Member";
+				name = statements[i].name;
+				class = statements[i].class;
+				public = statements[i].public;
+				static = statements[i].static;
+				position = statements[i].position;
+				const = statements[i].const;
+			}
+		end
 
 		source:push {
 			type = "InterfaceDefinition";
@@ -146,6 +192,21 @@ function parseInterfaceDefinition( source, pos )
 			implements = implements;
 			block = block;
 		}
+
+		local interfaceref = wrapStringAsReference( name, position )
+
+		for i = 1, #statements do
+			if statements[i].value then
+
+				source:push( wrapExpressionStatement(
+					wrapSetExpression( 
+						wrapDotIndex( interfaceref, statements[i].name ),
+						statements[i].value
+					)
+				) )
+
+			end
+		end
 
 	else
 		throw( lexer, "expected '{' for interface body" )
@@ -165,9 +226,10 @@ function serializeClassDefinition( t )
 	for i = 1, #t.block do
 		b[i] = (t.block[i].public and "public " or "private ")
 			.. (t.block[i].static and "static " or "")
-			.. ((t.block[i].type == "TemplateDefinition" or t.block[i].type == "Definition")
-			    and serializeDefinition( t.block[i] )
-			    or ("<serialization of " .. t.block[i].type .. " isn't implemented yet>"))
+			.. (t.block[i].type == "Member"
+			and ((t.block[i].const and "const " or "") .. serializeType( t.block[i].class ) .. " " .. t.block[i].name .. ";")
+			 or ("<serialiation of " .. t.block[i].type .. " isn't implemented yet>")
+			)
 	end
 
 	return "class " .. t.name .. " "
@@ -188,9 +250,10 @@ function serializeInterfaceDefinition( t )
 	for i = 1, #t.block do
 		b[i] = (t.block[i].public and "public " or "private ")
 			.. (t.block[i].static and "static " or "")
-			.. ((t.block[i].type == "TemplateDefinition" or t.block[i].type == "Definition")
-			    and serializeDefinition( t.block[i] )
-			    or ("<serialization of " .. t.block[i].type .. " isn't implemented yet>"))
+			.. (t.block[i].type == "Member"
+			and ((t.block[i].const and "const " or "") .. serializeType( t.block[i].class ) .. " " .. t.block[i].name .. ";")
+			 or ("<serialiation of " .. t.block[i].type .. " isn't implemented yet>")
+			)
 	end
 
 	return "interface " .. t.name .. " "

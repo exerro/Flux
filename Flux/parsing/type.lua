@@ -12,6 +12,14 @@ Type: Typename | FunctionType | ArrayType | TableType | "auto" | "void"
 
 ]]
 
+function wrapFunctionType( returns, parameters )
+	return { type = "FunctionType", returns = returns, parameters = parameters }
+end
+
+function wrapTypename( name )
+	return { type = "Typename", name = name }
+end
+
 local function parseFunctionType( source ) -- function int(int) etc
 	local lexer = source.lexer
 	local returns = parseType( source )
@@ -101,14 +109,6 @@ function parseTypeModifiers( source, v, e )
 	end
 
 	return v
-end
-
-function wrapFunctionType( returns, parameters )
-	return { type = "FunctionType", returns = returns, parameters = parameters }
-end
-
-function wrapTypename( name )
-	return { type = "Typename", name = name }
 end
 
 function parseType( source )

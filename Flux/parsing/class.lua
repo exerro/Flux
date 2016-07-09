@@ -77,6 +77,67 @@ local function parseClassBodyStatements( source, name )
 	return classblock
 end
 
+local function formatBlock( statements )
+	local block = {}
+
+	for i = 1, #statements do
+		if statements[i].type == "Definition" then
+			block[i] = {
+				type = "Member";
+				name = statements[i].name;
+				class = statements[i].class;
+				public = statements[i].public;
+				static = statements[i].static;
+				position = statements[i].position;
+				const = statements[i].const;
+			}
+
+		elseif statements[i].type == "TemplateDefinition" then
+			block[i] = {
+				type = "Template";
+				template = statements[i].template;
+				definition = {
+					public = statements[i].public;
+					static = statements[i].definition.static;
+					name = statements[i].definition.name;
+					class = statements[i].definition.class;
+					position = statements[i].definition.position;
+					const = statements[i].definition.const;
+				};
+			}
+
+		end
+	end
+
+	return block
+end
+
+local function doMemberAssignment( source, name, statements, position )
+	local classref = wrapStringAsReference( name, position )
+
+	for i = 1, #statements do
+		if statements[i].type == "Definition" and statements[i].value then
+
+			source:push( wrapExpressionStatement(
+				wrapSetExpression( 
+					wrapDotIndex( classref, statements[i].name ),
+					statements[i].value
+				)
+			) )
+
+		elseif statements[i].type == "TemplateDefinition" and statements[i].definition.value then
+
+			source:push( wrapTemplateDefinition( statements[i].template, wrapExpressionStatement(
+				wrapSetExpression( 
+					wrapDotIndex( classref, statements[i].definition.name ),
+					statements[i].definition.value
+				)
+			) ) )
+
+		end
+	end
+end
+
 local function parseClassAliasDefinition( source, name )
 	-- parse stuff
 end
@@ -112,19 +173,7 @@ function parseClassDefinition( source, pos )
 
 	if lexer:skip( "Symbol", "{" ) then
 		local statements = parseClassBodyStatements( source, name )
-		local block = {}
-
-		for i = 1, #statements do
-			block[i] = {
-				type = "Member";
-				name = statements[i].name;
-				class = statements[i].class;
-				public = statements[i].public;
-				static = statements[i].static;
-				position = statements[i].position;
-				const = statements[i].const;
-			}
-		end
+		local block = formatBlock( statements )
 
 		source:push {
 			type = "ClassDefinition";
@@ -136,20 +185,7 @@ function parseClassDefinition( source, pos )
 			position = pos;
 		}
 
-		local classref = wrapStringAsReference( name, position )
-
-		for i = 1, #statements do
-			if statements[i].value then
-
-				source:push( wrapExpressionStatement(
-					wrapSetExpression( 
-						wrapDotIndex( classref, statements[i].name ),
-						statements[i].value
-					)
-				) )
-
-			end
-		end
+		doMemberAssignment( source, name, statements, position )
 
 	elseif extends or #implements > 0 or container1 then
 		throw( lexer, "expected '{' for class body" )
@@ -172,19 +208,7 @@ function parseInterfaceDefinition( source, pos )
 
 	if lexer:skip( "Symbol", "{" ) then
 		local statements = parseClassBodyStatements( source, name )
-		local block = {}
-
-		for i = 1, #statements do
-			block[i] = {
-				type = "Member";
-				name = statements[i].name;
-				class = statements[i].class;
-				public = statements[i].public;
-				static = statements[i].static;
-				position = statements[i].position;
-				const = statements[i].const;
-			}
-		end
+		local block = formatBlock( statements )
 
 		source:push {
 			type = "InterfaceDefinition";
@@ -193,26 +217,21 @@ function parseInterfaceDefinition( source, pos )
 			block = block;
 		}
 
-		local interfaceref = wrapStringAsReference( name, position )
-
-		for i = 1, #statements do
-			if statements[i].value then
-
-				source:push( wrapExpressionStatement(
-					wrapSetExpression( 
-						wrapDotIndex( interfaceref, statements[i].name ),
-						statements[i].value
-					)
-				) )
-
-			end
-		end
+		doMemberAssignment( source, name, statements, position )
 
 	else
 		throw( lexer, "expected '{' for interface body" )
 
 	end
 
+end
+
+local function serializeMember( member )
+	return (member.public and "public " or "private ") .. (member.static and "static " or "") .. (member.const and "const " or "") .. serializeType( member.class ) .. " " .. member.name .. ";"
+end
+
+local function serializeTemplate( member )
+	return "template <" .. serializeFunctionTemplate( member.template ) .. "> " .. serializeMember( member.definition )
 end
 
 function serializeClassDefinition( t )
@@ -224,12 +243,10 @@ function serializeClassDefinition( t )
 	end
 
 	for i = 1, #t.block do
-		b[i] = (t.block[i].public and "public " or "private ")
-			.. (t.block[i].static and "static " or "")
-			.. (t.block[i].type == "Member"
-			and ((t.block[i].const and "const " or "") .. serializeType( t.block[i].class ) .. " " .. t.block[i].name .. ";")
+		b[i] = 
+				t.block[i].type == "Member" and serializeMember( t.block[i] )
+			 or t.block[i].type == "Template" and serializeTemplate( t.block[i] )
 			 or ("<serialiation of " .. t.block[i].type .. " isn't implemented yet>")
-			)
 	end
 
 	return "class " .. t.name .. " "
@@ -248,12 +265,10 @@ function serializeInterfaceDefinition( t )
 	end
 
 	for i = 1, #t.block do
-		b[i] = (t.block[i].public and "public " or "private ")
-			.. (t.block[i].static and "static " or "")
-			.. (t.block[i].type == "Member"
-			and ((t.block[i].const and "const " or "") .. serializeType( t.block[i].class ) .. " " .. t.block[i].name .. ";")
+		b[i] =
+				t.block[i].type == "Member" and serializeMember( t.block[i] )
+			 or t.block[i].type == "Template" and serializeTemplate( t.block[i] )
 			 or ("<serialiation of " .. t.block[i].type .. " isn't implemented yet>")
-			)
 	end
 
 	return "interface " .. t.name .. " "

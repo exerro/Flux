@@ -6,7 +6,7 @@ FunctionDefinitionParameters: { number = { "class" = Type, "name" = string, "nul
 GenericDefinition: { "const" = boolean, "name" = string } & HasPosition
 
 Definition: { "type" = "Definition", "value" = Expression | nil, "class" = Type } & GenericDefinition
-TemplateDefinition: { "type" = "TemplateDefinition", "definition" = Definition, "template" = { number = { "name" = string, "limits" = {} } } } & HasPosition
+TemplateDefinition: { "type" = "TemplateDefinition", "definition" = Definition | ExpressionStatement, "template" = { number = { "name" = string, "limits" = {} } } } & HasPosition
 ]]
 
 local function trimParameters( p, i )
@@ -28,6 +28,15 @@ function wrapDefinition( name, class, value, const, static, position )
 		const = const;
 		static = static;
 		position = position;
+	}
+end
+
+function wrapTemplateDefinition( template, definition, position )
+	return {
+		type = "TemplateDefinition";
+		definition = definition;
+		template = template;
+		position = position or definition.position;
 	}
 end
 
@@ -136,12 +145,7 @@ function parseFunctionTemplate( source, pos )
 	local block = source:pop()
 
 	for i = 1, #block do
-		source:push {
-			type = "TemplateDefinition";
-			definition = block[i];
-			template = template_classes;
-			position = pos;
-		}
+		source:push( wrapTemplateDefinition( template_classes, block[i], pos ) )
 	end
 end
 
@@ -458,25 +462,29 @@ function serializeFunctionDefinitionParameters( t )
 	return "(" .. table.concat( p, ", " ) .. ")"
 end
 
+function serializeFunctionTemplate( t )
+	local c = {}
+
+	for i = 1, #t do
+		local l = {}
+
+		for n = 1, #t[i].limits do
+			l[n] = serializeType( t[i].limits[n] )
+		end
+
+		c[i] = t[i].name .. (#t[i].limits > 0 and " [" .. table.concat( l, ", " ) .. "]" or "")
+	end
+
+	return table.concat( c, ", " )
+end
+
 function serializeDefinition( t )
 
 	if t.type == "Definition" then
 		return (t.const and "const " or "") .. serializeType( t.class ) .. " " .. t.name .. (t.value and " = " .. serializeExpression( t.value ) or "") .. ";"
 
 	elseif t.type == "TemplateDefinition" then
-		local c = {}
-
-		for i = 1, #t.template do
-			local l = {}
-
-			for n = 1, #t.template[i].limits do
-				l[n] = serializeType( t.template[i].limits[n] )
-			end
-
-			c[i] = t.template[i].name .. (#t.template[i].limits > 0 and " [" .. table.concat( l, ", " ) .. "]" or "")
-		end
-
-		return "template <" .. table.concat( c, ", " ) .. ">\n" .. serializeDefinition( t.definition )
+		return "template <" .. serializeFunctionTemplate( t.template ) .. ">\n" .. (t.definition.type == "Definition" and serializeDefinition( t.definition ) or serializeStatement( t.definition ))
 
 	else
 		return "<serialization of " .. t.type .. " isn't written>"

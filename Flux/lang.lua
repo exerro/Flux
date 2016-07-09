@@ -124,6 +124,7 @@ lang.unary_operators["-"] = true
 types.define "Expression"
 types.define "Block"
 types.define "Type"
+types.define "ExpressionStatement"
 
 types.parseMany [[
 

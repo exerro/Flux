@@ -1,15 +1,8 @@
 
-interface I {
-	int a, b = 2;
+class Button {
+	template<A, B>
+	static void f(A a, B b) = a + b;
 }
 
-class X {
-	const int x, y;
-	int z = 1;
-
-	float f();
-}
-
-float X:f() {
-	return 2;
-}
+template<A, B>
+void a:b() = 1;

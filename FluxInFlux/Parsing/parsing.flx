@@ -1,0 +1,23 @@
+
+import language;
+
+import TokenType;
+
+let String = Flux::Parsing::TokenType.String,
+	Character = Flux::Parsing::TokenType.Character,
+	Backtick = Flux::Parsing::TokenType.Backtick,
+	Float = Flux::Parsing::TokenType.Float,
+	Integer = Flux::Parsing::TokenType.Integer,
+	Byte = Flux::Parsing::TokenType.Byte,
+	Hexadecimal = Flux::Parsing::TokenType.Hexadecimal,
+	Binary = Flux::Parsing::TokenType.Binary,
+	Boolean = Flux::Parsing::TokenType.Boolean,
+	Null = Flux::Parsing::TokenType.Null,
+	Symbol = Flux::Parsing::TokenType.Symbol,
+	Identifier = Flux::Parsing::TokenType.Identifier,
+	Keyword = Flux::Parsing::TokenType.Keyword,
+	EOF = Flux::Parsing::TokenType.EOF;
+
+import Token;
+import Lexer;
+import Source;

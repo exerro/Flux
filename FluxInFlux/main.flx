@@ -1,0 +1,15 @@
+
+import flux;
+
+let source = "
+while true {
+     print( 5 + 0xff );
+}
+";
+
+void main() {
+	new Flux::Parsing::Lexer lexer( source );
+
+	while !lexer:isEOF()
+		print( lexer:next():tostring() );
+}

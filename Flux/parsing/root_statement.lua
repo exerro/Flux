@@ -227,7 +227,7 @@ function compileRootStatement( emitter, t )
 		for i = 1, #t.members do
 			emitter:pushLineBreak()
 			emitter:pushWord( t.members[i] )
-			emitter:pushOperatpr "="
+			emitter:pushOperator "="
 			emitter:pushString( t.members[i] )
 			emitter:pushSymbol ";"
 		end

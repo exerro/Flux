@@ -501,6 +501,7 @@ function compileStatement( emitter, t )
 
 		if t.elseblock then
 			if #t.elseblock == 1 and t.elseblock[1].type == "IfStatement" then
+				emitter:pushLineBreak()
 				emitter:pushSymbol "else"
 				return compileStatement( emitter, t.elseblock[1] )
 			else

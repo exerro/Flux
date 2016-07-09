@@ -56,8 +56,6 @@ where
 public private static
 setter getter
 operator +
-
-template
 ]]):gmatch "%w+" do
 	lang.keywords[word] = true;
 end

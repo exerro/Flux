@@ -254,7 +254,7 @@ function parseFunctionBody( source )
 		source:push( wrapReturnStatement( expr ) )
 
 		if not expectSemicolon( lexer ) then
-			throw( source, "expected ';' after expression" )
+			throw( lexer, "expected ';' after expression" )
 		end
 
 		return source:pop()
@@ -275,7 +275,7 @@ function parseDefinition( source, expectFunction )
 		static = nil
 	end
 
-	if classname and not static and lexer:skip( "Identifier", classname:gsub( ".+::", "" ) ) then
+	if classname and not static and lexer:skip( "Identifier", classname:gsub( lang.REPLACE_COLONS_WITH_UNDERSCORES and ".+__" or ".+::", "" ) ) then
 		if lexer:test( "Symbol", "(" ) then
 			local parameters, defaults = parseFunctionDefinitionParameters( source, true )
 			local body = not lexer:skip( "Symbol", ";" ) and dealWithDefaultBody( parseFunctionBody( source ), parameters ) or nil

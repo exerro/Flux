@@ -1,0 +1,11 @@
+
+namespace Flux::Parsing;
+
+enum TokenType {
+	String, Character, Backtick;
+	Float, Integer, Byte, Hexadecimal, Binary;
+	Boolean, Null;
+	Symbol;
+	Identifier, Keyword;
+	EOF;
+}

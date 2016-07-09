@@ -1,38 +1,61 @@
 
+local console = {}
+local font = love.graphics.newFont( "font.ttf", 14 )
+local scroll = 0
+local oldprint = print
+
+function print( ... )
+	for segment in tostring( ... ):gmatch "[^\n]+" do
+		console[#console + 1] = segment
+	end
+	return oldprint( ... )
+end
+
 local Flux = require "Flux"
 local types = require "common.types"
 
 local test_case = "stuff"
 
-local source = Source "Flux/tests"
+local source = Source "FluxInFlux"
 local emitter = Emitter()
 
-if source.hasMainFile then
-	source:import "main"
-else
-	error( "path has no main file", 0 )
+local ok, err = pcall( function()
+	if source.hasMainFile then
+		source:import "main"
+	else
+		print( "path has no main file", 0 )
+	end
+
+	for i = 1, #source.statements do
+		compileRootStatement( emitter, source.statements[i] )
+		emitter:pushLineBreak()
+		emitter:pushLineBreak()
+	end
+
+	love.filesystem.write( "log.txt", emitter.output )
+
+	assert( loadstring( emitter.output ) )()
+
+	main()
+end )
+
+if not ok then
+	print( err )
 end
 
-for i = 1, #source.statements do
-	print( serializeRootStatement( source.statements[i] ) )
-	print ""
+function love.keypressed()
+	love.event.quit()
+end
 
-	compileRootStatement( emitter, source.statements[i] )
+function love.draw()
+	local fheight = font:getHeight()
+	local y = 0
 
-	emitter:pushLineBreak()
-	emitter:pushLineBreak()
+	love.graphics.translate( 0, scroll )
+	love.graphics.setFont( font )
 
-	if not types.check( source.statements[i], "RootStatement" ) then
-		local s = types.whynot( source.statements[i], "RootStatement" )
-		love.filesystem.write( "log.txt", s )
-		error( s )
+	for i = 1, #console do
+		love.graphics.print( console[i], 0, y )
+		y = y + fheight
 	end
 end
-
-print "\n----------------------------\n"
-
-print( emitter.output )
-
-assert( loadstring( emitter.output ) )()
-
-main()

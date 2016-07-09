@@ -1,0 +1,40 @@
+
+namespace Flux::Parsing;
+
+string getTokenTypeString( TokenType type )
+	switch type;
+	case null
+		return "null";
+	default
+		return type;
+
+class Token {
+	Position position;
+	TokenType type = "TOKEN";
+	string value = "";
+
+	static Token EOF(Position position);
+
+	Token( TokenType type, null string value = "", null Position position = new Flux::Position() ) {
+		self.type = type;
+		self.value = value;
+		self.position = position;
+		getmetatable( self ).__tostring = self.tostring;
+	}
+
+	string tostring();
+	string getNearString();
+}
+
+Token Token:EOF(Position position)
+	= new Token( Flux::Parsing::TokenType.EOF, "EOF", position );
+
+string Token:tostring()
+	= Flux::Parsing::getTokenTypeString( self.type ) `concat` '<' `concat` self.value `concat` '>';
+
+string Token:getNearString()
+	= match self.type {
+		Flux::Parsing::TokenType.String => "<string>";
+		Flux::Parsing::TokenType.EOF => "<eof>";
+		default => self:tostring();
+	};

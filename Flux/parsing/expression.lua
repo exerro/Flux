@@ -889,11 +889,15 @@ function compileExpression( emitter, t )
 
 		elseif t.operator == "~" then
 
+		elseif t.operator == "!" then
+			emitter:pushWord "not"
+			
+			return compileExpression( emitter, t.value )
+
 		else
 			emitter:pushSymbol( t.operator )
-			compileExpression( emitter, t.value )
-
-			return
+			
+			return compileExpression( emitter, t.value )
 
 		end
 
@@ -1184,7 +1188,7 @@ function compileExpression( emitter, t )
 
 			return emitter:pushSymbol ")"
 
-		elseif operator:find "[^=]=" then
+		elseif operator:find "[^=<>!]=" then
 			if t.lvalue.type == "Reference" then
 				emitter:pushBlockText( "(function(v)\n"
 					.. "\t" .. t.lvalue.name .. " = " .. t.lvalue.name .. " " .. operator:sub( 1, 1 ) .. " v\n"
@@ -1287,7 +1291,7 @@ function compileExpressionStatement( emitter, t )
 
 		end
 
-	elseif t.type == "BinaryExpression" and t.operator:find "[^=]=" then
+	elseif t.type == "BinaryExpression" and t.operator:find "[^=<>!]=" then
 
 		local operator = t.operator:sub( 1, 1 )
 
@@ -1354,7 +1358,7 @@ function compileExpressionStatement( emitter, t )
 
 		end
 
-	elseif t.type == "NewExpression" or t.type == "FunctionCall" or t.type == "ThrowExpression" then
+	elseif t.type == "NewExpression" or t.type == "FunctionCall" or t.type == "ThrowExpression" or t.type == "MethodCall" then
 		compileExpression( emitter, t )
 
 		return emitter:pushSymbol ";"

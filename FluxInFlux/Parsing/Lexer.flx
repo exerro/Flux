@@ -1,0 +1,277 @@
+
+namespace Flux::Parsing;
+
+string getline( string text, int line ) {
+	for int i = 1, i <= line - 1, i++
+		text = text:gsub( "^.-\n", "" );
+	return text:gsub( "\n.*$", "" );
+}
+
+let escaped_characters = setmetatable( {
+	["n"] = "\n", ["0"] = "\0", ["r"] = "\r", ["t"] = "\t";
+}, { __index = lambda a b => b } );
+
+class Lexer {
+	int position = 1;
+	string text = "";
+
+	string source = "string";
+	int character = 1, line = 1;
+	string strline = "";
+
+	Token[] buffer = [];
+	int buffer_position = 1;
+
+	Lexer(string text, null string source = "string") {
+		self.source = source;
+		self.text = text;
+	}
+
+	Position getPosition(null int n = 0);
+	bool isEOF();
+
+	void error(string err, null Position position = self:getPosition());
+
+	Token consumePattern(TokenType type, string pattern);
+
+	Token consumeString(); // String, Character
+	Token consumeBacktick(); // Backtick
+	Token consumeWord(); // Identifier, Keyword, Boolean, Null
+	Token consumeNumber(); // Float, Integer, Byte
+	Token consumeHexadecimal(); // Hexadecimal
+	Token consumeBinary(); // Binary
+	Token consumeSymbol(); // Symbol
+
+	void skipWhitespace();
+	void skipComment();
+	void skipNewline();
+
+	void consume();
+
+	int mark();
+	void jump(int position);
+
+	Token get();
+	Token peek(null int lookahead = 1);
+	Token next();
+	Token back();
+
+	Token test(TokenType type, null string value, null int lookahead);
+	Token skip(TokenType type, null string value);
+
+	string testValue(TokenType type, null string value, null int lookahead);
+	string skipValue(TokenType type, null string value);
+}
+
+Position Lexer:getPosition(null int n = 0) {
+	let character = self.character;
+	self.character += n;
+	return new Flux::Position( self.source, self.line, character, self.strline );
+}
+
+bool Lexer:isEOF()
+	= self.position > #self.text;
+
+void Lexer:error(string err, Position position)
+	= source `concat` '[' `concat` line `concat` ']: ' `concat` err `concat` near_text `concat` strline `concat` "\n\t" `concat` pointer
+	where source = position.source
+	where line = position.line
+	where strline = position.strline:gsub( "\t", " " )
+	where pointer = (" "):rep( position.character - 1 ) .. "^"
+	where near_text = showNear && " (near " `concat` self:get():getNearString() `concat` ")\n\t" || "\n\t";
+
+Token Lexer:consumePattern(TokenType type, string pattern) {
+	let value = string__match( self.text, "^" `concat` pattern, self.position );
+
+	if !value return null;
+
+	self.position += #value;
+	return new Flux::Parsing::Token( type, value, self:getPosition( #value ) );
+}
+
+Token Lexer:consumeString() {
+	self.position++;
+}
+
+Token Lexer:consumeBacktick() {
+	let content = string__match( self.text, "`([^\n]-)`", self.position );
+
+	if !content
+		self:error "missing end of '`'";
+
+	self.position += #content + 2;
+
+	return Token( "Backtick", content, self:getPosition( #content + 2 ) );
+}
+
+Token Lexer:consumeWord() {
+	let token = self:consumePattern( Flux::Parsing::TokenType.Identifier, "[%w_]+" );
+
+	if Flux::Parsing::language::keywords[token.value]
+		token.type = Flux::Parsing::TokenType.Keyword;
+
+	else if token.value == "true" || token.value == "false"
+		token.type = Flux::Parsing::TokenType.Boolean;
+
+	else if token.value == "null"
+		token.type = Flux::Parsing::TokenType.Null;
+
+	return token;
+}
+
+Token Lexer:consumeNumber()
+	 = self:consumePattern( Flux::Parsing::TokenType.Float, "%d*%.%d+e[%+%-]?%d+" )
+	|| self:consumePattern( Flux::Parsing::TokenType.Float, "%d*%.%d+" )
+	|| self:consumePattern( Flux::Parsing::TokenType.Byte, "%d+e[%+%-]?%d+b" )
+	|| self:consumePattern( Flux::Parsing::TokenType.Byte, "%d+b" )
+	|| self:consumePattern( Flux::Parsing::TokenType.Integer, "%d+e[%+%-]?%d+" )
+	|| self:consumePattern( Flux::Parsing::TokenType.Integer, "%d+" );
+
+Token Lexer:consumeHexadecimal()
+	= self:consumePattern( Flux::Parsing::TokenType.Hexadecimal, "0x%x+" );
+
+Token Lexer:consumeBinary()
+	= self:consumePattern( Flux::Parsing::TokenType.Binary, "0b[01]+" );
+
+Token Lexer:consumeSymbol() {
+	let position = self.position;
+	let s3 = self.text:sub( position, position + 2 );
+	let s2 = self.text:sub( position, position + 1 );
+	let s1 = self.text:sub( position, position );
+
+	if Flux::Parsing::language::symbols[s3]
+		self.position += 3;
+		then return new Flux::Parsing::Token( Flux::Parsing::TokenType.Symbol, s3, self:getPosition( 3 ) );
+	else if Flux::Parsing::language::symbols[s2]
+		self.position += 2;
+		then return new Flux::Parsing::Token( Flux::Parsing::TokenType.Symbol, s2, self:getPosition( 2 ) );
+	else if Flux::Parsing::language::symbols[s1]
+		self.position += 1;
+		then return new Flux::Parsing::Token( Flux::Parsing::TokenType.Symbol, s1, self:getPosition( 1 ) );
+	else
+		return self:error( "unexpected symbol '" .. s1 .. "'" );
+}
+
+void Lexer:skipWhitespace() {
+	let len = #string__match( self.text, "[^%S\n]+", self.position );
+	self.character += len;
+	self.position += len;
+}
+
+void Lexer:skipComment() {
+	if self.text:find( "^//", self.position ) {
+		self.line++;
+		self.strline = Flux::Parsing::getline( self.text, self.line );
+		self.character = 1;
+		self.position += #( string_match( self.text, "^.-\n", self.position ) || self.text:sub( self.position ) );
+	}
+	else {
+		let finish = self.text:find( "%*/", self.position );
+		let newlines = finish && select( 2, self.text:sub( self.position, finish ):gsub( "\n", "" ) );
+
+		if finish {
+			self.line += newlines;
+			self.strline = Flux::Parsing::getline( self.text, self.line );
+			self.character = newlines > 0
+				&& #self.text:sub( self.position, finish ):gsub( ".+\n", "" ) + 2
+				|| self.character + finish - self.position + 2;
+			self.position = finish + 2;
+		}
+		else
+			return self:error "missing end of comment '*/'";
+	}
+}
+
+void Lexer:skipNewline() {
+	self.line++;
+	self.character = 1;
+	self.position++;
+	self.strline = Flux::Parsing::getline( self.text, self.line );
+}
+
+void Lexer:consume() {
+	if self.text:find( "^\n", self.position )
+		self:skipNewline();
+		then return self:consume();
+
+	else if self.text:find( "^/[%*/]", self.position )
+		self:skipComment();
+		then return self:consume();
+
+	else if self.text:find( "^%s", self.position )
+		self:skipWhitespace();
+		then return self:consume();
+
+	Token token;
+
+	if self:isEOF()
+		token = Token.EOF( self:getPosition() );
+
+	else if self.text:find( "^[\"']", self.position )
+		token = self:consumeString();
+
+	else if self.text:find( "^0x%x+", self.position )
+		token = self:consumeHexadecimal();
+
+	else if self.text:find( "^0b[01]+", self.position )
+		token = self:consumeBinary();
+
+	else if self.text:find( "^%d+b?%W", self.position ) || self.text:find( "^%d+b?$", self.position )
+		|| self.text:find( "^%d+e[%+%-]?%d+b?%W", self.position ) || self.text:find( "^%d+e[%+%-]?%d+b?$", self.position )
+		|| self.text:find( "^%d*%.%d+%W", self.position ) || self.text:find( "^%d*%.%d+$", self.position )
+		|| self.text:find( "^%d*%.%d+e[%+%-]?%d+%W", self.position ) || self.text:find( "^%d*%.%d+e[%+%-]?%d+$", self.position )
+		token = self:consumeNumber();
+
+	else if self.text:find( "^[%w_]+", self.position )
+		token = self:consumeWord();
+
+	else if self.text:sub( self.position, self.position ) == "`"
+		token = self:consumeBackticks();
+
+	else
+		token = self:consumeSymbol();
+
+	self.buffer[#self.buffer + 1] = token;
+
+	return token;
+}
+
+int Lexer:mark()
+	= self.buffer_position;
+
+void Lexer:jump(int position)
+	self.buffer_position = position;
+
+Token Lexer:get(null int position = self.buffer_position) {
+	let buffer = self.buffer;
+
+	while !buffer[position]
+		self:consume();
+
+	return buffer[position];
+}
+
+Token Lexer:peek(null int lookahead = 1)
+	= self:get(self.buffer_position + lookahead);
+
+Token Lexer:next()
+	= self:get( self.buffer_position++ );
+
+Token Lexer:back()
+	= self:get( self.buffer_position-- );
+
+Token Lexer:test(TokenType type, null string value, null int lookahead)
+	= token.type == type && (!value || token.value == value) && token
+	where token = self:peek( lookahead );
+
+Token Lexer:skip(TokenType type, null string value)
+	= token.type == type && (!value || token.value == value) && self:next()
+	where token = self:get();
+
+string Lexer:testValue(TokenType type, null string value, null int lookahead)
+	= token && token.value
+	where token = self:test(type, value, lookahead);
+
+string Lexer:skipValue(TokenType type, null string value)
+	= token && token.value
+	where token = self:skip(type, value);

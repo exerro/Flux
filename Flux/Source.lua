@@ -1,5 +1,6 @@
 
 local FLUX_STD_LIB_PATH = "Flux/std"
+local lang = require "Flux.lang"
 
 local function isfile( path )
 	local h = io.open( path )
@@ -18,6 +19,9 @@ local function readfile( path )
 		return c
 	end
 end
+
+isfile = love.filesystem.isFile
+readfile = love.filesystem.read
 
 class "Source" {
 	path = "";

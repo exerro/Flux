@@ -1,0 +1,8 @@
+
+let table::concat = table.concat;
+let a `concat` b = table::concat( [a, b] );
+
+let string__match = string["match"];
+
+import Position;
+import Parsing.parsing;

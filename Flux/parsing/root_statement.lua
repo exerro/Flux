@@ -200,3 +200,50 @@ function serializeRootStatement( t )
 
 	end
 end
+
+function compileRootStatement( emitter, t )
+	
+	if t.type == "NamespaceStatement" then
+		for i = 1, #t.block do
+			compileRootStatement( emitter, t.block[i] )
+		end
+
+	elseif t.type == "UsingStatement" then
+		-- do nothing
+
+	elseif t.type == "ClassDefinition" then
+		return compileClassDefinition( emitter, t )
+
+	elseif t.type == "InterfaceDefinition" then
+		return compileInterfaceDefinition( emitter, t )
+
+	elseif t.type == "EnumDefinition" then
+		emitter:define( t.name )
+		emitter:pushWord( t.name )
+		emitter:pushOperator "="
+		emitter:pushSymbol "{"
+		emitter:indent( 1 )
+
+		for i = 1, #t.members do
+			emitter:pushLineBreak()
+			emitter:pushWord( t.members[i] )
+			emitter:pushOperatpr "="
+			emitter:pushString( t.members[i] )
+			emitter:pushSymbol ";"
+		end
+
+		emitter:indent( -1 )
+		emitter:pushLineBreak()
+		emitter:pushSymbol "}"
+
+	elseif t.type == "Definition" or t.type == "TemplateDefinition" then
+		return compileDefinition( emitter, t )
+
+	elseif t.type == "ExpressionStatement" then
+		return compileExpressionStatement( emitter, t.value )
+
+	else
+		emitter:push( "<compilation of " .. t.type .. " isn't written>" )
+
+	end
+end

@@ -1,4 +1,5 @@
 
+local lang = require "Flux.lang"
 local types = require "common.types"
 
 types.parseMany [[
@@ -59,6 +60,10 @@ function dealWithDefaultBody( block, parameters )
 end
 
 function dealWithDefaultOverloads( source, const, class, name, defaults, parameters, static, position )
+	if not lang.ADD_DEFAULT_VALUE_OVERLOAD_FUNCTIONS then
+		return
+	end
+
 	local llim = #defaults + 1
 
 	for i = #defaults, 1, -1 do
@@ -488,6 +493,71 @@ function serializeDefinition( t )
 
 	else
 		return "<serialization of " .. t.type .. " isn't written>"
+
+	end
+
+end
+
+function compileDefinition( emitter, t )
+
+	if t.type == "Definition" then
+		local isFunctionDefinition = t.class.type == "FunctionType"
+
+		emitter:define( t.name )
+		
+		if isFunctionDefinition then
+			if not t.value then
+				emitter:pushWord "local"
+			end
+
+			emitter:pushWord "function"
+			emitter:pushWord( t.name )
+
+			if t.value then
+				emitter:pushSymbol "("
+
+				for i = 1, #t.value.parameters do
+					emitter:pushWord( t.value.parameters[i].name )
+
+					if i < #t.value.parameters then
+						emitter:pushDelimiter ","
+					end
+				end
+
+				emitter:pushSymbol ")"
+
+				compileBlock( emitter, t.value.body )
+
+				emitter:pushLineBreak()
+				emitter:pushWord "end"
+			else
+				emitter:pushSymbol "()"
+				emitter:pushWord "end"
+			end
+		else
+			emitter:pushWord "local"
+			emitter:pushWord( t.name )
+
+			if t.value then
+				emitter:pushOperator "="
+
+				compileExpression( emitter, t.value )
+
+				emitter:pushSymbol ";"
+			end
+
+		end
+
+
+	elseif t.type == "TemplateDefinition" then
+		if t.definition.type == "Definition" then
+			return compileDefinition( emitter, t.definition )
+		else
+			return compileExpressionStatement( emitter, t.definition )
+		end
+
+	else
+		emitter:push( "<compilation of " .. t.type .. " isn't written>" )
 
 	end
 

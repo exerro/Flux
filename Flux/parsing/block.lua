@@ -50,3 +50,19 @@ function serializeBlock( t )
 
 	return "{\n\t" .. table.concat( b, "\n\t" ) .. "\n}"
 end
+
+function compileBlock( emitter, t )
+	if #t == 0 then return end
+
+	emitter:indent( 1 )
+	emitter:pushLineBreak()
+	
+	compileStatement( emitter, t[1] )
+
+	for i = 2, #t do
+		emitter:pushLineBreak()
+		compileStatement( emitter, t[i] )
+	end
+
+	emitter:indent( -1 )
+end

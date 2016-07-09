@@ -47,7 +47,7 @@ function Source:resolveDefinitionName( name )
 	local block = self.blocks[#self.blocks]
 
 	if block and block.meta.type == "namespace" then
-		return block.meta.name .. "::" .. name
+		return block.meta.name .. (lang.REPLACE_COLONS_WITH_UNDERSCORES and "__" or "::") .. name
 	end
 
 	return name

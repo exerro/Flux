@@ -22,7 +22,7 @@ function parseName( source )
 	local word = lexer:skipValue "Identifier"
 
 	while word and lexer:skip( "Symbol", "::" ) do
-		word = word .. "::" .. (lexer:skipValue "Identifier" or throw( lexer, "expected name after '::'" ))
+		word = word .. (lang.REPLACE_COLONS_WITH_UNDERSCORES and "__" or "::") .. (lexer:skipValue "Identifier" or throw( lexer, "expected name after '::'" ))
 	end
 
 	return word

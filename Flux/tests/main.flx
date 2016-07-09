@@ -1,8 +1,29 @@
 
-class Button {
-	template<A, B>
-	static void f(A a, B b) = a + b;
-}
+let table::concat = table.concat;
+let concat(a, b) = table::concat( [a, b] );
 
-template<A, B>
-void a:b() = 1;
+void tryError()
+	throw new Something "Hello world!";
+
+let demo = {
+	keywords = {
+		abc = true;
+		def = true;
+	}
+};
+
+void main() {
+	let t = { a = 1 };
+	for int i = 0, i < 3, i++
+		print( t.a );
+
+	print( demo["keywords", "abc"] );
+
+	print( "hello " `concat` "world!" );
+
+	try tryError();
+	catch Something e
+		print( concat( "The error was ", e ) );
+
+	foreach i in 5 .. 7 print( i );
+}	

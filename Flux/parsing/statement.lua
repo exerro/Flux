@@ -490,3 +490,259 @@ function serializeStatement( t )
 	end
 
 end
+
+function compileStatement( emitter, t )
+
+	if t.type == "IfStatement" then
+		emitter:pushWord "if"
+		compileExpression( emitter, t.condition )
+		emitter:pushWord "then"
+		compileBlock( emitter, t.block )
+
+		if t.elseblock then
+			if #t.elseblock == 1 and t.elseblock[1].type == "IfStatement" then
+				emitter:pushSymbol "else"
+				return compileStatement( emitter, t.elseblock[1] )
+			else
+				emitter:pushWord "else"
+				compileBlock( emitter, t.elseblock )
+			end
+		end
+
+		emitter:pushLineBreak()
+		emitter:pushWord "end"
+
+	elseif t.type == "WhileLoop" then
+		emitter:pushWord "while"
+		compileExpression( emitter, t.condition )
+		emitter:pushWord "do"
+		compileBlock( emitter, t.block )
+		emitter:pushLineBreak()
+		emitter:pushWord "end"
+
+	elseif t.type == "RepeatLoop" then
+		emitter:pushWord "repeat"
+		compileBlock( emitter, t.block )
+		emitter:pushLineBreak()
+		emitter:pushWord "until"
+		compileExpression( emitter, t.condition )
+		emitter:pushSymbol ";"
+
+	elseif t.type == "DoStatement" then
+		emitter:pushWord "do"
+		compileBlock( t.block )
+		emitter:pushLineBreak()
+		emitter:pushWord "end"
+
+	elseif t.type == "ForLoop" then
+		emitter:pushWord "local"
+		emitter:pushWord( t.init_name )
+		emitter:pushOperator "="
+
+		compileExpression( emitter, t.init_value )
+
+		emitter:pushLineBreak()
+		emitter:pushWord "while"
+
+		compileExpression( emitter, t.test )
+
+		emitter:pushWord "do"
+
+		compileBlock( emitter, t.block )
+
+		emitter:indent( 1 )
+		emitter:pushLineBreak()
+
+		compileExpressionStatement( emitter, t.increment )
+
+		emitter:indent( -1 )
+		emitter:pushLineBreak()
+		emitter:pushWord "end"
+
+	elseif t.type == "ForeachLoop" then
+
+		if t.name1 == "k" then
+			emitter:pushWord "for"
+			emitter:pushWord "k"
+			emitter:pushDelimiter ","
+			emitter:pushWord( t.name2 )
+			emitter:pushWord "in"
+			emitter:pushWord "pairs"
+			emitter:pushSymbol "( "
+
+			compileExpression( emitter, t.expression )
+
+			emitter:pushSymbol " )"
+			emitter:pushWord "do"
+
+			compileBlock( emitter, t.block )
+		else
+			local name = emitter:getName()
+			local name1 = t.name1 or emitter:getName()
+
+			emitter:pushWord "local"
+			emitter:pushWord( name )
+			emitter:pushOperator "="
+
+			compileExpression( emitter, t.expression )
+
+			emitter:pushLineBreak()
+			emitter:pushWord "for"
+			emitter:pushWord( name1 )
+			emitter:pushOperator "="
+			emitter:pushWord "1"
+			emitter:pushDelimiter ","
+			emitter:pushSymbol "#"
+			emitter:pushWord( name )
+			emitter:pushWord "do"
+			emitter:indent( 1 )
+			emitter:pushLineBreak()
+			emitter:pushWord "local"
+			emitter:pushWord( t.name2 )
+			emitter:pushOperator "="
+			emitter:pushSymbol( name .. "[" .. name1 .. "]" )
+
+			compileBlock( emitter, t.block )
+
+		end
+
+		emitter:pushLineBreak()
+		emitter:pushWord "end"
+
+	elseif t.type == "SwitchStatement" then
+		local name = emitter:getName()
+
+		emitter:pushWord "local"
+		emitter:pushWord( name )
+		emitter:pushOperator "="
+
+		compileExpression( emitter, t.expression )
+
+		emitter:pushLineBreak()
+
+		emitter:pushWord "if"
+		emitter:pushWord( name )
+		emitter:pushOperator "=="
+
+		compileExpression( emitter, t.cases[1].case )
+
+		emitter:pushWord "then"
+
+		compileBlock( emitter, t.cases[1].block )
+
+		emitter:pushLineBreak()
+
+		for i = 2, #t.cases do
+
+			emitter:pushWord "elseif"
+			emitter:pushWord( name )
+			emitter:pushOperator "=="
+
+			compileExpression( emitter, t.cases[i].case )
+
+			emitter:pushWord "then"
+
+			compileBlock( emitter, t.cases[i].block )
+
+			emitter:pushLineBreak()
+
+		end
+
+		if t.default then
+			emitter:pushWord "else"
+
+			compileBlock( emitter, t.default )
+
+			emitter:pushLineBreak()
+
+		end
+
+		emitter:pushWord "end"
+
+	elseif t.type == "TryStatement" then
+		local nameOK = emitter:getName()
+		local nameErr = emitter:getName()
+		local nameErrName = emitter:getName()
+
+		emitter:pushBlockText( "local " .. nameOK .. ", " .. nameErr .. " = pcall( function()" )
+
+		compileBlock( emitter, t.block )
+
+		emitter:pushLineBreak()
+		emitter:pushWord "end"
+		emitter:pushSymbol " )"
+		emitter:pushLineBreak()
+		emitter:pushBlockText( "local " .. nameErrName .. " = not " .. nameOK .. " and " .. nameErr .. ":match '^(.*):' or false" )
+		emitter:pushLineBreak()
+		emitter:pushWord "if"
+		emitter:pushWord( nameErrName )
+		emitter:pushOperator "=="
+		emitter:pushString( t.catches[1].class.name )
+		emitter:pushWord "then"
+		emitter:indent( 1 )
+		emitter:pushLineBreak()
+		emitter:pushWord "local"
+		emitter:pushWord( t.catches[1].name )
+		emitter:pushOperator "="
+		emitter:pushBlockText( nameErr .. ":match ':(.+)$' or ''" )
+		emitter:indent( -1 )
+
+		compileBlock( emitter, t.catches[1].block )
+
+		emitter:pushLineBreak()
+
+		for i = 2, #t.catches do
+			emitter:pushWord "elseif"
+			emitter:pushWord( nameErrName )
+			emitter:pushOperator "=="
+			emitter:pushString( t.catches[i].class.name )
+			emitter:pushWord "then"
+			emitter:indent( 1 )
+			emitter:pushLineBreak()
+			emitter:pushWord "local"
+			emitter:pushWord( t.catches[i].name )
+			emitter:pushOperator "="
+			emitter:pushBlockText( nameErr .. ":match ':(.+)$' or ''" )
+			emitter:indent( -1 )
+
+			compileBlock( emitter, t.catches[i].block )
+
+			emitter:pushLineBreak()
+		end
+
+		if t.default then
+			emitter:pushBlockText( "elseif not " .. nameOK .. " then" )
+
+			compileBlock( emitter, t.default )
+
+			emitter:pushLineBreak()
+		else
+			emitter:pushBlockText( "elseif not " .. nameOK .. " then\n\terror( " .. nameErr .. ", 0 )\n" )
+
+		end
+
+		return emitter:pushWord "end"
+
+	elseif t.type == "ReturnStatement" then
+		emitter:pushWord "return"
+
+		compileExpression( emitter, t.value )
+
+	elseif t.type == "BreakStatement" then
+		emitter:pushWord "break"
+
+	elseif t.type == "ContinueStatement" then
+		emitter:pushWord "continue"
+
+	elseif t.type == "Definition" or t.type == "TemplateDefinition" then
+		return compileDefinition( emitter, t )
+
+	elseif t.type == "ExpressionStatement" then
+		return compileExpressionStatement( emitter, t )
+
+	else
+		emitter:push( "<compilation of " .. t.type .. " isn't written>" )
+
+	end
+
+end

@@ -275,3 +275,37 @@ function serializeInterfaceDefinition( t )
 		.. (#i > 0 and "implements " .. table.concat( i, ", " ) .. " " or "")
 		.. " {\n\t" .. table.concat( b, "\n" ):gsub( "\n", "\n\t" ) .. "\n}"
 end
+
+function compileClassDefinition( emitter, t )
+	emitter:define( t.name )
+	emitter:pushWord( t.name )
+	emitter:pushOperator "="
+	emitter:pushBlockText( t.extends and "setmetatable( {}, { __index = " .. t.extends .. " } )" or "{}" )
+	emitter:pushLineBreak()
+
+	for i = 1, #t.implements do
+		emitter:pushBlockText( "for k, v in pairs(" .. t.implements[i] .. ") do\n"
+		.. "\t" .. t.name .. "[k] = v\n"
+		.. "end" )
+	end
+
+	emitter:pushBlockText( "function " .. t.name .. ":new(...)\n"
+	.. "\tlocal obj = setmetatable( {}, {__index = self} )\n"
+	.. "\tobj:" .. t.name .. "(...)\n"
+	.. "\treturn obj\n"
+	.. "end" )
+end
+
+function compileInterfaceDefinition( emitter, t )
+	emitter:define( t.name )
+	emitter:pushWord( t.name )
+	emitter:pushOperator "="
+	emitter:pushSymbol "{}"
+	emitter:pushLineBreak()
+
+	for i = 1, #t.implements do
+		emitter:pushBlockText( "for k, v in pairs(" .. t.implements[i] .. ") do\n"
+		.. "\t" .. t.name .. "[k] = v\n"
+		.. "end" )
+	end
+end

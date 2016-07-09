@@ -1,6 +1,18 @@
 
 local lang = require "Flux.lang"
 local types = require "common.types"
+local luaOperators = {
+	[">"] = true;
+	["<"] = true;
+	[">="] = true;
+	["<="] = true;
+	["=="] = true;
+	["+"] = true;
+	["-"] = true;
+	["*"] = true;
+	["/"] = true;
+	["%"] = true;
+}
 
 local function isEqualityOperator( operator )
 	return lang.operators[operator] == 1
@@ -734,4 +746,691 @@ function serializeExpression( t )
 
 	end
 
+end
+
+function compileExpression( emitter, t )
+
+	if t.type == "StringConstant" then
+		return emitter:pushString( t.value )
+
+	elseif t.type == "CharacterConstant" then
+		return emitter:pushString( t.value )
+
+	elseif t.type == "FloatConstant" or t.type == "IntegerConstant" or t.type == "ByteConstant" or t.type == "HexadecimalConstant" or t.type == "BooleanConstant" then
+		return emitter:pushWord( t.value )
+
+	elseif t.type == "BinaryConstant" then
+		return emitter:pushWord( tostring( tonumber( t.value, 2 ) ) )
+
+	elseif t.type == "Reference" then
+		return emitter:pushWord( t.name:gsub( "::", "__" ) )
+
+	elseif t.type == "NullExpression" then
+		return emitter:pushWord "nil"
+
+	elseif t.type == "ThrowExpression" then
+		if t.value.type == "NewExpression" then
+			emitter:pushWord "error"
+			emitter:pushBlockText( "( '" .. t.value.class.name .. ":' .. " )
+
+			compileExpression( emitter, t.value.parameters[1] )
+
+			return emitter:pushBlockText( ", 0 )" )
+		else
+			return emitter:push "<expected new expression to right of 'throw'>"
+		end
+
+	elseif t.type == "BracketExpression" then
+		emitter:pushSymbol "("
+
+		compileExpression( emitter, t.value )
+
+		return emitter:pushSymbol ")"
+
+	elseif t.type == "FunctionExpression" then
+		emitter:pushWord "function"
+		emitter:pushSymbol "("
+
+		for i = 1, #t.parameters do
+			emitter:pushWord( t.parameters[i].name )
+
+			if i < #t.parameters then
+				emitter:pushDelimiter ","
+			end
+		end
+
+		emitter:pushSymbol ")"
+
+		compileBlock( emitter, t.body )
+
+		emitter:pushLineBreak()
+		emitter:pushWord "end"
+
+		return
+
+	elseif t.type == "ArrayExpression" then
+		emitter:pushSymbol "{"
+
+		for i = 1, #t.value do
+			compileExpression( emitter, t.value[i] )
+
+			if i < #t.value then
+				emitter:pushDelimiter ","
+			end
+		end
+
+		return emitter:pushSymbol "}"
+
+	elseif t.type == "TableExpression" then
+		if #t.value == 0 then
+			return emitter:pushSymbol "{}"
+
+		else
+			emitter:pushSymbol "{"
+			emitter:indent( 1 )
+
+			for i = 1, #t.value do
+				emitter:pushLineBreak()
+				emitter:pushSymbol "["
+
+				compileExpression( emitter, t.value[i].index )
+
+				emitter:pushSymbol "]"
+				emitter:pushOperator "="
+
+				compileExpression( emitter, t.value[i].value )
+
+				emitter:pushSymbol ";"
+			end
+
+			emitter:indent( -1 )
+			emitter:pushLineBreak()
+			emitter:pushSymbol "}"
+
+			return
+		end
+
+	elseif t.type == "LeftUnaryExpression" then
+		if t.operator == "++" or t.operator == "--" then
+			local operator = t.operator == "++" and " + 1\n" or " - 1\n"
+			if t.value.type == "Reference" then
+				emitter:pushBlockText( "(function()\n"
+					.. "\t" .. t.value.name .. " = " .. t.value.name .. operator
+					.. "\treturn " .. t.value.name .. "\n"
+					.. "end)(" )
+
+				return emitter:pushSymbol ")"
+
+			elseif t.value.type == "DotIndex" then
+				emitter:pushBlockText( "(function(l)\n"
+					.. "\tl." .. t.value.index .. " = l." .. t.value.index .. operator
+					.. "\treturn l." .. t.value.index .. "\n"
+					.. "end)(" )
+
+				compileExpression( emitter, t.value.value )
+
+				return emitter:pushSymbol ")"
+
+			elseif t.value.type == "Index" then
+				emitter:pushBlockText( "(function(t, i)\n"
+					.. "\tt[i] = t[i]" .. operator
+					.. "\treturn t[i]\n"
+					.. "end)(" )
+
+				compileExpression( emitter, t.value.value )
+				emitter:pushDelimiter ","
+				compileExpression( emitter, t.value.index[1] )
+
+				return emitter:pushSymbol ")"
+
+			end
+
+			return emitter:pushSymbol ")"
+
+		elseif t.operator == "~" then
+
+		else
+			emitter:pushSymbol( t.operator )
+			compileExpression( emitter, t.value )
+
+			return
+
+		end
+
+	elseif t.type == "RightUnaryExpression" then
+		local operator = t.operator == "++" and " + 1\n" or " - 1\n"
+		if t.value.type == "Reference" then
+			emitter:pushBlockText( "(function()\n"
+				.. "\tlocal v = " .. t.value.name .. "\n"
+				.. "\t" .. t.value.name .. " = " .. t.value.name .. operator
+				.. "\treturn v\n"
+				.. "end)(" )
+
+			return emitter:pushSymbol ")"
+
+		elseif t.value.type == "DotIndex" then
+			emitter:pushBlockText( "(function(l)\n"
+				.. "\tlocal v = l." .. t.value.index .. "\n"
+				.. "\tl." .. t.value.index .. " = l." .. t.value.index .. operator
+				.. "\treturn v\n"
+				.. "end)(" )
+
+			compileExpression( emitter, t.value.value )
+
+			return emitter:pushSymbol ")"
+
+		elseif t.value.type == "Index" then
+			emitter:pushBlockText( "(function(t, i)\n"
+				.. "\tlocal v = t[i]\n"
+				.. "\tt[i] = t[i]" .. operator
+				.. "\treturn v\n"
+				.. "end)(" )
+
+			compileExpression( emitter, t.value.value )
+			emitter:pushDelimiter ","
+			compileExpression( emitter, t.value.index[1] )
+
+			return emitter:pushSymbol ")"
+
+		end
+
+		return emitter:pushSymbol ")"
+
+	elseif t.type == "FunctionCall" then
+		compileExpression( emitter, t.value )
+
+		emitter:pushSymbol "("
+
+		for i = 1, #t.parameters do
+			compileExpression( emitter, t.parameters[i] )
+
+			if i < #t.parameters then
+				emitter:pushDelimiter ","
+			end
+		end
+
+		return emitter:pushSymbol ")"
+
+	elseif t.type == "MethodCall" then
+		compileExpression( emitter, t.value )
+
+		emitter:pushSymbol ":"
+		emitter:pushWord( t.name )
+		emitter:pushSymbol "("
+
+		for i = 1, #t.parameters do
+			compileExpression( emitter, t.parameters[i] )
+
+			if i < #t.parameters then
+				emitter:pushDelimiter ","
+			end
+		end
+
+		return emitter:pushSymbol ")"
+
+	elseif t.type == "Index" then
+		compileExpression( emitter, t.value )
+
+		for i = 1, #t.index do
+			emitter:pushSymbol "["
+
+			compileExpression( emitter, t.index[i] )
+
+			emitter:pushSymbol "]"
+		end
+
+		return
+
+	elseif t.type == "DotIndex" then
+		compileExpression( emitter, t.value )
+
+		emitter:pushSymbol "."
+		emitter:pushWord( t.index )
+
+		return
+
+	elseif t.type == "MatchExpression" then
+		local name = emitter:getName()
+
+		emitter:pushSymbol "("
+		emitter:pushWord "function"
+		emitter:pushSymbol "("
+		emitter:pushWord( name )
+		emitter:pushSymbol ")"
+
+		emitter:indent( 1 )
+		emitter:pushLineBreak()
+
+		emitter:pushWord "if"
+		emitter:pushWord( name )
+		emitter:pushOperator "=="
+
+		compileExpression( emitter, t.cases[1].matches[1] )
+
+		for n = 2, #t.cases[1].matches do
+			emitter:pushWord "or"
+
+			compileExpression( emitter, t.cases[1].matches[n] )
+		end
+
+		emitter:pushWord "then"
+		emitter:indent( 1 )
+		emitter:pushLineBreak()
+		emitter:pushWord "return"
+
+		compileExpression( emitter, t.cases[1].value )
+
+		emitter:indent( -1 )
+		emitter:pushLineBreak()
+
+		for i = 2, #t.cases do
+
+			emitter:pushWord "elseif"
+			emitter:pushWord( name )
+			emitter:pushOperator "=="
+
+			compileExpression( emitter, t.cases[i].matches[1] )
+
+			for n = 2, #t.cases[i].matches do
+				emitter:pushWord "or"
+
+				compileExpression( emitter, t.cases[i].matches[n] )
+			end
+
+			emitter:pushWord "then"
+			emitter:indent( 1 )
+			emitter:pushLineBreak()
+			emitter:pushWord "return"
+
+			compileExpression( emitter, t.cases[i].value )
+
+			emitter:indent( -1 )
+			emitter:pushLineBreak()
+
+		end
+
+		if t.default then
+			emitter:pushWord "else"
+			emitter:indent( 1 )
+			emitter:pushLineBreak()
+			emitter:pushWord "return"
+
+			compileExpression( emitter, t.default )
+
+			emitter:indent( -1 )
+			emitter:pushLineBreak()
+
+		end
+
+		emitter:pushWord "end"
+		emitter:indent( -1 )
+		emitter:pushLineBreak()
+		emitter:pushWord "end"
+		emitter:pushSymbol ")("
+
+		compileExpression( emitter, t.condition )
+
+		return emitter:pushSymbol ")"
+
+	elseif t.type == "NewExpression" then
+		emitter:pushWord( t.class.name )
+		emitter:pushSymbol ":"
+		emitter:pushWord "new"
+		emitter:pushSymbol "("
+
+		for i = 1, #t.parameters do
+			compileExpression( emitter, t.parameters[i] )
+
+			if i < #t.parameters then
+				emitter:pushDelimiter ","
+			end
+		end
+
+		return emitter:pushSymbol ")"
+
+	elseif t.type == "BacktickExpression" then
+		emitter:pushWord( t.operator )
+		emitter:pushSymbol "("
+
+		if t.lvalue then
+			compileExpression( emitter, t.lvalue )
+
+			if t.rvalue then
+				emitter:pushDelimiter ","
+			end
+		end
+
+		if t.rvalue then
+			compileExpression( emitter, t.rvalue )
+		end
+
+		return emitter:pushSymbol ")"
+
+	elseif t.type == "BinaryExpression" then
+		local operator = t.operator
+		local f = emitter.pushOperator
+		
+		if operator == "**" then
+			operator = "^"
+
+		elseif operator == "!=" then
+			operator = "~="
+
+		elseif operator == "&&" then
+			operator = "and"
+			f = emitter.pushWord
+
+		elseif operator == "||" then
+			operator = "or"
+			f = emitter.pushWord
+
+		elseif operator == ".." then
+			emitter:pushBlockText( "(function(l, u)\n"
+				.. "\tlocal t = {}\n"
+				.. "\tlocal n = 1\n"
+				.. "\tfor i = l, u do\n"
+				.. "\t\tt[n] = i\n"
+				.. "\t\tn = n + 1\n"
+				.. "\tend\n"
+				.. "\treturn t\n"
+				.. "end)(" )
+
+			compileExpression( emitter, t.lvalue )
+
+			emitter:pushDelimiter ","
+
+			compileExpression( emitter, t.rvalue )
+
+			return emitter:pushSymbol ")"
+
+		elseif operator == "=" then
+			if t.lvalue.type == "Reference" then
+				emitter:pushBlockText( "(function(v)\n"
+					.. "\t" .. t.lvalue.name .. " = v\n"
+					.. "\treturn v\n"
+					.. "end)(" )
+
+				compileExpression( emitter, t.rvalue )
+
+				return emitter:pushSymbol ")"
+
+			elseif t.lvalue.type == "DotIndex" then
+				emitter:pushBlockText( "(function(t, v)\n"
+					.. "\tt." .. t.lvalue.index .. " = v\n"
+					.. "\treturn v\n"
+					.. "end)(" )
+
+				compileExpression( emitter, t.lvalue.value )
+				emitter:pushDelimiter ","
+				compileExpression( emitter, t.rvalue )
+
+				return emitter:pushSymbol ")"
+
+			elseif t.lvalue.type == "Index" then
+				emitter:pushBlockText( "(function(t, i, v)\n"
+					.. "\tt[i] = v\n"
+					.. "\treturn v\n"
+					.. "end)(" )
+
+				compileExpression( emitter, t.lvalue.value )
+				emitter:pushDelimiter ","
+				compileExpression( emitter, t.lvalue.index[1] )
+				emitter:pushDelimiter ","
+				compileExpression( emitter, t.rvalue )
+
+				return emitter:pushSymbol ")"
+
+			end
+
+			return emitter:pushSymbol ")"
+
+		elseif operator:find "[^=]=" then
+			if t.lvalue.type == "Reference" then
+				emitter:pushBlockText( "(function(v)\n"
+					.. "\t" .. t.lvalue.name .. " = " .. t.lvalue.name .. " " .. operator:sub( 1, 1 ) .. " v\n"
+					.. "\treturn " .. t.lvalue.name .. "\n"
+					.. "end)(" )
+
+				compileExpression( emitter, t.rvalue )
+
+				return emitter:pushSymbol ")"
+
+			elseif t.lvalue.type == "DotIndex" then
+				emitter:pushBlockText( "(function(l, v)\n"
+					.. "\tl." .. t.lvalue.index .. " = l." .. t.lvalue.index .. " " .. operator:sub( 1, 1 ) .. " v\n"
+					.. "\treturn l." .. t.lvalue.index .. "\n"
+					.. "end)(" )
+
+				compileExpression( emitter, t.lvalue.value )
+				emitter:pushDelimiter ","
+				compileExpression( emitter, t.rvalue )
+
+				return emitter:pushSymbol ")"
+
+			elseif t.lvalue.type == "Index" then
+				emitter:pushBlockText( "(function(t, i, v)\n"
+					.. "\tt[i] = t[i] " .. operator:sub( 1, 1 ) .. " v\n"
+					.. "\treturn t[i]\n"
+					.. "end)(" )
+
+				compileExpression( emitter, t.lvalue.value )
+				emitter:pushDelimiter ","
+				compileExpression( emitter, t.lvalue.index[1] )
+				emitter:pushDelimiter ","
+				compileExpression( emitter, t.rvalue )
+
+				return emitter:pushSymbol ")"
+
+			end
+
+			return emitter:pushSymbol ")"
+
+		elseif not luaOperators[operator] then
+			return emitter:push( "<operator " .. operator .. " ain't done yet>" )
+
+		end
+
+		compileExpression( emitter, t.lvalue )
+
+		f( emitter, operator )
+
+		return compileExpression( emitter, t.rvalue )
+
+	elseif t.type == "OperatorExtends" then
+
+	elseif t.type == "OperatorTypeOf" then
+
+	elseif t.type == "OperatorImplements" then
+
+	elseif t.type == "Cast" then
+
+	end
+	
+	emitter:push( "<compilation of " .. t.type .. " isn't written>" )
+
+end
+
+function compileExpressionStatement( emitter, t )
+
+	if t.type == "ExpressionStatement" then
+		t = t.value
+	end
+
+	if t.type == "BinaryExpression" and t.operator == "=" then
+		if t.lvalue.type == "Reference" then
+			emitter:pushWord( t.lvalue.name )
+			emitter:pushOperator "="
+
+			compileExpression( emitter, t.rvalue )
+
+			return emitter:pushSymbol ";"
+
+		elseif t.lvalue.type == "DotIndex" then
+			emitter:pushSymbol "("
+			compileExpression( emitter, t.lvalue.value )
+			emitter:pushSymbol ")."
+			emitter:pushWord( t.lvalue.index )
+			emitter:pushOperator "="
+			compileExpression( emitter, t.rvalue )
+
+			return emitter:pushSymbol ";"
+
+		elseif t.lvalue.type == "Index" then
+			compileExpression( emitter, t.lvalue.value )
+			emitter:pushSymbol "["
+			compileExpression( emitter, t.lvalue.index[1] )
+			emitter:pushSymbol "]"
+			emitter:pushOperator "="
+			compileExpression( emitter, t.rvalue )
+
+			return emitter:pushSymbol ";"
+
+		end
+
+	elseif t.type == "BinaryExpression" and t.operator:find "[^=]=" then
+
+		local operator = t.operator:sub( 1, 1 )
+
+		if t.lvalue.type == "Reference" then
+			emitter:pushWord( t.lvalue.name )
+			emitter:pushOperator "="
+			emitter:pushWord( t.lvalue.name )
+			emitter:pushOperator( operator )
+
+			compileExpression( emitter, t.rvalue )
+
+			return emitter:pushSymbol ";"
+
+		elseif t.lvalue.type == "DotIndex" then
+			local name = emitter:getName()
+
+			emitter:pushWord "local"
+			emitter:pushWord( name )
+			emitter:pushOperator "="
+			compileExpression( emitter, t.lvalue.value )
+			emitter:pushLineBreak()
+
+			emitter:pushWord( name )
+			emitter:pushSymbol "."
+			emitter:pushWord( t.lvalue.index )
+			emitter:pushOperator "="
+			emitter:pushWord( name )
+			emitter:pushSymbol "."
+			emitter:pushWord( t.lvalue.index )
+			emitter:pushOperator( operator )
+			compileExpression( emitter, t.rvalue )
+
+			return emitter:pushSymbol ";"
+
+		elseif t.lvalue.type == "Index" then
+			local name = emitter:getName()
+			local name2 = emitter:getName()
+
+			emitter:pushWord "local"
+			emitter:pushWord( name )
+			emitter:pushOperator "="
+			compileExpression( emitter, t.lvalue.value )
+			emitter:pushLineBreak()
+
+			emitter:pushWord "local"
+			emitter:pushWord( name2 )
+			emitter:pushOperator "="
+			compileExpression( emitter, t.lvalue.index[1] )
+			emitter:pushLineBreak()
+
+			emitter:pushWord( name )
+			emitter:pushSymbol "["
+			emitter:pushWord( name2 )
+			emitter:pushSymbol "]"
+			emitter:pushOperator "="
+			emitter:pushWord( name )
+			emitter:pushSymbol "["
+			emitter:pushWord( name2 )
+			emitter:pushSymbol "]"
+			emitter:pushOperator( operator )
+			compileExpression( emitter, t.rvalue )
+
+			return emitter:pushSymbol ";"
+
+		end
+
+	elseif t.type == "NewExpression" or t.type == "FunctionCall" or t.type == "ThrowExpression" then
+		compileExpression( emitter, t )
+
+		return emitter:pushSymbol ";"
+
+	elseif (t.type == "RightUnaryExpression" or t.type == "LeftUnaryExpression") and (t.operator == "++" or t.operator == "--") then
+		local operator = t.operator == "++" and "+" or "-"
+		if t.value.type == "Reference" then
+			emitter:pushWord( t.value.name )
+			emitter:pushOperator "="
+			emitter:pushWord( t.value.name )
+			emitter:pushOperator( operator )
+			emitter:pushWord "1"
+
+			return emitter:pushSymbol ";"
+
+		elseif t.value.type == "DotIndex" then
+			local name = emitter:getName()
+
+			emitter:pushWord "local"
+			emitter:pushWord( name )
+			emitter:pushOperator "="
+			compileExpression( emitter, t.value.value )
+			emitter:pushLineBreak()
+
+			emitter:pushWord( name )
+			emitter:pushSymbol "."
+			emitter:pushWord( t.value.index )
+			emitter:pushOperator "="
+			emitter:pushWord( name )
+			emitter:pushSymbol "."
+			emitter:pushWord( t.value.index )
+			emitter:pushOperator( operator )
+			emitter:pushWord "1"
+
+			return emitter:pushSymbol ";"
+
+		elseif t.value.type == "Index" then
+			local name = emitter:getName()
+			local name2 = emitter:getName()
+
+			emitter:pushWord "local"
+			emitter:pushWord( name )
+			emitter:pushOperator "="
+			compileExpression( emitter, t.value.value )
+			emitter:pushLineBreak()
+
+			emitter:pushWord "local"
+			emitter:pushWord( name2 )
+			emitter:pushOperator "="
+			compileExpression( emitter, t.value.index[1] )
+			emitter:pushLineBreak()
+
+			emitter:pushWord( name )
+			emitter:pushSymbol "["
+			emitter:pushWord( name2 )
+			emitter:pushSymbol "]"
+			emitter:pushOperator "="
+			emitter:pushWord( name )
+			emitter:pushSymbol "["
+			emitter:pushWord( name2 )
+			emitter:pushSymbol "]"
+			emitter:pushOperator( operator )
+			emitter:pushWord "1"
+
+			return emitter:pushSymbol ";"
+
+		end
+
+		return emitter:pushSymbol ")"
+	end
+
+	emitter:pushWord "local"
+	emitter:pushWord "_"
+	emitter:pushOperator "="
+
+	compileExpression( emitter, t )
+
+	return emitter:pushSymbol ";"
 end

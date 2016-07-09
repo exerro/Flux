@@ -6,6 +6,7 @@ require "Flux.Position"
 require "Flux.Token"
 require "Flux.Lexer"
 require "Flux.Source"
+require "Flux.Emitter"
 
 require "Flux.parsing.generic"
 require "Flux.parsing.type"

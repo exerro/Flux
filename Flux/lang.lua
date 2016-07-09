@@ -9,6 +9,9 @@ lang.symbols = {}
 lang.binary_operators = {}
 lang.unary_operators = {}
 
+lang.ADD_DEFAULT_VALUE_OVERLOAD_FUNCTIONS = false
+lang.REPLACE_COLONS_WITH_UNDERSCORES = true
+
 for word in ([[
 
 import ...

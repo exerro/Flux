@@ -4,6 +4,8 @@ import flux;
 let source = "
 while true {
      print( 5 + 0xff );
+	\"Hi\'!\";
+	'\\n''a';
 }
 ";
 

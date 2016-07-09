@@ -90,7 +90,44 @@ Token Lexer:consumePattern(TokenType type, string pattern) {
 }
 
 Token Lexer:consumeString() {
-	self.position++;
+	let escaped = false;
+	let s = {};
+	let pos = self:getPosition( 1 );
+	let opening = self.text:sub( self.position, self.position );
+
+	for int i = self.position + 1, i <= #self.text, i++ {
+		let char = self.text:sub( i, i );
+		
+		self.character++;
+
+		if escaped { // if the previous character was a \
+			s[#s + 1] = Flux::Parsing::escaped_characters[char];
+			escaped = false;
+		}
+
+		else if char == "\\" // a \ not preceeded by a \
+			escaped = true;
+
+		else if char == "\n" { // a \n
+			s[#s + 1] = "\n";
+			self.line++;
+			self.strline = Flux::Parsing::getline( self.text, self.line );
+			self.character = 1;
+		}
+
+		else if char == opening // the closing string tag
+			self.position = i + 1;
+			then if opening == "'" && #s == 1
+				return new Flux::Parsing::Token( Flux::Parsing::TokenType.Character, table.concat( s ), pos );
+			else
+				return new Flux::Parsing::Token( Flux::Parsing::TokenType.String, table.concat( s ), pos );
+
+		else // any other character
+			s[#s + 1] = char;
+	}
+
+	return self:error "missing end of string";
+
 }
 
 Token Lexer:consumeBacktick() {

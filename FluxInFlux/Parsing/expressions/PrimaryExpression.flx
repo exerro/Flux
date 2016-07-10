@@ -1,9 +1,14 @@
 
+// !FunctionExpression
+// requires function parameter parsing, which is a pain in the butt
+
 import ConstantExpression;
 import ReferenceExpression;
 import ThrowExpression;
 import ArrayExpression;
 import TableExpression;
+import NewExpression;
+import MatchExpression;
 
 namespace Flux::Parsing;
 
@@ -18,8 +23,8 @@ PrimaryExpression PrimaryExpression:parse( Source source )
 	|| Flux::Parsing::ArrayExpression:parse( source )
 	|| Flux::Parsing::TableExpression:parse( source )
 	// || Flux::Parsing::FunctionExpression:parse( source )
-	// || Flux::Parsing::MatchExpression:parse( source )
-	// || Flux::Parsing::NewExpression:parse( source )
+	|| Flux::Parsing::MatchExpression:parse( source )
+	|| Flux::Parsing::NewExpression:parse( source )
 	|| expr && (lexer:skip(Symbol, ")") || source:error "expected ')' after expression") && expr
 	where lexer = source.lexer
 	where expr = lexer:skip(Symbol, "(") && (Flux::Parsing::Expression:parse(source) || source:error "expected expression after '('");

@@ -1,0 +1,76 @@
+
+namespace Flux::Parsing;
+
+class MatchExpression extends Flux::Parsing::PrimaryExpression {
+	ASTNodeType type = Flux::Parsing::ASTNodeType.MatchExpression;
+	Expression value;
+	Expression[][] cases;
+	Expression[] matches;
+	Expression _default;
+
+	MatchExpression(Expression value, Expression[][] cases, Expression[] matches, Expression _default, null Position position = value.position) {
+		self.value = value;
+		self.cases = cases;
+		self.matches = matches;
+		self._default = _default;
+		self.position = position;
+	}
+}
+
+MatchExpression MatchExpression:parse(Source source) {
+	let lexer = source.lexer;
+	let position = lexer:get().position;
+
+	if !lexer:skip( Keyword, "match" ) return;
+
+	Expression value = Flux::Parsing::Expression:parse(source) || source:error "expected match expression";
+	Expression[][] cases = [];
+	Expression[] matches = [];
+	Block _default;
+
+	if !lexer:skip( Symbol, "{" ) source:error "expected '{' after match expression";
+
+	repeat
+		if lexer:skip( Keyword, "default" )
+			if lexer:skip( Symbol, "=>" )
+				_default = Flux::Parsing::Expression:parse(source) || source:error "expected default expression";
+				then break;
+
+			else source:error "expected '=>' after 'default'";
+
+		else {
+			Expression[] caselist = [];
+
+			repeat
+				caselist[#caselist + 1] = Flux::Parsing::Expression:parse(source);
+			while lexer:skip( Symbol, "," );
+
+			if !lexer:skip( Symbol, "=>" ) source:error "expected '=>' after cases";
+
+			cases[#cases + 1] = caselist;
+			matches[#matches + 1] = Flux::Parsing::Expression:parse(source) || source:error "expected expression";
+		}
+
+	while lexer:skip( Symbol, ";" ) && !lexer:test( Symbol, "}" );
+
+	if !lexer:skip( Symbol, "}" ) source:error "expected '}'";
+
+	return new Flux::Parsing::MatchExpression( value, cases, matches, _default, position );
+}
+
+string MatchExpression:serialize() {
+	string[] t = [];
+
+	foreach i, v in self.cases {
+		string[] s = [];
+		foreach ii, vv in v
+			s[ii] = vv:serialize();
+		t[i] = table.concat( s, ", " ) `concat` " => " `concat` self.matches[i]:serialize();
+	}
+
+	if self._default
+		t[#t + 1] = "default => " `concat` self._default:serialize();
+
+	return "match " `concat` self.value:serialize() `concat` " {\n\t"
+		`concat` table.concat( t, ";\n" ):gsub( "\n", "\n\t" ) `concat` "\n}";
+}

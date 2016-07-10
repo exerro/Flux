@@ -2,8 +2,14 @@
 import flux;
 
 let source_code = "
-T<A>[]
-function float(int)[]{int}
+new Button(1, 1, 5, 8, \"Hello\")
+new int[](5)
+new vector<int>(2)
+match !true {
+	yes => this;
+	no, maybe => that;
+	default => abc
+}
 ";
 
 void main() {
@@ -13,7 +19,7 @@ void main() {
 	source.lexer = lexer;
 
 	while !lexer:isEOF() {
-		let expr = Flux::Parsing::Type:parse( source );
+		let expr = Flux::Parsing::Expression:parse( source );
 		if expr
 			print( expr:serialize() );
 		else {

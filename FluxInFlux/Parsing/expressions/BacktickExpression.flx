@@ -14,9 +14,8 @@ class BacktickExpression extends RightUnaryExpression {
 	}
 }
 
-BacktickExpression BacktickExpression:parse( Source source, Expression value ) {
+BacktickExpression BacktickExpression:parse( Source source ) {
 	let lexer = source.lexer;
-	let isLeftOfExpr = true;
 
 	// for the left unary operators before an expression
 	string[] op_stack = [];

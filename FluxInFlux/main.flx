@@ -2,7 +2,7 @@
 import flux;
 
 let source_code = '
-return 5 `!` `+` 2 `!` `+` 1 `!`;
+5 + 2 - 1 * 3 ** 4 + 1;
 ';
 
 void main() {

@@ -1,0 +1,69 @@
+
+namespace Flux::Parsing;
+
+class BinaryExpression extends RightUnaryExpression {
+	ASTNodeType type = Flux::Parsing::ASTNodeType.BinaryExpression;
+	Expression lvalue, rvalue;
+	string op;
+
+	BinaryExpression( Expression lvalue, Expression rvalue, string op, null Position position = lvalue.position ) {
+		self.lvalue = lvalue;
+		self.rvalue = rvalue;
+		self.op = op;
+		self.position = position;
+	}
+}
+
+BinaryExpression BinaryExpression:parse( Source source ) {
+	let lexer = source.lexer;
+
+	Expression[] operand_stack = [];
+	Position[] operator_positions = [];
+	string[] operator_stack = [];
+	int[] operator_precedences = [];
+
+	operand_stack[1] = Flux::Parsing::BacktickExpression:parse(source);
+
+	if !operand_stack[1] return;
+	
+	void collapse() {
+		operand_stack[#operand_stack - 1] 
+			= new Flux::Parsing::BinaryExpression(
+				/* lvalue */ operand_stack[#operand_stack - 1],
+				/* rvalue */ operand_stack[#operand_stack],
+				/* operator */ operator_stack[#operator_stack],
+				/* position */ operator_positions[#operator_positions] );
+		operand_stack[#operand_stack] = null;
+		operator_stack[#operator_stack] = null;
+		operator_positions[#operator_positions] = null;
+		operator_precedences[#operator_precedences] = null;
+	}
+
+	while true {
+		let op_token = lexer:test( Symbol );
+		if Flux::Parsing::language::binary_operators[op_token.value] lexer:next(); else break;
+
+		let rvalue = Flux::Parsing::BacktickExpression:parse(source)
+			|| source:error( "expected expression after operator '" `concat` op_token.value `concat` "'" );
+		let precedence = Flux::Parsing::language::binary_operators[op_token.value];
+		let position = op_token.position;
+
+		while operator_precedences[1] && (precedence < operator_precedences[#operator_precedences]
+		                               || precedence > 1 && precedence == operator_precedences[#operator_precedences])
+			collapse();
+
+		operand_stack[#operand_stack + 1] = rvalue;
+		operator_stack[#operator_stack + 1] = op_token.value;
+		operator_positions[#operator_positions + 1] = position;
+		operator_precedences[#operator_precedences + 1] = precedence;
+	}
+
+	while operator_stack[1] collapse();
+
+	return operand_stack[1];
+}
+
+string BinaryExpression:serialize()
+	= Flux::Parsing::serializeExpression( self.lvalue ) `concat` " "
+	  `concat` "`" `concat` self.op `concat` "`" `concat`
+	  " " `concat` Flux::Parsing::serializeExpression( self.rvalue );

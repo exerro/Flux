@@ -2,11 +2,12 @@
 import flux;
 
 let source_code = "
-5 \"hello\" 'a' 0xff 0b101
-hello world
-throw 5
-[1, 2, \"hello\", 'world']
-{a = 1, 2, [\"c\"] = 3}
+-f(x, y)
+-f \"Hi!\"
+a:b(x, y)
+c:d \"hi\"
+-a[1] a[1, 2, 3]
+-a.b
 ";
 
 void main() {
@@ -16,7 +17,7 @@ void main() {
 	source.lexer = lexer;
 
 	while !lexer:isEOF() {
-		let expr = Flux::Parsing::PrimaryExpression:parse( source );
+		let expr = Flux::Parsing::Expression:parse( source );
 		if expr
 			print( expr:serialize() );
 		else {

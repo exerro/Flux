@@ -1013,6 +1013,8 @@ function compileExpression( emitter, t )
 
 		for n = 2, #t.cases[1].matches do
 			emitter:pushWord "or"
+			emitter:pushWord( name )
+			emitter:pushOperator "=="
 
 			compileExpression( emitter, t.cases[1].matches[n] )
 		end

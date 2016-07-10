@@ -9,3 +9,21 @@ string parseName(Source source) {
 
 	return name;
 }
+
+string serializeExpression(Expression e)
+	= match e.type {
+		Flux::Parsing::ASTNodeType.Reference,
+		Flux::Parsing::ASTNodeType.IntegerConstant,
+		Flux::Parsing::ASTNodeType.FloatConstant,
+		Flux::Parsing::ASTNodeType.ByteConstant,
+		Flux::Parsing::ASTNodeType.BooleanConstant,
+		Flux::Parsing::ASTNodeType.NullConstant,
+		Flux::Parsing::ASTNodeType.HexadecimalConstant,
+		Flux::Parsing::ASTNodeType.BinaryConstant,
+		Flux::Parsing::ASTNodeType.FunctionCall,
+		Flux::Parsing::ASTNodeType.MethodCall,
+		Flux::Parsing::ASTNodeType.Index,
+		Flux::Parsing::ASTNodeType.DotIndex
+			 => e:serialize();
+		default => "(" `concat` e:serialize() `concat` ")";
+	};

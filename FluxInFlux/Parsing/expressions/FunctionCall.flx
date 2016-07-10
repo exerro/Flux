@@ -1,0 +1,46 @@
+
+namespace Flux::Parsing;
+
+class FunctionCall extends RightUnaryExpression {
+	ASTNodeType type = Flux::Parsing::ASTNodeType.FunctionCall;
+	Expression value;
+	Expression[] parameters;
+
+	FunctionCall( Expression value, Expression[] parameters, null Position position = value.position ) {
+		self.value = value;
+		self.parameters = parameters;
+		self.position = position;
+	}
+}
+
+FunctionCall FunctionCall:parse( Source source, Expression value ) {
+	let lexer = source.lexer;
+	let parameters -> Expression[] = [];
+	let position = lexer:get().position;
+
+	if lexer:skip( Symbol, "(" ) {
+		if !lexer:skip( Symbol, ")" ) {
+			repeat
+				parameters[#parameters + 1] = Flux::Parsing::Expression:parse(source) || source:error "expected parameter";
+			while lexer:skip( Symbol, "," );
+
+			if !lexer:skip( Symbol, ")" ) source:error "expected ')' to close function call";
+		}
+
+		return new Flux::Parsing::FunctionCall( value, parameters, position );
+	}
+	else if lexer:test( String ) {
+		parameters[1] = new Flux::Parsing::ConstantExpression( Flux::Parsing::ASTNodeType.StringConstant, lexer:next().value, position );
+
+		return new Flux::Parsing::FunctionCall( value, parameters, position );
+	}
+}
+
+string FunctionCall:serialize() {
+	string[] p = [];
+
+	foreach i, v in self.parameters
+		p[i] = v:serialize();
+
+	return Flux::Parsing::serializeExpression( self.value ) `concat` "(" `concat` table.concat( p, ", " ) `concat` ")";
+}

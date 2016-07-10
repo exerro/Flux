@@ -1,0 +1,55 @@
+
+import RightUnaryOperator;
+import FunctionCall;
+import MethodCall;
+import Index;
+import DotIndex;
+
+namespace Flux::Parsing;
+
+string RightUnaryOperatorTostring(RightUnaryOperator op)
+	= match op {
+		Flux::Parsing::RightUnaryOperator.Increment => "++";
+		Flux::Parsing::RightUnaryOperator.Decrement => "--";
+	};
+
+class RightUnaryExpression extends Flux::Parsing::PrimaryExpression {
+	ASTNodeType type = Flux::Parsing::ASTNodeType.RightUnaryExpression;
+	Expression value;
+	RightUnaryOperator op;
+
+	RightUnaryExpression(Expression value, RightUnaryOperator op, null Position position = value.position) {
+		self.value = value;
+		self.op = op;
+		self.position = position;
+	}
+}
+
+RightUnaryExpression RightUnaryExpression:parse(Source source) {
+	let lexer = source.lexer;
+	let expr = Flux::Parsing::PrimaryExpression:parse( source );
+
+	while true {
+		let new_expr
+			 = lexer:test(Symbol, "++") && Flux::Parsing::RightUnaryExpression:parse( source, new Flux::Parsing::RightUnaryExpression(expr, Flux::Parsing::RightUnaryOperator.Increment, lexer:next().position) )
+			|| lexer:test(Symbol, "--") && Flux::Parsing::RightUnaryExpression:parse( source, new Flux::Parsing::RightUnaryExpression(expr, Flux::Parsing::RightUnaryOperator.Decrement, lexer:next().position) )
+			|| Flux::Parsing::FunctionCall:parse( source, expr )
+			|| Flux::Parsing::MethodCall:parse( source, expr )
+			|| Flux::Parsing::Index:parse( source, expr )
+			|| Flux::Parsing::DotIndex:parse( source, expr )
+			// || Flux::Parsing::Cast:parse( source, expr )
+			// || Flux::Parsing::OperatorImplements:parse( source, expr );
+			// || Flux::Parsing::OperatorTypeOf:parse( source, expr )
+			// || Flux::Parsing::OperatorExtends:parse( source, expr )
+		;
+
+		if new_expr expr = new_expr;
+		else break;
+	}
+	
+	return expr;
+}
+
+string RightUnaryExpression:serialize()
+	= value `concat` Flux::Parsing::RightUnaryOperatorTostring(self.op)
+	where value = Flux::Parsing::serializeExpression(self.value);

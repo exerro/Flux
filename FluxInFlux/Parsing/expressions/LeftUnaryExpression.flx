@@ -1,0 +1,53 @@
+
+import LeftUnaryOperator;
+
+namespace Flux::Parsing;
+
+string LeftUnaryOperatorTostring(LeftUnaryOperator op)
+	= match op {
+		Flux::Parsing::LeftUnaryOperator.Increment => "++";
+		Flux::Parsing::LeftUnaryOperator.Decrement => "--";
+		Flux::Parsing::LeftUnaryOperator.Not => "!";
+		Flux::Parsing::LeftUnaryOperator.BNot => "~";
+		Flux::Parsing::LeftUnaryOperator.Length => "#";
+		Flux::Parsing::LeftUnaryOperator.Minus => "-";
+	};
+
+class LeftUnaryExpression extends Flux::Parsing::PrimaryExpression {
+	ASTNodeType type = Flux::Parsing::ASTNodeType.LeftUnaryExpression;
+	Expression value;
+	LeftUnaryOperator op;
+
+	LeftUnaryExpression(Expression value, LeftUnaryOperator op, null Position position = value.position) {
+		self.value = value;
+		self.op = op;
+		self.position = position;
+	}
+}
+
+LeftUnaryExpression LeftUnaryExpression:parse(Source source) {
+	let lexer = source.lexer;
+
+	if !lexer:test(Symbol)
+		return Flux::Parsing::RightUnaryExpression:parse(source);
+
+	let op = match lexer:get().value {
+		"++" => Flux::Parsing::LeftUnaryOperator.Increment;
+		"--" => Flux::Parsing::LeftUnaryOperator.Decrement;
+		"!" => Flux::Parsing::LeftUnaryOperator.Not;
+		"~" => Flux::Parsing::LeftUnaryOperator.BNot;
+		"#" => Flux::Parsing::LeftUnaryOperator.Length;
+		"-" => Flux::Parsing::LeftUnaryOperator.Minus;
+		default => null;
+	};
+
+	if op
+		let position = lexer:next().position;
+		then return new Flux::Parsing::LeftUnaryExpression(Flux::Parsing::LeftUnaryExpression:parse(source), op, position);
+	else
+		return Flux::Parsing::RightUnaryExpression:parse(source);
+}
+
+string LeftUnaryExpression:serialize()
+	= Flux::Parsing::LeftUnaryOperatorTostring(self.op) `concat` value
+	where value = Flux::Parsing::serializeExpression(self.value);

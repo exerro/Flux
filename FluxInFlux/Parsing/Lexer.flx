@@ -272,7 +272,7 @@ void Lexer:consume() {
 		token = self:consumeWord();
 
 	else if self.text:sub( self.position, self.position ) == "`"
-		token = self:consumeBackticks();
+		token = self:consumeBacktick();
 
 	else
 		token = self:consumeSymbol();

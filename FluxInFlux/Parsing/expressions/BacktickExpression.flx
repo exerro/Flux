@@ -1,0 +1,97 @@
+
+namespace Flux::Parsing;
+
+class BacktickExpression extends RightUnaryExpression {
+	ASTNodeType type = Flux::Parsing::ASTNodeType.BacktickExpression;
+	Expression lvalue, rvalue;
+	string op;
+
+	BacktickExpression( null Expression lvalue, null Expression rvalue, string op, null Position position = (lvalue || rvalue).position ) {
+		self.lvalue = lvalue;
+		self.rvalue = rvalue;
+		self.op = op;
+		self.position = position;
+	}
+}
+
+BacktickExpression BacktickExpression:parse( Source source, Expression value ) {
+	let lexer = source.lexer;
+	let isLeftOfExpr = true;
+
+	// for the left unary operators before an expression
+	string[] op_stack = [];
+	Position[] pos_stack = [];
+
+	// the last operator there was
+	string last_op;
+	Position last_pos;
+
+	// the current working expression and the lvalue
+	Expression expr, lvalue;
+	string last_op_binary;
+	Position last_pos_binary;
+
+	repeat
+		if lexer:test( Backtick ) {
+			let op = lexer:next();
+			op_stack[#op_stack + 1] = op.value;
+			pos_stack[#pos_stack + 1] = op.position;
+		}
+		else {
+			let e = Flux::Parsing::LeftUnaryExpression:parse(source);
+			
+			if e {
+				expr = e;
+				for (int i = #op_stack, i > 0, i--)
+					expr = new Flux::Parsing::BacktickExpression( null, expr, op_stack[i], pos_stack[i] );
+				break;
+			}
+			else if #op_stack > 0
+				source:error( "expected expression after operator '" `concat` op_stack[#op_stack] `concat` "'" );
+			else
+				return;
+		}
+	while true;
+
+	while true {
+		if lexer:test( Backtick ) {
+			Position pos = lexer:get().position;
+			string op = lexer:next().value;
+
+			if last_op
+				expr = new Flux::Parsing::BacktickExpression( expr, null, last_op, last_pos );
+			last_op = op;
+			last_pos = pos;
+		}
+		else {
+			if !last_op break;
+
+			let e = Flux::Parsing::LeftUnaryExpression:parse(source);
+
+			if !e break;
+
+			if lvalue
+				expr = new Flux::Parsing::BacktickExpression( lvalue, expr, last_op_binary, last_pos_binary );
+
+			lvalue = expr;
+			expr = e;
+			last_op_binary = last_op;
+			last_pos_binary = last_pos;
+			last_op = null;
+			last_pos = null;
+		}
+	}
+
+	if last_op
+		expr = new Flux::Parsing::BacktickExpression( expr, null, last_op, last_pos );
+
+	if lvalue
+			expr = new Flux::Parsing::BacktickExpression( lvalue, expr, last_op_binary, last_pos_binary );
+
+	return expr;
+}
+
+string BacktickExpression:serialize()
+	= (self.lvalue && Flux::Parsing::serializeExpression( self.lvalue ) `concat` " " || "")
+	  `concat` "`" `concat` self.op `concat` "`" `concat`
+	  (self.rvalue && " " `concat` Flux::Parsing::serializeExpression( self.rvalue ) || "");

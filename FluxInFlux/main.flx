@@ -2,39 +2,16 @@
 import flux;
 
 let source_code = '
-foreach A, B in t {
-	print( A, B );
-}
-
-foreach C in t {
-	print( C );
-}
-
-switch !false;
-case true, false {
-	print "It was true or false";
-}
-default {
-	print "It was neither";
-}
-
-try something();
-catch an error {
-	print(error);
-	print "Hi";
-}
-catch another error {
-	print "Yo";
-}
-default {
-	print "Hi";
-}
+return 5 `!` `+` 2 `!` `+` 1 `!`;
 ';
 
 void main() {
 	new Flux::Parsing::Source source();
 	new Flux::Parsing::Lexer lexer( source_code );
+	new Flux::Parsing::Context context();
 
+	source.context = context;
+	source.contexts[1] = context;
 	source.lexer = lexer;
 
 	while !lexer:isEOF() {

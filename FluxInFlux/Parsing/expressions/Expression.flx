@@ -2,6 +2,7 @@
 import PrimaryExpression;
 import RightUnaryExpression;
 import LeftUnaryExpression;
+import BacktickExpression;
 
 namespace Flux::Parsing;
 
@@ -11,6 +12,6 @@ class Expression extends ASTNode {
 
 Expression Expression:parse(Source source) {
 	// parse binary expression
-	let term = Flux::Parsing::LeftUnaryExpression:parse(source);
+	let term = Flux::Parsing::BacktickExpression:parse(source);
 	return term;
 }

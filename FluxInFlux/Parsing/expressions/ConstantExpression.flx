@@ -1,0 +1,69 @@
+
+namespace Flux::Parsing;
+
+class ConstantExpression extends Flux::Parsing::PrimaryExpression {
+	string value;
+
+	ConstantExpression(ASTNodeType type, string value) {
+		self.type = type;
+		self.value = value;
+	}
+}
+
+ConstantExpression ConstantExpression:parse(Source source) {
+	switch source.lexer:get().type;
+	case String
+		return new Flux::Parsing::ConstantExpression(
+			Flux::Parsing::ASTNodeType.StringConstant,
+			source.lexer:next().value
+		);
+	case Character
+		return new Flux::Parsing::ConstantExpression(
+			Flux::Parsing::ASTNodeType.CharacterConstant,
+			source.lexer:next().value
+		);
+	case Integer
+		return new Flux::Parsing::ConstantExpression(
+			Flux::Parsing::ASTNodeType.IntegerConstant,
+			source.lexer:next().value
+		);
+	case Float
+		return new Flux::Parsing::ConstantExpression(
+			Flux::Parsing::ASTNodeType.FloatConstant,
+			source.lexer:next().value
+		);
+	case Byte
+		return new Flux::Parsing::ConstantExpression(
+			Flux::Parsing::ASTNodeType.ByteConstant,
+			source.lexer:next().value
+		);
+	case Hexadecimal
+		return new Flux::Parsing::ConstantExpression(
+			Flux::Parsing::ASTNodeType.HexadecimalConstant,
+			source.lexer:next().value
+		);
+	case Binary
+		return new Flux::Parsing::ConstantExpression(
+			Flux::Parsing::ASTNodeType.BinaryConstant,
+			source.lexer:next().value
+		);
+	case Boolean
+		return new Flux::Parsing::ConstantExpression(
+			Flux::Parsing::ASTNodeType.BooleanConstant,
+			source.lexer:next().value
+		);
+	case Null
+		return new Flux::Parsing::ConstantExpression(
+			Flux::Parsing::ASTNodeType.NullConstant,
+			source.lexer:next().value
+		);
+	default
+		return null;
+}
+
+string ConstantExpression:serialize()
+	= match self.type {
+		Flux::Parsing::ASTNodeType.StringConstant => ("%q"):format( self.value );
+		Flux::Parsing::ASTNodeType.CharacterConstant => "'" `concat` self.value `concat` "'";
+		default => self.value;
+	};

@@ -602,6 +602,7 @@ function compileStatement( emitter, t )
 			emitter:pushWord( t.name2 )
 			emitter:pushOperator "="
 			emitter:pushSymbol( name .. "[" .. name1 .. "]" )
+			emitter:indent( -1 )
 
 			compileBlock( emitter, t.block )
 

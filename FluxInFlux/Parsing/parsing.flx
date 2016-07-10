@@ -1,6 +1,5 @@
 
 import language;
-
 import TokenType;
 
 let String = Flux::Parsing::TokenType.String,
@@ -18,6 +17,4 @@ let String = Flux::Parsing::TokenType.String,
 	Keyword = Flux::Parsing::TokenType.Keyword,
 	EOF = Flux::Parsing::TokenType.EOF;
 
-import Token;
-import Lexer;
 import Source;

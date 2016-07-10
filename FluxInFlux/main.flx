@@ -1,17 +1,23 @@
 
 import flux;
 
-let source = "
-while true {
-     print( 5 + 0xff );
-	\"Hi\'!\";
-	'\\n''a';
-}
+let source_code = "
+5 \"hello\" 'a' 0xff 0b101
 ";
 
 void main() {
-	new Flux::Parsing::Lexer lexer( source );
+	new Flux::Parsing::Source source();
+	new Flux::Parsing::Lexer lexer( source_code );
 
-	while !lexer:isEOF()
-		print( lexer:next():tostring() );
+	source.lexer = lexer;
+
+	while !lexer:isEOF() {
+		let expr = Flux::Parsing::ConstantExpression:parse( source );
+		if expr
+			print( expr:serialize() );
+		else {
+			print( "Nope" );
+			break;
+		}
+	}
 }

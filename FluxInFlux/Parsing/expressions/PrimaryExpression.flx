@@ -1,0 +1,11 @@
+
+import ConstantExpression;
+
+namespace Flux::Parsing;
+
+class PrimaryExpression extends Flux::Parsing::Expression {
+	
+}
+
+PrimaryExpression PrimaryExpression:parse(Source source)
+	= Flux::Parsing::ConstantExpression:parse( source );

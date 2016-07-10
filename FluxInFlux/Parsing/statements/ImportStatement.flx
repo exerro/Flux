@@ -1,0 +1,11 @@
+
+namespace Flux::Parsing;
+
+class ImportStatement extends Flux::Parsing::ASTNode {
+
+}
+
+ImportStatement ImportStatement:parse(Source source) {
+	let lexer = source.lexer;
+	let name = parseName(source);
+}

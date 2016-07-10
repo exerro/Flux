@@ -1,0 +1,43 @@
+
+import ASTNodeType;
+import Position;
+
+namespace Flux::Parsing;
+
+class Block (ASTNode) extends ASTNode {
+	ASTNodeType type = Flux::Parsing::ASTNodeType.Block;
+
+	// void operator[]=(int index, ASTNode value);
+	// ASTNode operator[](int index);
+
+	Block(ASTNode nodes)
+		foreach i, node in nodes
+			self[i] = node;
+}
+
+string Block:serialize() = match #self {
+	0 => "{}";
+	1 => "\n\t" `concat` self[1]:serialize();
+	default => (function() {
+		string[] s = [];
+
+		foreach i, node in self
+			s[i] = node:serialize();
+
+		return "{\n\t" `concat` table.concat( s, "\n" ):gsub( "\n", "\n\t" ) `concat` "\n}";
+	})();
+};
+
+string Block:parse(Source source) {
+	let lexer = source.lexer;
+	ASTNode[] statements = [];
+
+	if lexer:skip(Symbol, "{") {
+		
+	}
+	else {
+
+	}
+
+	return Block(statements);
+}

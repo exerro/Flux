@@ -1,6 +1,125 @@
 
+import Lexer;
+import Context;
+import Block;
+import statements.Statement;
+import expressions.Expression;
+
 namespace Flux::Parsing;
 
+const string FLUX_INCLUDE_PATH = "";
+
 class Source {
-	
+	string include_path;
+	string[] current_include_path;
+	bool{string} imported;
+	ASTNode[] statements;
+	Block[] blocks;
+	Context[] contexts;
+
+	Lexer lexer;
+	Context context;
+	Block block;
+
+	Source(null string include_path = "") {
+		self.include_path = Flux::Parsing::FLUX_INCLUDE_PATH `concat` include_path;
+		self.current_include_path = [];
+		self.imported = {};
+		self.statements = [];
+		self.blocks = [];
+		self.contexts = [];
+	}
+
+	Context pushContext();
+	Context popContext();
+	Context pushFunctionContext();
+	Context pushLoopContext();
+	Context pushClassContext();
+	Context pushInterfaceContext();
+
+	Block pushBlock();
+	Block popBlock();
+
+	void push(ASTNode t);
+
+	void importFile(string name);
+	void parseFileContent(string content, null string source = "string");
+
+	void error(string err);
 }
+
+Context Source:pushContext() {
+	let context = new Flux::Parsing::Context(self.context);
+
+	self.contexts[#self.contexts + 1] = context;
+	self.context = context;
+
+	return context;
+}
+
+Context Source:popContext() {
+	self.contexts[#self.contexts] = null;
+	self.context = self.contexts[#self.contexts];
+
+	return self.context;
+}
+
+Context Source:pushLoopContext()
+	= self:pushContext():specialiseLoop();
+
+Context Source:pushFunctionContext()
+	= self:pushContext():specialiseFunction();
+
+Context Source:pushClassContext()
+	= self:pushContext():specialiseClass();
+
+Context Source:pushInterfaceContext()
+	= self:pushContext():specialiseInterface();
+
+Block Source:pushBlock() {
+	let block = new Flux::Parsing::Context();
+
+	self.blocks[#self.blocks + 1] = block;
+	self.block = block;
+
+	return block;
+}
+
+Block Source:popBlock() {
+	self.blocks[#self.blocks] = null;
+	self.block = self.blocks[#self.blocks];
+
+	return self.block;
+}
+
+void Source:push(ASTNode node) {
+	self.statements[#self.statements + 1] = node;
+}
+
+void Source:importFile(string filename) {
+
+}
+void Source:parseFileContent(string content, null string source = "string") {
+	let old_lexer = self.lexer;
+	let lexer = new Flux::Parsing::Lexer(content, source);
+
+	self.lexer = lexer;
+	
+	while !lexer:isEOF()
+		if lexer:skip(Keyword, "import")
+			ImportStatement:parse(self);
+		else
+			Statement:parse(self);
+
+	self.lexer = old_lexer;
+}
+
+void Source:error(string err)
+	= src `concat` "[" `concat` line `concat` "]: " `concat` err `concat` "\n\t"
+		`concat` strline `concat` "\n\t"
+		`concat` char_pointer
+	where position = self.lexer:get().position
+	where src = position.source
+	where line = position.line
+	where strline = position.strline:gsub( "\t", " " )
+	where char_pointer = (" "):rep( position.character - 1 ) `concat` "^";

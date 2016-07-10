@@ -1,4 +1,8 @@
 
+import TokenType;
+import Position;
+import Token;
+
 namespace Flux::Parsing;
 
 string getline( string text, int line ) {
@@ -25,6 +29,7 @@ class Lexer {
 	Lexer(string text, null string source = "string") {
 		self.source = source;
 		self.text = text;
+		self.buffer = [];
 	}
 
 	Position getPosition(null int n = 0);
@@ -70,15 +75,16 @@ Position Lexer:getPosition(null int n = 0) {
 }
 
 bool Lexer:isEOF()
-	= self.position > #self.text;
+	= self:test(Flux::Parsing::TokenType.EOF) && true || false;
 
-void Lexer:error(string err, Position position)
-	= source `concat` '[' `concat` line `concat` ']: ' `concat` err `concat` near_text `concat` strline `concat` "\n\t" `concat` pointer
-	where source = position.source
+void Lexer:error(string err, null Position position = self:getPosition())
+	= throw new LexerException(src `concat` '[' `concat` line `concat` ']: ' `concat` err `concat` "\n\t"
+		`concat` strline `concat` "\n\t"
+		`concat` pointer)
+	where src = position.source
 	where line = position.line
 	where strline = position.strline:gsub( "\t", " " )
-	where pointer = (" "):rep( position.character - 1 ) .. "^"
-	where near_text = showNear && " (near " `concat` self:get():getNearString() `concat` ")\n\t" || "\n\t";
+	where pointer = (" "):rep( position.character - 1 ) `concat` "^";
 
 Token Lexer:consumePattern(TokenType type, string pattern) {
 	let value = string__match( self.text, "^" `concat` pattern, self.position );
@@ -90,23 +96,26 @@ Token Lexer:consumePattern(TokenType type, string pattern) {
 }
 
 Token Lexer:consumeString() {
-	let escaped = false;
 	let s = {};
 	let pos = self:getPosition( 1 );
 	let opening = self.text:sub( self.position, self.position );
 
 	for int i = self.position + 1, i <= #self.text, i++ {
-		let char = self.text:sub( i, i );
-		
+		string char = self.text:sub( i, i );
+
 		self.character++;
 
-		if escaped { // if the previous character was a \
+		if char == "\\" { // a \ not preceeded by a \
+			i++;
+			string char = self.text:sub( i, i );
 			s[#s + 1] = Flux::Parsing::escaped_characters[char];
-			escaped = false;
-		}
 
-		else if char == "\\" // a \ not preceeded by a \
-			escaped = true;
+			if char == "\n" {
+				self.line++;
+				self.strline = Flux::Parsing::getline( self.text, self.line );
+				self.character = 1;
+			}
+		}
 
 		else if char == "\n" { // a \n
 			s[#s + 1] = "\n";
@@ -126,7 +135,7 @@ Token Lexer:consumeString() {
 			s[#s + 1] = char;
 	}
 
-	return self:error "missing end of string";
+	return self:error( "missing end of string", pos );
 
 }
 
@@ -241,7 +250,7 @@ void Lexer:consume() {
 
 	Token token;
 
-	if self:isEOF()
+	if self.position > #self.text
 		token = Token.EOF( self:getPosition() );
 
 	else if self.text:find( "^[\"']", self.position )
@@ -297,7 +306,7 @@ Token Lexer:next()
 Token Lexer:back()
 	= self:get( self.buffer_position-- );
 
-Token Lexer:test(TokenType type, null string value, null int lookahead)
+Token Lexer:test(TokenType type, null string value, null int lookahead = 0)
 	= token.type == type && (!value || token.value == value) && token
 	where token = self:peek( lookahead );
 

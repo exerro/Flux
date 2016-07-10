@@ -1,0 +1,56 @@
+
+namespace Flux::Parsing;
+
+enum ASTNodeType {
+	// constant expressions;
+	StringConstant, CharacterConstant;
+	IntegerConstant, FloatConstant, ByteConstant;
+	HexadecimalConstant, BinaryConstant;
+	BooleanConstant, NullConstant;
+
+	// complex primary expressions
+	Reference;
+	ThrowExpression;
+	FunctionExpression;
+	ArrayExpression, TableExpression;
+	MatchExpression;
+	NewExpression;
+
+	// unary expressions
+	LeftUnaryExpression, RightUnaryExpression;
+	FunctionCall, MethodCall;
+	DotIndex, Index;
+	Cast;
+	OperatorTypeof;
+	OperatorExtends, OperatorImplements;
+
+	// binary expressions
+	BinaryExpression;
+	BacktickExpression;
+
+	// statements
+	IfStatement;
+	WhileLoop, RepeatLoop;
+	DoStatement;
+	ForLoop, ForeachLoop;
+	SwitchStatement;
+	TryStatement;
+	ReturnStatement, BreakStatement, ContinueStatement;
+
+	// definitions
+	Definition, TemplateDefinition;
+	ClassDefinition;
+	InterfaceDefinition;
+	EnumDefinition;
+
+	// root statements
+	NamespaceStatement;
+	UsingStatement;
+	LuaSource;
+	
+	// other
+	Block;
+	Typename;
+	ArrayType, TableType;
+	FunctionType;
+}

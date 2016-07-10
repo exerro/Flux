@@ -1,0 +1,19 @@
+
+namespace Flux::Parsing;
+
+class ReferenceExpression extends Flux::Parsing::PrimaryExpression {
+	ASTNodeType type = ReferenceExpression;
+	string name;
+
+	ReferenceExpression(string name, Position position) {
+		self.name = name;
+		self.position = position;
+	}
+}
+
+ReferenceExpression ReferenceExpression:parse(Source source)
+	= name && new Flux::Parsing::ReferenceExpression(name, position) || null
+	where position = source.lexer:get().position
+	where name = Flux::Parsing::parseName(source);
+
+string ReferenceExpression:serialize() = self.name;

@@ -1,0 +1,22 @@
+
+namespace Flux::Parsing;
+
+class ThrowExpression extends Flux::Parsing::PrimaryExpression {
+	ASTNodeType type = Flux::Parsing::ASTNodeType.ThrowExpression;
+	Expression value;
+
+	ThrowExpression(Expression value, Position position) {
+		self.value = value;
+		self.position = position;
+	}
+}
+
+ThrowExpression ThrowExpression:parse(Source source)
+	= source.lexer:skip(Keyword, "throw")
+		&& new Flux::Parsing::ThrowExpression(Flux::Parsing::Expression:parse(source), position)
+		|| null
+	where position = source.lexer:get().position
+	where name = Flux::Parsing::parseName(source);
+
+string ThrowExpression:serialize()
+	= "throw " `concat` self.value:serialize();

@@ -4,58 +4,69 @@ namespace Flux::Parsing;
 class ConstantExpression extends Flux::Parsing::PrimaryExpression {
 	string value;
 
-	ConstantExpression(ASTNodeType type, string value) {
+	ConstantExpression(ASTNodeType type, string value, Position position) {
 		self.type = type;
 		self.value = value;
+		self.position = position;
 	}
 }
 
 ConstantExpression ConstantExpression:parse(Source source) {
-	switch source.lexer:get().type;
+	let token = source.lexer:get();
+	switch token.type;
 	case String
 		return new Flux::Parsing::ConstantExpression(
 			Flux::Parsing::ASTNodeType.StringConstant,
-			source.lexer:next().value
+			source.lexer:next().value,
+			token.position
 		);
 	case Character
 		return new Flux::Parsing::ConstantExpression(
 			Flux::Parsing::ASTNodeType.CharacterConstant,
-			source.lexer:next().value
+			source.lexer:next().value,
+			token.position
 		);
 	case Integer
 		return new Flux::Parsing::ConstantExpression(
 			Flux::Parsing::ASTNodeType.IntegerConstant,
-			source.lexer:next().value
+			source.lexer:next().value,
+			token.position
 		);
 	case Float
 		return new Flux::Parsing::ConstantExpression(
 			Flux::Parsing::ASTNodeType.FloatConstant,
-			source.lexer:next().value
+			source.lexer:next().value,
+			token.position
 		);
 	case Byte
 		return new Flux::Parsing::ConstantExpression(
 			Flux::Parsing::ASTNodeType.ByteConstant,
-			source.lexer:next().value
+			source.lexer:next().value,
+			token.position
 		);
 	case Hexadecimal
 		return new Flux::Parsing::ConstantExpression(
 			Flux::Parsing::ASTNodeType.HexadecimalConstant,
-			source.lexer:next().value
+			source.lexer:next().value,
+			token.position
 		);
 	case Binary
 		return new Flux::Parsing::ConstantExpression(
 			Flux::Parsing::ASTNodeType.BinaryConstant,
-			source.lexer:next().value
+			source.lexer:next().value,
+			token.position
 		);
 	case Boolean
 		return new Flux::Parsing::ConstantExpression(
 			Flux::Parsing::ASTNodeType.BooleanConstant,
-			source.lexer:next().value
+			source.lexer:next().value,
+			token.position
 		);
 	case Null
 		return new Flux::Parsing::ConstantExpression(
 			Flux::Parsing::ASTNodeType.NullConstant,
-			source.lexer:next().value
+			source.lexer:next().value,
+			token.position
 		);
 	default
 		return null;

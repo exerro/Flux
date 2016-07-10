@@ -3,6 +3,10 @@ import flux;
 
 let source_code = "
 5 \"hello\" 'a' 0xff 0b101
+hello world
+throw 5
+[1, 2, \"hello\", 'world']
+{a = 1, 2, [\"c\"] = 3}
 ";
 
 void main() {
@@ -12,7 +16,7 @@ void main() {
 	source.lexer = lexer;
 
 	while !lexer:isEOF() {
-		let expr = Flux::Parsing::ConstantExpression:parse( source );
+		let expr = Flux::Parsing::PrimaryExpression:parse( source );
 		if expr
 			print( expr:serialize() );
 		else {

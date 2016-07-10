@@ -1,11 +1,11 @@
 
 namespace Flux::Parsing;
 
-string getName(Source source) {
+string parseName(Source source) {
 	let name = source.lexer:skipValue(Identifier);
 
 	while name && source.lexer:skip(Symbol, "::")
-		name = name `concat` "::" `concat` (source.lexer:skipValue(Identifier) || throw new ParserException("expected name after ':'"));
-	
+		name = name `concat` "::" `concat` (source.lexer:skipValue(Identifier) || source:error "expected name after ':'");
+
 	return name;
 }

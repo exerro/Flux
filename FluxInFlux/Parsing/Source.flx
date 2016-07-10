@@ -115,9 +115,9 @@ void Source:parseFileContent(string content, null string source = "string") {
 }
 
 void Source:error(string err)
-	= src `concat` "[" `concat` line `concat` "]: " `concat` err `concat` "\n\t"
+	= throw new ParserException(src `concat` "[" `concat` line `concat` "]: " `concat` err `concat` "\n\t"
 		`concat` strline `concat` "\n\t"
-		`concat` char_pointer
+		`concat` char_pointer)
 	where position = self.lexer:get().position
 	where src = position.source
 	where line = position.line

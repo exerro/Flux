@@ -1,0 +1,31 @@
+
+import Typename;
+import TemplatedType;
+import ArrayType;
+import TableType;
+import FunctionType;
+
+namespace Flux::Parsing;
+
+class Type extends Flux::Parsing::ASTNode {
+	
+}
+
+Type Type:parse( Source source ) {
+	let name
+		 = Flux::Parsing::TemplatedType:parse( source )
+		|| Flux::Parsing::Typename:parse( source )
+		|| Flux::Parsing::FunctionType:parse( source )
+		|| source:error "expected typename";
+
+	while true {
+		let change
+			 = Flux::Parsing::TableType:parse( source, name )
+			|| Flux::Parsing::ArrayType:parse( source, name );
+		
+		if change name = change;
+		else break;
+	}
+
+	return name;
+}

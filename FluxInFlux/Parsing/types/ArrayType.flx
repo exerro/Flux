@@ -1,0 +1,21 @@
+
+namespace Flux::Parsing;
+
+class ArrayType extends Flux::Parsing::Type {
+	ASTNodeType type = Flux::Parsing::ASTNodeType.ArrayType;
+	Type index;
+
+	ArrayType(Type index, null Position position = index.position) {
+		self.index = index;
+		self.position = position;
+	}
+}
+
+ArrayType ArrayType:parse( Source source, Type t )
+	= isArray && (lexer:skip( Symbol, "]" ) && new Flux::Parsing::ArrayType( t, position ) || source:error "expected ']'")
+	where lexer = source.lexer
+	where position = lexer:get().position
+	where isArray = lexer:skip( Symbol, "[" );
+
+string ArrayType:serialize()
+	= self.index:serialize() `concat` "[]";

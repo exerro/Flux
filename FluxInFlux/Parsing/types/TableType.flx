@@ -1,0 +1,30 @@
+
+namespace Flux::Parsing;
+
+class TableType extends Flux::Parsing::Type {
+	ASTNodeType type = Flux::Parsing::ASTNodeType.TableType;
+	Type index, value;
+	
+	TableType(Type index, value, null Position position = index.position) {
+		self.index = index;
+		self.value = value;
+		self.position = position;
+	}
+}
+
+TableType TableType:parse( Source source, Type t ) {
+	let lexer = source.lexer;
+	let position = lexer:get().position;
+
+	if lexer:skip( Symbol, "{" ) {
+		let index = Flux::Parsing::Type:parse( source );
+		
+		if lexer:skip( Symbol, "}" )
+			return new Flux::Parsing::TableType( index, t, position );
+		else
+			source:error "expected '}'";
+	}
+}
+
+string TableType:serialize() 
+	= self.value:serialize() `concat` "{" `concat` self.index:serialize() `concat` "}";

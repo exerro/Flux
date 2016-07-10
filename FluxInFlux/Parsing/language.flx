@@ -46,6 +46,8 @@ match
 null
 ";
 
+// the operator '>>' isn't listed below as it would interfere with templates 'vector<Buffer<T>>' (note the '>>' on the end)
+
 let operator_str = "
 ++ -- # ! ~
 
@@ -58,7 +60,7 @@ let operator_str = "
 |
 &
 ^
-<< >>
+<<
 + -
 * / %
 **

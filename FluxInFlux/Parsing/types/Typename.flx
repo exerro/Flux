@@ -1,0 +1,21 @@
+
+namespace Flux::Parsing;
+
+class Typename extends Flux::Parsing::Type {
+	ASTNodeType type = Flux::Parsing::ASTNodeType.Typename;
+	string name;
+
+	Typename( string name, Position position ) {
+		self.name = name;
+		self.position = position;
+	}
+}
+
+Typename Typename:parse( Source source )
+	= name && new Flux::Parsing::Typename( name, position )
+	where lexer = source.lexer
+	where position = lexer:get().position
+	where name = Flux::Parsing::parseName( source ) || lexer:skipValue( Keyword, "auto" );
+
+string Typename:serialize()
+	= self.name;

@@ -1,0 +1,45 @@
+
+namespace Flux::Parsing;
+
+class FunctionType extends Flux::Parsing::Type {
+	ASTNodeType type = Flux::Parsing::ASTNodeType.FunctionType;
+	Type returns;
+	Type[] parameters;
+
+	FunctionType(Type returns, Type[] parameters, null Position position = returns.position) {
+		self.returns = returns;
+		self.parameters = parameters;
+		self.position = position;
+	}
+}
+
+FunctionType FunctionType:parse( Source source ) {
+	let lexer = source.lexer;
+	let parameters -> Type[] = [];
+	let position = lexer:get().position;
+
+	if lexer:skip( Keyword, "function" ) {
+		let returns = Flux::Parsing::Type:parse( source );
+
+		if !lexer:skip( Symbol, "(" ) source:error "expected '('";
+
+		if !lexer:skip( Symbol, ")" ) {
+			repeat
+				parameters[#parameters + 1] = Flux::Parsing::Type:parse( source );
+			while lexer:skip( Symbol, "," );
+
+			if !lexer:skip( Symbol, ")" ) source:error "expected ')'";
+		}
+		
+		return new Flux::Parsing::FunctionType( returns, parameters, position );
+	}
+}
+
+string FunctionType:serialize() {
+	string[] p = [];
+
+	foreach i, v in self.parameters
+		p[i] = v:serialize();
+
+	return "function " `concat` self.returns:serialize() `concat` "(" `concat` table.concat( p, ", " ) `concat` ")";
+}

@@ -11,6 +11,9 @@ string concattenate(T[] elements, null string seperator = "") {
 
 namespace Flux::Parsing;
 
+bool parseSemicolon(Lexer lexer)
+	= (lexer:skip(Symbol, ";") || lexer:test(Symbol, ";", -1)) && true || false;
+
 string parseName(Source source) {
 	let name = source.lexer:skipValue(Identifier);
 

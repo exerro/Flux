@@ -3,17 +3,66 @@ namespace Flux::Parsing;
 
 class TryStatement extends Flux::Parsing::Statement {
 	ASTNodeType type = Flux::Parsing::ASTNodeType.TryStatement;
-	
+	Block block;
+	Type[] catch_types;
+	string[] catch_names;
+	Block[] catch_blocks;
+	Block _default;
 
-	TryStatement(null Position position = SOMETHING) {
-		
+	TryStatement(Block block, Type[] catch_types, string[] catch_names, Block[] catch_blocks, null Block _default, null Position position = block.position) {
+		self.block = block;
+		self.catch_types = catch_types;
+		self.catch_names = catch_names;
+		self.catch_blocks = catch_blocks;
+		self._default = _default;
 		self.position = position;
 	}
 }
 
 TryStatement TryStatement:parse(Source source) {
+	let lexer = source.lexer;
+	let position = lexer:get().position;
 
+	if !lexer:skip( Keyword, "try" ) return;
+
+	source:pushContext();
+	Block block = Flux::Parsing::Block:parse( source );
+	source:popContext();
+	Type[] catch_types = [];
+	string[] catch_names = [];
+	Block[] catch_blocks = [];
+	Block[] _default;
+
+	while lexer:skip( Keyword, "catch" ) {
+		let classname = Flux::Parsing::Type:parse( source );
+		let name = lexer:skipValue "Identifier" || source:error "expected exception name after type";
+		source:pushContext();
+		let block = Flux::Parsing::Block:parse( source );
+		source:popContext();
+
+		catch_types[#catch_types + 1] = classname;
+		catch_names[#catch_names + 1] = name;
+		catch_blocks[#catch_blocks + 1] = block;
+	}
+
+	if #catch_types == 0
+		source:error "expected at least one catch after try";
+
+	if lexer:skip( Keyword, "default" ) {
+		source:pushContext();
+		_default = Flux::Parsing::Block:parse( source );
+		source:popContext();
+	}
+
+	return new Flux::Parsing::TryStatement(block, catch_types, catch_names, catch_blocks, _default, position);
 }
 
-string TryStatement:serialize()
-	= "nope";
+string TryStatement:serialize() {
+	string[] c = [];
+
+	foreach i, v in self.catch_types
+		c[i] = "\ncatch " `concat` v:serialize() `concat` " " `concat` self.catch_names[i] `concat` " " `concat` self.catch_blocks[i]:serialize();
+
+	return "try " `concat` self.block:serialize() `concat` table.concat( c )
+		`concat` (self._default && "\ndefault " `concat` self._default:serialize() || "");
+}

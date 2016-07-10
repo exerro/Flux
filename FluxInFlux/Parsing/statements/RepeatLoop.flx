@@ -37,7 +37,7 @@ RepeatLoop RepeatLoop:parse(Source source) {
 	else if lexer:skip( Keyword, "while" ) {
 		condition = Flux::Parsing::Expression:parse( source ) || source:error "expected condition after 'while'";
 		inverted = true;
-		if !lexer:skip( Symbol, ";" ) source:error "expected ';' after condition";
+		if !Flux::Parsing::parseSemicolon(lexer) source:error "expected ';' after condition";
 	}
 
 	else

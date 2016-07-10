@@ -21,7 +21,7 @@ class Statement extends Flux::Parsing::ASTNode {
 
 Statement Statement:parse(Source source)
 	 = newstatement
-	|| expr && (lexer:skip( Symbol, ";" ) && expr || source:error "expected ';' after expression")
+	|| expr && (Flux::Parsing::parseSemicolon(lexer) && expr || source:error "expected ';' after expression")
 	|| Flux::Parsing::IfStatement:parse( source )
 	|| Flux::Parsing::WhileLoop:parse( source )
 	|| Flux::Parsing::RepeatLoop:parse( source )

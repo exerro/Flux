@@ -12,7 +12,7 @@ class ReturnStatement extends Flux::Parsing::Statement {
 }
 
 ReturnStatement ReturnStatement:parse(Source source)
-	= expr && (lexer:skip( Symbol, ";" ) && new Flux::Parsing::ReturnStatement(expr, position) || source:error "expected ';' after return")
+	= expr && (Flux::Parsing::parseSemicolon(lexer) && new Flux::Parsing::ReturnStatement(expr, position) || source:error "expected ';' after return")
 	where lexer = source.lexer
 	where position = lexer:get().position
 	where expr = lexer:skip( Keyword, "return" ) && (Flux::Parsing::Expression:parse(source) || new Flux::Parsing::ConstantExpression(Flux::Parsing::ASTNodeType.NullConstant, position))

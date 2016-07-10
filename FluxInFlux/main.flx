@@ -1,13 +1,35 @@
 
 import flux;
 
-let source_code = "
-while true
-	if this
-		break;
+let source_code = '
+foreach A, B in t {
+	print( A, B );
+}
 
-while true do return print \"Hi!\";
-";
+foreach C in t {
+	print( C );
+}
+
+switch !false;
+case true, false {
+	print "It was true or false";
+}
+default {
+	print "It was neither";
+}
+
+try something();
+catch an error {
+	print(error);
+	print "Hi";
+}
+catch another error {
+	print "Yo";
+}
+default {
+	print "Hi";
+}
+';
 
 void main() {
 	new Flux::Parsing::Source source();

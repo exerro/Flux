@@ -12,7 +12,26 @@ class ForLoop extends Flux::Parsing::Statement {
 }
 
 ForLoop ForLoop:parse(Source source) {
+	let lexer = source.lexer;
+	let position = lexer:get().position;
 
+	if !lexer:skip( Keyword, "for" ) return;
+
+	let openbracket = lexer:skip( Symbol, "(" ) && true || false;
+	
+	// some kind of definition parsing
+	// some kind of delimiter parsing
+	// some kind of expression parsing
+	// some kind of delimiter parsing
+	// some kind of expression parsing
+
+	if openbracket && !lexer:skip( Symbol, ")" ) source:error "expected ')'";
+
+	source:pushLoopContext();
+	let block = Flux::Parsing::Block:parse( source );
+	source:popContext();
+
+	return new Flux::Parsing::ForLoop();
 }
 
 string ForLoop:serialize()

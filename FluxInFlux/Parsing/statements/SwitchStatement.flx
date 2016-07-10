@@ -3,17 +3,66 @@ namespace Flux::Parsing;
 
 class SwitchStatement extends Flux::Parsing::Statement {
 	ASTNodeType type = Flux::Parsing::ASTNodeType.SwitchStatement;
-	
+	Expression expression;
+	Expression[][] cases;
+	Block[] blocks;
+	Block _default;
 
-	SwitchStatement(null Position position = SOMETHING) {
-		
+	SwitchStatement(Expression expression, Expression[][] cases, Block[] blocks, null Block _default, null Position position = expression.position) {
+		self.expression = expression;
+		self.cases = cases;
+		self.blocks = blocks;
+		self._default = _default;
 		self.position = position;
 	}
 }
 
 SwitchStatement SwitchStatement:parse(Source source) {
+	let lexer = source.lexer;
+	let position = lexer:get().position;
 
+	if !lexer:skip( Keyword, "switch" ) return;
+
+	let expr = Flux::Parsing::Expression:parse( source ) || source:error "expected expression to switch";
+
+	Expression[][] cases = [];
+	Block[] blocks = [];
+	Block _default;
+
+	if !Flux::Parsing::parseSemicolon( lexer )
+		source:error "expected ';' after switch expression";
+
+	while lexer:skip( Keyword, "case" ) {
+		Expression[] this_cases = [];
+
+		repeat
+			this_cases[#this_cases + 1] = Flux::Parsing::Expression:parse( source ) || source:error "expected case expression";
+		while lexer:skip( Symbol, "," );
+
+		source:pushContext();
+		cases[#cases + 1] = this_cases;
+		blocks[#blocks + 1] = Flux::Parsing::Block:parse( source );
+		source:popContext();
+	}
+
+	if #cases == 0
+		source:error "expected at least one case to switch";
+
+	if lexer:skip( Keyword, "default" ) {
+		source:pushContext();
+		_default = Flux::Parsing::Block:parse( source );
+		source:popContext();
+	}
+
+	return new Flux::Parsing::SwitchStatement(expr, cases, blocks, _default, position);
 }
 
-string SwitchStatement:serialize()
-	= "nope";
+string SwitchStatement:serialize() {
+	string[] c = [];
+
+	foreach i, v in self.cases
+		c[i] = "case " `concat` (v `concattenate` ", ") `concat` " " `concat` self.blocks[i]:serialize();
+
+	return "switch " `concat` self.expression:serialize() `concat` ";\n" `concat` table.concat( c, "\n" )
+		`concat` (self._default && "\ndefault " `concat` self._default:serialize() || "");
+}

@@ -40,11 +40,5 @@ NewExpression NewExpression:parse( Source source ) {
 	}
 }
 
-string NewExpression:serialize() {
-	string[] p = [];
-
-	foreach i, v in self.parameters
-		p[i] = v:serialize();
-
-	return "new " `concat` self._type:serialize() `concat` "(" `concat` table.concat( p, ", " ) `concat` ")";
-}
+string NewExpression:serialize()
+	= "new " `concat` self._type:serialize() `concat` "(" `concat` (self.parameters `concattenate` ", ") `concat` ")";

@@ -36,11 +36,5 @@ FunctionCall FunctionCall:parse( Source source, Expression value ) {
 	}
 }
 
-string FunctionCall:serialize() {
-	string[] p = [];
-
-	foreach i, v in self.parameters
-		p[i] = v:serialize();
-
-	return Flux::Parsing::serializeExpression( self.value ) `concat` "(" `concat` table.concat( p, ", " ) `concat` ")";
-}
+string FunctionCall:serialize()
+	= Flux::Parsing::serializeExpression( self.value ) `concat` "(" `concat` (self.parameters `concattenate` ", ") `concat` ")";

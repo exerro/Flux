@@ -29,11 +29,5 @@ Index Index:parse( Source source, Expression value ) {
 	}
 }
 
-string Index:serialize() {
-	string[] p = [];
-
-	foreach i, v in self.index
-		p[i] = v:serialize();
-
-	return Flux::Parsing::serializeExpression( self.value ) `concat` "[" `concat` table.concat( p, ", " ) `concat` "]";
-}
+string Index:serialize()
+	= Flux::Parsing::serializeExpression( self.value ) `concat` "[" `concat` (self.index `concattenate` ", ") `concat` "]";

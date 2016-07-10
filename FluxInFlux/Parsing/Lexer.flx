@@ -307,17 +307,17 @@ Token Lexer:back()
 	= self:get( self.buffer_position-- );
 
 Token Lexer:test(TokenType type, null string value, null int lookahead = 0)
-	= token.type == type && (!value || token.value == value) && token
+	= token.type == type && (!value || token.value == value) && token || null
 	where token = self:peek( lookahead );
 
 Token Lexer:skip(TokenType type, null string value)
-	= token.type == type && (!value || token.value == value) && self:next()
+	= token.type == type && (!value || token.value == value) && self:next() || null
 	where token = self:get();
 
 string Lexer:testValue(TokenType type, null string value, null int lookahead)
-	= token && token.value
+	= token && token.value || null
 	where token = self:test(type, value, lookahead);
 
 string Lexer:skipValue(TokenType type, null string value)
-	= token && token.value
+	= token && token.value || null
 	where token = self:skip(type, value);

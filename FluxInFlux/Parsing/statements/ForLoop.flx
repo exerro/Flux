@@ -1,0 +1,19 @@
+
+namespace Flux::Parsing;
+
+class ForLoop extends Flux::Parsing::Statement {
+	ASTNodeType type = Flux::Parsing::ASTNodeType.ForLoop;
+	
+
+	ForLoop(null Position position = SOMETHING) {
+		
+		self.position = position;
+	}
+}
+
+ForLoop ForLoop:parse(Source source) {
+
+}
+
+string ForLoop:serialize()
+	= "nope";

@@ -1,0 +1,49 @@
+
+namespace Flux::Parsing;
+
+class RepeatLoop extends Flux::Parsing::Statement {
+	ASTNodeType type = Flux::Parsing::ASTNodeType.RepeatLoop;
+	Expression condition;
+	Block block;
+	bool inverted;
+
+	RepeatLoop(Expression condition, Block block, bool inverted, null Position position = condition.position) {
+		self.condition = condition;
+		self.block = block;
+		self.inverted = inverted;
+		self.position = position;
+	}
+}
+
+RepeatLoop RepeatLoop:parse(Source source) {
+	let lexer = source.lexer;
+	let position = lexer:get().position;
+
+	if !lexer:skip( Keyword, "repeat" ) return;
+
+	let block = Flux::Parsing::Block:parse( source );
+
+	Expression condition;
+	bool inverted;
+
+	if lexer:skip( Keyword, "until" ) {
+		condition = Flux::Parsing::Expression:parse( source ) || source:error "expected condition after 'until'";
+		inverted = false;
+		if !lexer:skip( Symbol, ";" ) source:error "expected ';' after condition";
+	}
+
+	else if lexer:skip( Keyword, "while" ) {
+		condition = Flux::Parsing::Expression:parse( source ) || source:error "expected condition after 'while'";
+		inverted = true;
+		if !lexer:skip( Symbol, ";" ) source:error "expected ';' after condition";
+	}
+
+	else
+		condition = new Flux::Parsing::ConstantExpression( Flux::Parsing::ASTNodeType.Boolean, "false" );
+		then inverted = false;
+
+	return new Flux::Parsing::RepeatLoop(condition, block, inverted, position);
+}
+
+string RepeatLoop:serialize()
+	= "repeat " `concat` self.block:serialize() `concat` (self.inverted && "\nwhile " || "\nuntil ") `concat` self.condition:serialize() `concat`;

@@ -61,12 +61,8 @@ MatchExpression MatchExpression:parse(Source source) {
 string MatchExpression:serialize() {
 	string[] t = [];
 
-	foreach i, v in self.cases {
-		string[] s = [];
-		foreach ii, vv in v
-			s[ii] = vv:serialize();
-		t[i] = table.concat( s, ", " ) `concat` " => " `concat` self.matches[i]:serialize();
-	}
+	foreach i, v in self.cases
+		t[i] = (v `concattenate` ", ") `concat` " => " `concat` self.matches[i]:serialize();
 
 	if self._default
 		t[#t + 1] = "default => " `concat` self._default:serialize();

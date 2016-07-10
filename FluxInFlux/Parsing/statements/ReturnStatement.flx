@@ -1,0 +1,22 @@
+
+namespace Flux::Parsing;
+
+class ReturnStatement extends Flux::Parsing::Statement {
+	ASTNodeType type = Flux::Parsing::ASTNodeType.ReturnStatement;
+	Expression value;
+
+	ReturnStatement(Expression value, null Position position = value.position) {
+		self.position = position;
+		self.value = value;
+	}
+}
+
+ReturnStatement ReturnStatement:parse(Source source)
+	= expr && (lexer:skip( Symbol, ";" ) && new Flux::Parsing::ReturnStatement(expr, position) || source:error "expected ';' after return")
+	where lexer = source.lexer
+	where position = lexer:get().position
+	where expr = lexer:skip( Keyword, "return" ) && (Flux::Parsing::Expression:parse(source) || new Flux::Parsing::ConstantExpression(Flux::Parsing::ASTNodeType.NullConstant, position))
+;
+
+string ReturnStatement:serialize()
+	= "return " `concat` self.value:serialize() `concat` ";";

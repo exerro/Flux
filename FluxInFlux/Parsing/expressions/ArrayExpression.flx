@@ -29,11 +29,5 @@ ArrayExpression ArrayExpression:parse(Source source)
 	}
 	else return null;
 
-string ArrayExpression:serialize() {
-	string[] elements = [];
-
-	foreach i, value in self.values
-		elements[i] = value:serialize();
-
-	return "[" `concat` table.concat( elements, ", " ) `concat` "]";
-}
+string ArrayExpression:serialize()
+	= "[" `concat` (elements `concattenate` ", ") `concat` "]";

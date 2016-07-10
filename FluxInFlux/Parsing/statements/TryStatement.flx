@@ -1,0 +1,19 @@
+
+namespace Flux::Parsing;
+
+class TryStatement extends Flux::Parsing::Statement {
+	ASTNodeType type = Flux::Parsing::ASTNodeType.TryStatement;
+	
+
+	TryStatement(null Position position = SOMETHING) {
+		
+		self.position = position;
+	}
+}
+
+TryStatement TryStatement:parse(Source source) {
+
+}
+
+string TryStatement:serialize()
+	= "nope";

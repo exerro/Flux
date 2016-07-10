@@ -1,0 +1,15 @@
+
+namespace Flux::Parsing;
+
+class NewStatement extends Flux::Parsing::Statement {
+	NewStatement(null Position position = SOMETHING) {
+		
+		self.position = position;
+	}
+}
+
+NewStatement NewStatement:parse(Source source) {
+
+}
+
+// no need to define its serialize() as it's never added to the AST

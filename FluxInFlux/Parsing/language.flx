@@ -41,6 +41,8 @@ function
 lambda
 match
 
+then
+
 "/*and or*/ `concat` "
 
 null
@@ -125,7 +127,7 @@ let _ = (function() { // this is hacky too :/
 	Flux::Parsing::language::unary_operators["-"] = true;
 }) ();
 
-let _ = (function() { // this is hacky :/
+let _ = (function() { // this is also hacky :/
 	let text = Flux::Parsing::language::symbol_str;
 	let found = [text:find "%S+"];
 

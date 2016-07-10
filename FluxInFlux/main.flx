@@ -2,14 +2,12 @@
 import flux;
 
 let source_code = "
-new Button(1, 1, 5, 8, \"Hello\")
-new int[](5)
-new vector<int>(2)
-match !true {
-	yes => this;
-	no, maybe => that;
-	default => abc
-}
+if !false {
+	return 1;
+	break;
+} else if true continue; else {}
+
+while true do return print \"Hi!\";
 ";
 
 void main() {
@@ -19,7 +17,7 @@ void main() {
 	source.lexer = lexer;
 
 	while !lexer:isEOF() {
-		let expr = Flux::Parsing::Expression:parse( source );
+		let expr = Flux::Parsing::Statement:parse( source );
 		if expr
 			print( expr:serialize() );
 		else {

@@ -44,11 +44,5 @@ MethodCall MethodCall:parse( Source source, Expression value ) {
 		source:error "expected '(' after method name";
 }
 
-string MethodCall:serialize() {
-	string[] p = [];
-
-	foreach i, v in self.parameters
-		p[i] = v:serialize();
-
-	return Flux::Parsing::serializeExpression( self.value ) `concat` ":" `concat` self.name `concat` "(" `concat` table.concat( p, ", " ) `concat` ")";
-}
+string MethodCall:serialize()
+	= Flux::Parsing::serializeExpression( self.value ) `concat` ":" `concat` self.name `concat` "(" `concat` (self.parameters `concattenate` ", ") `concat` ")";

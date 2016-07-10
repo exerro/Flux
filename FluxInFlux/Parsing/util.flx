@@ -1,4 +1,14 @@
 
+template<T>
+string concattenate(T[] elements, null string seperator = "") {
+	string[] s = [];
+
+	foreach i, v in elements
+		s[i] = v:serialize();
+
+	return table.concat( s, seperator );
+}
+
 namespace Flux::Parsing;
 
 string parseName(Source source) {

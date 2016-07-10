@@ -1122,11 +1122,11 @@ function compileExpression( emitter, t )
 		elseif operator == "!=" then
 			operator = "~="
 
-		elseif operator == "&&" then
+		elseif operator == "&&" or operator == "&" then
 			operator = "and"
 			f = emitter.pushWord
 
-		elseif operator == "||" then
+		elseif operator == "||" or operator == "|" then
 			operator = "or"
 			f = emitter.pushWord
 

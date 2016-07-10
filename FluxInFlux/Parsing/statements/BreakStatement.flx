@@ -1,0 +1,18 @@
+
+namespace Flux::Parsing;
+
+class BreakStatement extends Flux::Parsing::Statement {
+	ASTNodeType type = Flux::Parsing::ASTNodeType.BreakStatement;
+
+	BreakStatement(Position position) {
+		self.position = position;
+	}
+}
+
+BreakStatement BreakStatement:parse(Source source)
+	= lexer:skip( Keyword, "break" ) && (lexer:skip( Symbol, ";" ) && new Flux::Parsing::BreakStatement( position ) || source:error "expected ';' after 'break'")
+	where lexer = source.lexer
+	where position = lexer:get().position;
+
+string BreakStatement:serialize()
+	= "break;";

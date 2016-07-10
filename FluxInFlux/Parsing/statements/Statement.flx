@@ -1,8 +1,39 @@
 
 import ImportStatement;
+import IfStatement;
+import WhileLoop;
+import RepeatLoop;
+import DoStatement;
+import ForLoop;
+import ForeachLoop;
+import SwitchStatement;
+import TryStatement;
+import ReturnStatement;
+import BreakStatement;
+import ContinueStatement;
 
 namespace Flux::Parsing;
 
 class Statement extends Flux::Parsing::ASTNode {
 
 }
+
+Statement Statement:parse(Source source)
+	 = newstatement
+	|| expr && (lexer:skip( Symbol, ";" ) && expr || source:error "expected ';' after expression")
+	|| Flux::Parsing::IfStatement:parse( source )
+	|| Flux::Parsing::WhileLoop:parse( source )
+	|| Flux::Parsing::RepeatLoop:parse( source )
+	|| Flux::Parsing::DoStatement:parse( source )
+	|| Flux::Parsing::ForLoop:parse( source )
+	|| Flux::Parsing::ForeachLoop:parse( source )
+	|| Flux::Parsing::SwitchStatement:parse( source )
+	|| Flux::Parsing::TryStatement:parse( source )
+	|| Flux::Parsing::ReturnStatement:parse( source )
+	|| Flux::Parsing::BreakStatement:parse( source )
+	|| Flux::Parsing::ContinueStatement:parse( source )
+	|| source:error "unexpected symbol"
+	where lexer = source.lexer
+	where newstatement = Flux::Parsing::NewStatement:parse(source)
+	where expr = !newstatement && Flux::Parsing::Expression:parse(source)
+;

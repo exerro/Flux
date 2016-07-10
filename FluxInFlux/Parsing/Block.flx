@@ -7,37 +7,42 @@ namespace Flux::Parsing;
 class Block (ASTNode) extends ASTNode {
 	ASTNodeType type = Flux::Parsing::ASTNodeType.Block;
 
-	// void operator[]=(int index, ASTNode value);
-	// ASTNode operator[](int index);
+	// void operator[]=(int index, ASTNode value) = self:__set__(index, value);
+	// ASTNode operator[](int index) = self:__get__(index);
+	// int operator#() = self:__len__();
 
-	Block(ASTNode nodes)
+	Block(ASTNode nodes, null Position position = nodes[1] && nodes[1].position)
 		foreach i, node in nodes
 			self[i] = node;
+		then self.position = position;
 }
-
-string Block:serialize() = match #self {
-	0 => "{}";
-	1 => "\n\t" `concat` self[1]:serialize();
-	default => (function() {
-		string[] s = [];
-
-		foreach i, node in self
-			s[i] = node:serialize();
-
-		return "{\n\t" `concat` table.concat( s, "\n" ):gsub( "\n", "\n\t" ) `concat` "\n}";
-	})();
-};
 
 string Block:parse(Source source) {
 	let lexer = source.lexer;
+	let position = lexer:get().position;
+	
 	ASTNode[] statements = [];
 
-	if lexer:skip(Symbol, "{") {
-		
+	if lexer:skip( Symbol, "{" ) {
+		while !lexer:skip( Symbol, "}" ) {
+			if lexer:isEOF() source:error "expected '}' to block";
+
+			statements[#statements + 1] = Flux::Parsing::Statement:parse(source);
+		}
 	}
+
 	else {
-
+		repeat
+			statements[#statements + 1] = Flux::Parsing::Statement:parse(source);
+		while lexer:skip( Keyword, "then" );
 	}
 
-	return Block(statements);
+	return new Flux::Parsing::Block( statements, position );
 }
+
+string Block:serialize()
+	= match #self {
+		0 => "{}";
+		1 => "\n\t" `concat` self[1]:serialize():gsub( "\n", "\n\t" );
+		default => "{\n\t" `concat` (self `concattenate` "\n"):gsub( "\n", "\n\t" ) `concat` "\n}";
+	};

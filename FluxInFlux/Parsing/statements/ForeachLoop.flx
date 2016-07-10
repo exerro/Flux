@@ -1,0 +1,19 @@
+
+namespace Flux::Parsing;
+
+class ForeachLoop extends Flux::Parsing::Statement {
+	ASTNodeType type = Flux::Parsing::ASTNodeType.ForeachLoop;
+	
+
+	ForeachLoop(null Position position = SOMETHING) {
+		
+		self.position = position;
+	}
+}
+
+ForeachLoop ForeachLoop:parse(Source source) {
+
+}
+
+string ForeachLoop:serialize()
+	= "nope";

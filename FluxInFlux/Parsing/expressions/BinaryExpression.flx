@@ -41,19 +41,22 @@ BinaryExpression BinaryExpression:parse( Source source ) {
 
 	while true {
 		let op_token = lexer:test( Symbol );
-		if Flux::Parsing::language::binary_operators[op_token.value] lexer:next(); else break;
+		if op_token && Flux::Parsing::language::binary_operators[op_token.value] lexer:next(); else break;
 
+		let op = op_token.value;
 		let rvalue = Flux::Parsing::BacktickExpression:parse(source)
 			|| source:error( "expected expression after operator '" `concat` op_token.value `concat` "'" );
 		let precedence = Flux::Parsing::language::binary_operators[op_token.value];
 		let position = op_token.position;
+		
+		if op == ">" && lexer:skip( Symbol, ">" ) op = ">>"; then precedence = Flux::Parsing::language::binary_operators[op_token.value];
 
 		while operator_precedences[1] && (precedence < operator_precedences[#operator_precedences]
 		                               || precedence > 1 && precedence == operator_precedences[#operator_precedences])
 			collapse();
 
 		operand_stack[#operand_stack + 1] = rvalue;
-		operator_stack[#operator_stack + 1] = op_token.value;
+		operator_stack[#operator_stack + 1] = op;
 		operator_positions[#operator_positions + 1] = position;
 		operator_precedences[#operator_precedences + 1] = precedence;
 	}
@@ -65,5 +68,5 @@ BinaryExpression BinaryExpression:parse( Source source ) {
 
 string BinaryExpression:serialize()
 	= Flux::Parsing::serializeExpression( self.lvalue ) `concat` " "
-	  `concat` "`" `concat` self.op `concat` "`" `concat`
+	  `concat` self.op `concat`
 	  " " `concat` Flux::Parsing::serializeExpression( self.rvalue );

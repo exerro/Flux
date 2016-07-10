@@ -2,7 +2,6 @@
 namespace Flux::Parsing::language;
 
 let keywords -> bool{string} = [];
-let operators -> int{string} = [];
 let binary_operators -> int{string} = [];
 let unary_operators -> bool{string} = [];
 let symbols -> bool{string} = [];
@@ -75,6 +74,7 @@ let symbol_str = "
 [ ]
 
 =>
+->
 
 . :
 ,
@@ -108,7 +108,6 @@ let _ = (function() { // this is hacky too :/
 		while found_line[1] {
 			let op = line:sub( found_line[1], found_line[2] );
 			
-			Flux::Parsing::language::operators[op] = Flux::Parsing::language::precedence;
 			Flux::Parsing::language::symbols[op] = true;
 
 			switch Flux::Parsing::language::precedence;
@@ -134,4 +133,8 @@ let _ = (function() { // this is also hacky :/
 	while found[1]
 		Flux::Parsing::language::symbols[text:sub( found[1], found[2] )] = true;
 		then found = [text:find( "%S+", found[2] + 1 )];
+}) ();
+
+let _ = (function() {
+	Flux::Parsing::language::binary_operators[">>"] = Flux::Parsing::language::binary_operators["<<"];
 }) ();

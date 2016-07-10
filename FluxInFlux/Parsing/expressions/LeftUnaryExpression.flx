@@ -1,5 +1,6 @@
 
 import LeftUnaryOperator;
+import OperatorTypeof;
 
 namespace Flux::Parsing;
 
@@ -25,7 +26,7 @@ class LeftUnaryExpression extends Flux::Parsing::PrimaryExpression {
 	}
 }
 
-LeftUnaryExpression LeftUnaryExpression:parse(Source source) {
+ASTNode LeftUnaryExpression:parse(Source source) {
 	let lexer = source.lexer;
 
 	if !lexer:test(Symbol)
@@ -45,7 +46,7 @@ LeftUnaryExpression LeftUnaryExpression:parse(Source source) {
 		let position = lexer:next().position;
 		then return new Flux::Parsing::LeftUnaryExpression(Flux::Parsing::LeftUnaryExpression:parse(source), op, position);
 	else
-		return Flux::Parsing::RightUnaryExpression:parse(source);
+		return Flux::Parsing::OperatorTypeof:parse(source) || Flux::Parsing::RightUnaryExpression:parse(source);
 }
 
 string LeftUnaryExpression:serialize()

@@ -1,0 +1,28 @@
+
+namespace Flux::Parsing;
+
+class OperatorTypeof extends RightUnaryExpression {
+	ASTNodeType type = Flux::Parsing::ASTNodeType.OperatorTypeof;
+	Expression value;
+	Type _type;
+
+	OperatorTypeof( Expression value, null Type type, null Position position = value.position ) {
+		self.value = value;
+		self._type = type;
+		self.position = position;
+	}
+}
+
+OperatorTypeof OperatorTypeof:parse( Source source, null Expression value )
+	= isCalled && new Flux::Parsing::OperatorTypeof( value, type, position )
+	where lexer = source.lexer
+	where position = lexer:get().position
+	where isCalled = lexer:skip( Keyword, "typeof" )
+	where type = value && isCalled && Flux::Parsing::Type:parse(source)
+	where value = value || isCalled && Flux::Parsing::LeftUnaryExpression:parse(source);
+
+string OperatorTypeof:serialize()
+	= match self._type {
+		null => "typeof " `concat` Flux::Parsing::serializeExpression( self.value );
+		default => Flux::Parsing::serializeExpression( self.value ) `concat` " typeof " `concat` self._type:serialize();
+	};

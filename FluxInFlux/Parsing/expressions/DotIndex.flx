@@ -16,6 +16,7 @@ class DotIndex extends RightUnaryExpression {
 DotIndex DotIndex:parse( Source source, Expression value )
 	= index && new Flux::Parsing::DotIndex( value, index, position )
 	where lexer = source.lexer
+	where position = lexer:get().position
 	where index = lexer:skip( Symbol, "." ) && (lexer:skipValue( Identifier ) || source:error "expected index name after '.'");
 
 string DotIndex:serialize()

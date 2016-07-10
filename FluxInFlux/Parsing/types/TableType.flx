@@ -20,11 +20,8 @@ TableType TableType:parse( Source source, Type t ) {
 		let index = Flux::Parsing::Type:parse( source );
 		
 		if lexer:skip( Symbol, "}" )
-			return new Flux::Parsing::TableType( index, t, position );
+			return new Flux::Parsing::TemplatedType( "{}", [index, t], position );
 		else
 			source:error "expected '}'";
 	}
 }
-
-string TableType:serialize() 
-	= self.value:serialize() `concat` "{" `concat` self.index:serialize() `concat` "}";

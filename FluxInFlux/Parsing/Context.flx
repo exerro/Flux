@@ -5,37 +5,63 @@ class Context {
 	bool isLoop = false,
 	     isFunction = false,
 	     isClass = false,
-	     isInterface = false;
+	     isInterface = false,
+	     isNamespace = false,
+	     isVarargFunction = false;
 
-	string classname;
+	string class_name;
+	string namespace_name;
 
-	Context(null Context parent) {
+	Context(null Context parent)
 		if parent {
 			self.isLoop = parent.isLoop;
 			self.isFunction = parent.isFunction;
 			self.isClass = parent.isClass;
 			self.isInterface = parent.isInterface;
-			self.classname = parent.classname;
-		}
+			self.isNamespace = false;
+			self.class_name = parent.class_name;
+			self.namespace_name = parent.namespace_name;
 	}
 
-	Context specialiseLoop() {
-		self.isLoop = true;
-		return self;
-	}
+	string resolveDefinitionName(string name);
 
-	Context specialiseFunction() {
-		self.isFunction = true;
-		return self;
-	}
+	Context specialiseLoop();
+	Context specialiseFunction(bool isVararg);
+	Context specialiseClass(string name);
+	Context specialiseInterface(string name);
+	Context specialiseNamespace(string name);
+}
 
-	Context specialiseClass() {
-		self.isClass = true;
-		return self;
-	}
+string Context:resolveDefinitionName(string name)
+	= namespace_name && namespace_name `concat` "::" `concat` name || name
+	where namespace_name = self.isNamespace && self.namespace_name;
 
-	Context specialiseInterface() {
-		self.isInterface = true;
-		return self;
-	}
+Context Context:specialiseLoop() {
+	self.isLoop = true;
+	return self;
+}
+
+Context Context:specialiseFunction(null bool isVararg = false) {
+	self.isFunction = true;
+	self.isLoop = false;
+	self.isVarargFunction = isVararg;
+	return self;
+}
+
+Context Context:specialiseClass(string name) {
+	self.isClass = true;
+	self.class_name = name;
+	return self;
+}
+
+Context Context:specialiseInterface() {
+	self.isInterface = true;
+	self.class_name = name;
+	return self;
+}
+
+Context Context:specialiseNamespace(string name) {
+	self.isNamespace = true;
+	self.namespace_name = self.namespace_name && self.namespace_name `concat` name || name;
+	return self;
 }

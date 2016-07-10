@@ -2,10 +2,9 @@
 import flux;
 
 let source_code = "
-if !false {
-	return 1;
-	break;
-} else if true continue; else {}
+while true
+	if this
+		break;
 
 while true do return print \"Hi!\";
 ";

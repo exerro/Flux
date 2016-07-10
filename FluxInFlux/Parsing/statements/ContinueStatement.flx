@@ -12,7 +12,8 @@ class ContinueStatement extends Flux::Parsing::Statement {
 ContinueStatement ContinueStatement:parse(Source source)
 	= lexer:skip( Keyword, "continue" ) && (lexer:skip( Symbol, ";" ) && new Flux::Parsing::ContinueStatement( position ) || source:error "expected ';' after 'continue'")
 	where lexer = source.lexer
-	where position = lexer:get().position;
+	where position = lexer:get().position
+	where _ = !source.context.isLoop && lexer:test( Keyword, "continue" ) && source:error "no loop to continue";
 
 string ContinueStatement:serialize()
 	= "continue;";

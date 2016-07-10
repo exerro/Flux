@@ -21,7 +21,9 @@ RepeatLoop RepeatLoop:parse(Source source) {
 
 	if !lexer:skip( Keyword, "repeat" ) return;
 
+	source:pushLoopContext();
 	let block = Flux::Parsing::Block:parse( source );
+	source:popContext();
 
 	Expression condition;
 	bool inverted;

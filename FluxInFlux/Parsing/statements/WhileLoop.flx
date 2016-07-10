@@ -20,7 +20,9 @@ WhileLoop WhileLoop:parse(Source source) {
 	if !lexer:skip( Keyword, "while" ) return;
 
 	let condition = Flux::Parsing::Expression:parse( source ) || source:error "expected condition after 'while'";
+	source:pushLoopContext();
 	let block = Flux::Parsing::Block:parse( source );
+	source:popContext();
 
 	return new Flux::Parsing::WhileLoop(condition, block, position);
 }

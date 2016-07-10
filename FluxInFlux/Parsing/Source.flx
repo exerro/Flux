@@ -35,8 +35,9 @@ class Source {
 	Context popContext();
 	Context pushFunctionContext();
 	Context pushLoopContext();
-	Context pushClassContext();
-	Context pushInterfaceContext();
+	Context pushClassContext(string name);
+	Context pushInterfaceContext(string name);
+	Context pushNamespaceContext(string name);
 
 	Block pushBlock();
 	Block popBlock();
@@ -71,11 +72,14 @@ Context Source:pushLoopContext()
 Context Source:pushFunctionContext()
 	= self:pushContext():specialiseFunction();
 
-Context Source:pushClassContext()
-	= self:pushContext():specialiseClass();
+Context Source:pushClassContext(string name)
+	= self:pushContext():specialiseClass(name);
 
-Context Source:pushInterfaceContext()
-	= self:pushContext():specialiseInterface();
+Context Source:pushInterfaceContext(string name)
+	= self:pushContext():specialiseInterface(name);
+
+Context Source:pushNamespaceContext(string name)
+	= self:pushContext():specialiseNamespace(name);
 
 Block Source:pushBlock() {
 	let block = new Flux::Parsing::Context();

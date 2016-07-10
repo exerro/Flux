@@ -21,7 +21,9 @@ IfStatement IfStatement:parse(Source source) {
 	if !lexer:skip( Keyword, "if" ) return;
 
 	let condition = Flux::Parsing::Expression:parse( source ) || source:error "expected condition after 'if'";
+	source:pushContext();
 	let block = Flux::Parsing::Block:parse( source );
+	source:popContext();
 	let elseblock = lexer:skip( Keyword, "else" ) && Flux::Parsing::Block:parse( source );
 
 	return new Flux::Parsing::IfStatement(condition, block, elseblock, position);

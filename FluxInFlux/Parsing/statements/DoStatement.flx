@@ -17,7 +17,9 @@ DoStatement DoStatement:parse(Source source) {
 
 	if !lexer:skip( Keyword, "do" ) return;
 
+	source:pushContext();
 	let block = Flux::Parsing::Block:parse( source );
+	source:popContext();
 
 	return new Flux::Parsing::DoStatement(block, position);
 }

@@ -12,7 +12,8 @@ class BreakStatement extends Flux::Parsing::Statement {
 BreakStatement BreakStatement:parse(Source source)
 	= lexer:skip( Keyword, "break" ) && (lexer:skip( Symbol, ";" ) && new Flux::Parsing::BreakStatement( position ) || source:error "expected ';' after 'break'")
 	where lexer = source.lexer
-	where position = lexer:get().position;
+	where position = lexer:get().position
+	where _ = !source.context.isLoop && lexer:test( Keyword, "break" ) && source:error "no loop to break";
 
 string BreakStatement:serialize()
 	= "break;";

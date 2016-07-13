@@ -1,0 +1,53 @@
+
+namespace Flux::Parsing;
+
+class FunctionParameter extends ASTNode {
+	ASTNodeType type = Flux::Parsing::ASTNodeType.FunctionParameter;
+	Type _type;
+	string name;
+	bool nullable;
+
+	FunctionParameter(Type _type, string name, bool nullable) {
+		self._type = _type;
+		self.name = name;
+		self.nullable = nullable;
+	}
+}
+
+string FunctionParameter:parse(Source source, null bool prevnull, null Type prevtype) {
+	let lexer = source.lexer;
+	let thisnull = lexer:skip( Keyword, "null" ) && true || false;
+	
+	Type _type;
+
+	try {
+		_type = Flux::Parsing::Type:parse(source);
+	}
+	catch ParserException e {
+		if e != "expected typename"
+			throw new ParserException(e);
+	}
+
+	let name = lexer:skipValue( Identifier );
+
+	if name == null || _type == null {
+		if _type != null && !thisnull && prevtype != null && _type.type == Flux::Parsing::ASTNodeType.Typename {
+			name = _type.name;
+			_type = prevtype;
+			thisnull = prevnull;
+		}
+		else if _type != null {
+			source:error "expected name after type";
+		}
+		else {
+			source:error "expected typename";
+		}
+	}
+
+	print( _type:serialize(), name, thisnull );
+
+	return [thisnull, _type];
+}
+
+string FunctionParameter:serialize()
+	= (self.nullable && "null " || "") `concat` self._type:serialize() `concat` " " `concat` self.name;

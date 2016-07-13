@@ -2,11 +2,7 @@
 import flux;
 
 let source_code = '
-1 -> float;
-f(1);
-typeof (1+2);
-(1+2) typeof int;
-';
+a';
 
 void main() {
 	new Flux::Parsing::Source source();
@@ -21,7 +17,6 @@ void main() {
 		let expr = Flux::Parsing::Statement:parse( source );
 		if expr {
 			print( expr:serialize() );
-			print( expr.type );
 		}
 		else {
 			print( "Nope" );

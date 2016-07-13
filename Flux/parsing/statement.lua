@@ -531,7 +531,7 @@ function compileStatement( emitter, t )
 
 	elseif t.type == "DoStatement" then
 		emitter:pushWord "do"
-		compileBlock( t.block )
+		compileBlock( emitter, t.block )
 		emitter:pushLineBreak()
 		emitter:pushWord "end"
 

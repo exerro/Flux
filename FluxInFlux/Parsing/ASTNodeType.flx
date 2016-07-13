@@ -53,4 +53,5 @@ enum ASTNodeType {
 	Typename;
 	ArrayType, TableType;
 	FunctionType;
+	FunctionParameter;
 }

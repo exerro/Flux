@@ -1,0 +1,26 @@
+
+import FunctionParameter;
+
+namespace Flux::Parsing;
+
+class Definition extends ASTNode {
+	ASTNodeType type = Flux::Parsing::ASTNodeType.Definition;
+	Type _type;
+	string name;
+	Expression value;
+	
+	Definition(Type _type, string name, null Expression value, Position position) {
+		self._type = _type;
+		self.name = name;
+		self.value = value;
+		self.position = position;
+	}
+}
+
+string Definition:parse(Source source) {
+	
+}
+
+string Definition:serialize() {
+	
+}

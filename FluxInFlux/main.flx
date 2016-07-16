@@ -2,7 +2,14 @@
 import flux;
 
 let source_code = '
-a';
+function(int x, y) = x + y;
+lambda x y => x + y;
+
+t = 1;
+t = [1, 2, 3, 4];
+table::map( t, lambda v => v + 1 );
+print( t ); // [2, 3, 4, 5]
+';
 
 void main() {
 	new Flux::Parsing::Source source();
@@ -12,6 +19,8 @@ void main() {
 	source.context = context;
 	source.contexts[1] = context;
 	source.lexer = lexer;
+
+	let last = null;
 
 	while !lexer:isEOF() {
 		let expr = Flux::Parsing::Statement:parse( source );

@@ -9,6 +9,7 @@ import ReferenceExpression;
 import ThrowExpression;
 import ArrayExpression;
 import TableExpression;
+import FunctionExpression;
 import NewExpression;
 import MatchExpression;
 
@@ -25,7 +26,7 @@ PrimaryExpression PrimaryExpression:parse( Source source )
 	|| Flux::Parsing::ThrowExpression:parse( source )
 	|| Flux::Parsing::ArrayExpression:parse( source )
 	|| Flux::Parsing::TableExpression:parse( source )
-	// || Flux::Parsing::FunctionExpression:parse( source )
+	|| Flux::Parsing::FunctionExpression:parse( source )
 	|| Flux::Parsing::MatchExpression:parse( source )
 	|| Flux::Parsing::NewExpression:parse( source )
 	where lexer = source.lexer

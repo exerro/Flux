@@ -1,0 +1,67 @@
+
+namespace Flux::Parsing;
+
+class FunctionExpression extends PrimaryExpression {
+	ASTNodeType type = Flux::Parsing::ASTNodeType.FunctionExpression;
+	FunctionParameter[] parameters;
+	Type returns;
+	Block body;
+
+	FunctionExpression( FunctionParameter[] parameters, Type returns, Block body, null Position position = value.position ) {
+		self.parameters = parameters;
+		self.returns = returns;
+		self.body = body;
+		self.position = position;
+	}
+}
+
+FunctionExpression FunctionExpression:parse( Source source ) {
+	let lexer = source.lexer;
+	let position = lexer:get().position;
+
+	if lexer:skip( Keyword, "function" ) {
+		Type returns = lexer:skip( Symbol, "->" ) && Flux::Parsing::Type:parse( source ) || Flux::Parsing::Type.autoType( position );
+		FunctionParameter[] parameters = [];
+
+		if !lexer:skip( Symbol, "(" ) source:error "expected '(' for function parameters";
+
+		if !lexer:skip( Symbol, ")" ) {
+			FunctionParameter parameter;
+
+			repeat {
+				parameter = Flux::Parsing::FunctionParameter:parse( source, parameter );
+				parameters[#parameters + 1] = parameter;
+			}
+			while lexer:skip( Symbol, "," );
+
+			if !lexer:skip( Symbol, ")" ) source:error "expected ')' to close function parameters";
+		}
+
+		Block body = Flux::Parsing::parseFunctionBody( source );
+
+		return new Flux::Parsing::FunctionExpression( parameters, returns, body, position );
+	}
+	else if lexer:skip( Keyword, "lambda" ) {
+		Type returns = Flux::Parsing::Type:autoType( position );
+		FunctionParameter[] parameters = [];
+		Position position;
+
+		while !lexer:skip( Symbol, "=>" ) {
+			let pos = lexer:get().position;
+			let name = lexer:skipValue( Identifier ) || source:error "expected parameter name";
+			let ptype = lexer:skip( Symbol, "->" ) && Flux::Parsing::Type:parse( source ) || Flux::Parsing::Type.autoType( pos );
+
+			parameters[#parameters + 1] = new Flux::Parsing::FunctionParameter(ptype, name, false, pos);
+			position = lexer:get().position;
+		}
+
+		let expr = Flux::Parsing::Expression:parse( source ) || source:error "expected expression after '=>'";
+		let body = new Flux::Parsing::Block( [new Flux::Parsing::ReturnStatement( expr, position )], position );
+
+		return new Flux::Parsing::FunctionExpression( parameters, returns, body, position );
+	}
+}
+
+string FunctionExpression:serialize()
+	= "function ->" `concat` self.returns:serialize() `concat` "(" `concat` (self.parameters `concattenate` ", ") `concat` ") "
+		`concat` self.body:serialize();

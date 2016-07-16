@@ -8,7 +8,7 @@ import FunctionType;
 namespace Flux::Parsing;
 
 class Type extends Flux::Parsing::ASTNode {
-	
+	static Type autoType( Position position );
 }
 
 Type Type:parse( Source source ) {
@@ -29,3 +29,6 @@ Type Type:parse( Source source ) {
 
 	return name;
 }
+
+Type Type:autoType( Position position )
+	= new Flux::Parsing::Typename( "auto", position );

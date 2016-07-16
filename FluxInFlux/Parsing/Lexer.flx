@@ -209,7 +209,7 @@ void Lexer:skipComment() {
 		self.line++;
 		self.strline = Flux::Parsing::getline( self.text, self.line );
 		self.character = 1;
-		self.position += #( string_match( self.text, "^.-\n", self.position ) || self.text:sub( self.position ) );
+		self.position += #( string__match( self.text, "^.-\n", self.position ) || self.text:sub( self.position ) );
 	}
 	else {
 		let finish = self.text:find( "%*/", self.position );

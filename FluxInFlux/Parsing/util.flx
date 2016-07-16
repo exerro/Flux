@@ -12,7 +12,7 @@ string concattenate(T[] elements, null string seperator = "") {
 namespace Flux::Parsing;
 
 bool parseSemicolon(Lexer lexer)
-	= (lexer:skip(Symbol, ";") || lexer:test(Symbol, ";", -1)) && true || false;
+	= ((lexer:skip(Symbol, ";") || lexer:test(Symbol, ";", -1)) || lexer:test(Symbol, "}")) && true || false;
 
 string parseName(Source source) {
 	let name = source.lexer:skipValue(Identifier);
@@ -21,6 +21,19 @@ string parseName(Source source) {
 		name = name `concat` "::" `concat` (source.lexer:skipValue(Identifier) || source:error "expected name after ':'");
 
 	return name;
+}
+
+Block parseFunctionBody( Source source ) {
+	let lexer = source.lexer;
+	let position = lexer:get().position;
+
+	if lexer:skip( Symbol, "=" ) {
+		let expr = Flux::Parsing::Expression:parse( source ) || source:error "expected expression after '='";
+		if !Flux::Parsing::parseSemicolon(lexer) source:error "expected ';' after function return";
+		return new Flux::Parsing::Block( [new Flux::Parsing::ReturnStatement( expr, position )], position );
+	}
+	else
+		return Flux::Parsing::Block:parse( source );
 }
 
 string serializeExpression(Expression e)

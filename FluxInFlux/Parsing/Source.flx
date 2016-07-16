@@ -4,7 +4,7 @@ import Context;
 import Block;
 import statements.Statement;
 import expressions.Expression;
-import misc.FunctionParameter; // import definitions.Definition
+import definitions.Definition;
 import types.Type;
 
 namespace Flux::Parsing;

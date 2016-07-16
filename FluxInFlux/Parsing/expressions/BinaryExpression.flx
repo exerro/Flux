@@ -16,6 +16,7 @@ class BinaryExpression extends RightUnaryExpression {
 
 BinaryExpression BinaryExpression:parse( Source source ) {
 	let lexer = source.lexer;
+	void collapse();
 
 	Expression[] operand_stack = [];
 	Position[] operator_positions = [];
@@ -27,7 +28,7 @@ BinaryExpression BinaryExpression:parse( Source source ) {
 	if !operand_stack[1] return;
 	
 	void collapse() {
-		operand_stack[#operand_stack - 1] 
+		operand_stack[#operand_stack - 1]
 			= new Flux::Parsing::BinaryExpression(
 				/* lvalue */ operand_stack[#operand_stack - 1],
 				/* rvalue */ operand_stack[#operand_stack],
@@ -49,10 +50,11 @@ BinaryExpression BinaryExpression:parse( Source source ) {
 		let precedence = Flux::Parsing::language::binary_operators[op_token.value];
 		let position = op_token.position;
 		
-		if op == ">" && lexer:skip( Symbol, ">" ) op = ">>"; then precedence = Flux::Parsing::language::binary_operators[op_token.value];
+		if op == ">" && lexer:skip( Symbol, ">" ) op = ">>"; then
+			precedence = Flux::Parsing::language::binary_operators[op_token.value];
 
 		while operator_precedences[1] && (precedence < operator_precedences[#operator_precedences]
-		                               || precedence > 1 && precedence == operator_precedences[#operator_precedences])
+		      || precedence > 1 && precedence == operator_precedences[#operator_precedences])
 			collapse();
 
 		operand_stack[#operand_stack + 1] = rvalue;

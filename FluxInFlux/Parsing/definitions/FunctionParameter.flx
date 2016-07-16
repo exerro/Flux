@@ -7,14 +7,15 @@ class FunctionParameter extends ASTNode {
 	string name;
 	bool nullable;
 
-	FunctionParameter(Type _type, string name, bool nullable) {
+	FunctionParameter(Type _type, string name, bool nullable, null Position position = _type.position) {
 		self._type = _type;
 		self.name = name;
 		self.nullable = nullable;
+		self.position = position;
 	}
 }
 
-string FunctionParameter:parse(Source source, null bool prevnull, null Type prevtype) {
+string FunctionParameter:parse(Source source, null FunctionParameter prev) {
 	let lexer = source.lexer;
 	let thisnull = lexer:skip( Keyword, "null" ) && true || false;
 	
@@ -31,10 +32,10 @@ string FunctionParameter:parse(Source source, null bool prevnull, null Type prev
 	let name = lexer:skipValue( Identifier );
 
 	if name == null || _type == null {
-		if _type != null && !thisnull && prevtype != null && _type.type == Flux::Parsing::ASTNodeType.Typename {
+		if _type != null && !thisnull && prev != null && _type.type == Flux::Parsing::ASTNodeType.Typename {
 			name = _type.name;
-			_type = prevtype;
-			thisnull = prevnull;
+			_type = prev._type;
+			thisnull = prev.nullable;
 		}
 		else if _type != null {
 			source:error "expected name after type";
@@ -44,9 +45,7 @@ string FunctionParameter:parse(Source source, null bool prevnull, null Type prev
 		}
 	}
 
-	print( _type:serialize(), name, thisnull );
-
-	return [thisnull, _type];
+	return new Flux::Parsing::FunctionParameter( _type, name, thisnull );
 }
 
 string FunctionParameter:serialize()

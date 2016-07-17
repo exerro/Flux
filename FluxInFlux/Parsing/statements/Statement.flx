@@ -19,22 +19,28 @@ class Statement extends Flux::Parsing::ASTNode {
 
 }
 
-Statement Statement:parse(Source source)
-	 = newstatement
-	|| expr && (Flux::Parsing::parseSemicolon(lexer) && expr || source:error "expected ';' after expression")
-	|| Flux::Parsing::IfStatement:parse( source )
-	|| Flux::Parsing::WhileLoop:parse( source )
-	|| Flux::Parsing::RepeatLoop:parse( source )
-	|| Flux::Parsing::DoStatement:parse( source )
-	|| Flux::Parsing::ForLoop:parse( source )
-	|| Flux::Parsing::ForeachLoop:parse( source )
-	|| Flux::Parsing::SwitchStatement:parse( source )
-	|| Flux::Parsing::TryStatement:parse( source )
-	|| Flux::Parsing::ReturnStatement:parse( source )
-	|| Flux::Parsing::BreakStatement:parse( source )
-	|| Flux::Parsing::ContinueStatement:parse( source )
-	|| source:error "unexpected symbol"
-	where lexer = source.lexer
-	where newstatement = Flux::Parsing::NewStatement:parse(source)
-	where expr = !newstatement && Flux::Parsing::Expression:parse(source)
-;
+Statement Statement:parse(Source source) {
+	let lexer = source.lexer;
+	let isDefinition = Flux::Parsing::Definition:parse(source);
+
+	if isDefinition return;
+
+	let newstatement = !isDefinition && Flux::Parsing::NewStatement:parse(source);
+	let expr = !newstatement && Flux::Parsing::Expression:parse(source);
+	let statement = newstatement
+		|| expr && (Flux::Parsing::parseSemicolon(lexer) && expr || source:error "expected ';' after expression")
+		|| Flux::Parsing::IfStatement:parse( source )
+		|| Flux::Parsing::WhileLoop:parse( source )
+		|| Flux::Parsing::RepeatLoop:parse( source )
+		|| Flux::Parsing::DoStatement:parse( source )
+		|| Flux::Parsing::ForLoop:parse( source )
+		|| Flux::Parsing::ForeachLoop:parse( source )
+		|| Flux::Parsing::SwitchStatement:parse( source )
+		|| Flux::Parsing::TryStatement:parse( source )
+		|| Flux::Parsing::ReturnStatement:parse( source )
+		|| Flux::Parsing::BreakStatement:parse( source )
+		|| Flux::Parsing::ContinueStatement:parse( source )
+		|| source:error "unexpected symbol";
+
+	source:push( statement );
+}

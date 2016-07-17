@@ -674,7 +674,7 @@ function compileStatement( emitter, t )
 		emitter:pushWord "end"
 		emitter:pushSymbol " )"
 		emitter:pushLineBreak()
-		emitter:pushBlockText( "local " .. nameErrName .. " = not " .. nameOK .. " and " .. nameErr .. ":match '^(.*):' or false" )
+		emitter:pushBlockText( "local " .. nameErrName .. " = not " .. nameOK .. " and " .. nameErr .. ":match '^(.-):' or false" )
 		emitter:pushLineBreak()
 		emitter:pushWord "if"
 		emitter:pushWord( nameErrName )

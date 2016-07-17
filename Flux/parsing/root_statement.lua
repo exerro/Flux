@@ -206,6 +206,8 @@ function compileRootStatement( emitter, t )
 	if t.type == "NamespaceStatement" then
 		for i = 1, #t.block do
 			compileRootStatement( emitter, t.block[i] )
+			emitter:pushLineBreak()
+			emitter:pushLineBreak()
 		end
 
 	elseif t.type == "UsingStatement" then

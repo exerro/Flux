@@ -3,6 +3,7 @@ local console = {}
 local font = love.graphics.newFont( "font.ttf", 14 )
 local scroll = 0
 local oldprint = print
+local RUN_COMPILED = true
 
 function print( ... )
 	for segment in tostring( ... ):gmatch "[^\n]+" do
@@ -32,9 +33,12 @@ local ok, err = pcall( function()
 		emitter:pushLineBreak()
 	end
 
-	love.filesystem.write( "log.txt", emitter.output )
-
-	assert( loadstring( emitter.output ) )()
+	if RUN_COMPILED then
+		love.filesystem.write( "log.txt", emitter.output )
+		assert( loadstring( emitter.output ) )()
+	else
+		assert( loadstring( love.filesystem.read "log.txt" ) )()
+	end
 
 	main()
 end )

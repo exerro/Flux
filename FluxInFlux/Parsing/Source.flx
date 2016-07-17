@@ -21,14 +21,15 @@ class Source {
 
 	Lexer lexer;
 	Context context;
-	Block block;
+	ASTNode[] block;
 
 	Source(null string include_path = "") {
 		self.include_path = Flux::Parsing::FLUX_INCLUDE_PATH `concat` include_path;
 		self.current_include_path = [];
 		self.imported = {};
 		self.statements = [];
-		self.blocks = [];
+		self.block = self.statements;
+		self.blocks = [self.block];
 		self.contexts = [];
 	}
 
@@ -83,7 +84,7 @@ Context Source:pushNamespaceContext(string name)
 	= self:pushContext():specialiseNamespace(name);
 
 Block Source:pushBlock() {
-	let block = new Flux::Parsing::Context();
+	ASTNode[] block = [];
 
 	self.blocks[#self.blocks + 1] = block;
 	self.block = block;
@@ -92,14 +93,16 @@ Block Source:pushBlock() {
 }
 
 Block Source:popBlock() {
+	let block = self.blocks[#self.blocks];
+
 	self.blocks[#self.blocks] = null;
 	self.block = self.blocks[#self.blocks];
 
-	return self.block;
+	return block;
 }
 
 void Source:push(ASTNode node) {
-	self.statements[#self.statements + 1] = node;
+	self.block[#self.block + 1] = node;
 }
 
 void Source:importFile(string filename) {

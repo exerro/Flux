@@ -7,7 +7,7 @@ class FunctionExpression extends PrimaryExpression {
 	Type returns;
 	Block body;
 
-	FunctionExpression( FunctionParameter[] parameters, Type returns, Block body, null Position position = value.position ) {
+	FunctionExpression( FunctionParameter[] parameters, Type returns, Block body, null Position position = returns.position ) {
 		self.parameters = parameters;
 		self.returns = returns;
 		self.body = body;

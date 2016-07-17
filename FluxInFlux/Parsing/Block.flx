@@ -21,21 +21,23 @@ string Block:parse(Source source) {
 	let lexer = source.lexer;
 	let position = lexer:get().position;
 	
-	ASTNode[] statements = [];
+	source:pushBlock();
 
 	if lexer:skip( Symbol, "{" ) {
 		while !lexer:skip( Symbol, "}" ) {
 			if lexer:isEOF() source:error "expected '}' to block";
 
-			statements[#statements + 1] = Flux::Parsing::Statement:parse(source);
+			Flux::Parsing::Statement:parse(source);
 		}
 	}
 
 	else {
 		repeat
-			statements[#statements + 1] = Flux::Parsing::Statement:parse(source);
+			Flux::Parsing::Statement:parse(source);
 		while lexer:skip( Keyword, "then" );
 	}
+
+	let statements = source:popBlock();
 
 	return new Flux::Parsing::Block( statements, position );
 }

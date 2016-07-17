@@ -23,6 +23,30 @@ string parseName(Source source) {
 	return name;
 }
 
+string parseMethodName(Source source) {
+	let lexer = source.lexer;
+
+	if lexer:skip(Keyword, "operator") {
+		if lexer:skip(Symbol, "(") {
+			error "Nope";
+		}
+		else if lexer:skip(Symbol, "[") {
+			error "Nope";
+		}
+		else {
+			let symbol = lexer:skip(Symbol);
+			if symbol && Flux::Parsing::language::operators[symbol.value] {
+				return symbol.value;
+			}
+			else {
+				source:error "expected operator after 'operator'";
+			}
+		}
+	}
+
+	return lexer:skipValue(Identifier);
+}
+
 Block parseFunctionBody( Source source ) {
 	let lexer = source.lexer;
 	let position = lexer:get().position;

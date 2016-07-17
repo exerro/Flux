@@ -2,13 +2,12 @@
 import flux;
 
 let source_code = '
-function(int x, y) = x + y;
-lambda x y => x + y;
+int x = 1, y = 2, z;
+const bool a = false, b;
 
-t = 1;
-t = [1, 2, 3, 4];
-table::map( t, lambda v => v + 1 );
-print( t ); // [2, 3, 4, 5]
+int x(float v) = math::floor( v ) + 1;
+auto operator+(int a, int b) = a + b;
+int operator+ = 5;
 ';
 
 void main() {
@@ -23,13 +22,8 @@ void main() {
 	let last = null;
 
 	while !lexer:isEOF() {
-		let expr = Flux::Parsing::Statement:parse( source );
-		if expr {
-			print( expr:serialize() );
-		}
-		else {
-			print( "Nope" );
-			break;
-		}
+		Flux::Parsing::Statement:parse( source );
 	}
+
+	foreach expr in source.statements print( expr:serialize() );
 }

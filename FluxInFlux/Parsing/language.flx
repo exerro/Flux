@@ -4,6 +4,7 @@ namespace Flux::Parsing::language;
 let keywords -> bool{string} = [];
 let binary_operators -> int{string} = [];
 let unary_operators -> bool{string} = [];
+let operators -> bool{string} = [];
 let symbols -> bool{string} = [];
 
 let keyword_str = "
@@ -16,6 +17,7 @@ class extends implements
 interface implements
 enum
 
+final abstract
 public private static
 setter getter
 operator
@@ -88,6 +90,7 @@ let symbol_str = "
 
 let precedence = 0;
 
+// register the keywords
 let _ = (function() { // this is hacky :/
 	let text = Flux::Parsing::language::keyword_str;
 	let found = [text:find "%w+"];
@@ -97,6 +100,7 @@ let _ = (function() { // this is hacky :/
 		then found = [text:find( "%w+", found[2] + 1 )];
 }) ();
 
+// register the operators
 let _ = (function() { // this is hacky too :/
 	let text = Flux::Parsing::language::operator_str;
 	let found = [text:find "[^\n]+"];
@@ -109,6 +113,7 @@ let _ = (function() { // this is hacky too :/
 			let op = line:sub( found_line[1], found_line[2] );
 			
 			Flux::Parsing::language::symbols[op] = true;
+			Flux::Parsing::language::operators[op] = true;
 
 			switch Flux::Parsing::language::precedence;
 			case 0

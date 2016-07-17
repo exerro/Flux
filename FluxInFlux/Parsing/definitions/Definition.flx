@@ -23,13 +23,17 @@ bool Definition:parse(Source source) {
 	let lexer = source.lexer;
 	let start = lexer:mark();
 	let isConst = lexer:skip( Keyword, "const" );
-	
+
 	Type _type;
 
 	try {
 		_type = Flux::Parsing::Type:parse( source );
 	}
 	catch ParserException e {}
+
+	if !_type && lexer:test(Keyword, "void")
+		_type = new Flux::Parsing::Typename("void", lexer:next().value);
+
 
 	if !_type || !lexer:test(Identifier) && !lexer:test(Keyword, "operator") {
 		lexer:jump( start );
@@ -43,14 +47,17 @@ bool Definition:parse(Source source) {
 	repeat {
 		Position start;
 		string name;
+		string method;
 		Expression value;
 
 		start = lexer:get().position;
 		name = Flux::Parsing::parseMethodName(source);
+		method = lexer:skip( Symbol, ":" ) && Flux::Parsing::parseMethodName(source);
 
 		if lexer:skip( Symbol, "(" ) { // function definition
 			FunctionParameter[] parameters = [];
 			Type[] parameter_types = [];
+			bool[] parameter_nullables = [];
 			FunctionParameter parameter;
 
 			if !lexer:skip( Symbol, ")" ) {
@@ -58,6 +65,7 @@ bool Definition:parse(Source source) {
 					parameter = Flux::Parsing::FunctionParameter:parse(source, parameter);
 					parameters[#parameters + 1] = parameter;
 					parameter_types[#parameter_types + 1] = parameter._type;
+					parameter_nullables[#parameter_nullables + 1] = parameter.nullable;
 				}
 				while lexer:skip( Symbol, "," );
 
@@ -65,18 +73,28 @@ bool Definition:parse(Source source) {
 					source:error "expected ')' to close function parameters";
 			}
 
-			let body = Flux::Parsing::parseFunctionBody( source );
-			let function_type = new Flux::Parsing::FunctionType(_type, parameter_types);
-			let value = new Flux::Parsing::FunctionExpression( parameters, _type, body, start );
+			let body = !lexer:skip( Symbol, ";" ) && Flux::Parsing::parseFunctionBody( source );
+			let value = body && new Flux::Parsing::FunctionExpression( parameters, _type, body, start );
 
-			source:push( new Flux::Parsing::Definition( function_type, name, value, isConst, start ) );
+			if method {
+				let nameAndIndex = new Flux::Parsing::DotIndex( new Flux::Parsing::ReferenceExpression( name, start ), method, start );
+				source:push( new Flux::Parsing::BinaryExpression( nameAndIndex, value, "=" ) );
+			}
+			else {
+				let function_type = new Flux::Parsing::FunctionType(_type, parameter_types, parameter_nullables);
+				source:push( new Flux::Parsing::Definition( function_type, name, value, isConst, start ) );
+			}
 
 			return true;
 		}
 		else if name:find "[^%w_]"
 			source:error "expected '(' for function parameters after operator name";
+		else if _type.type == Flux::Parsing::ASTNodeType.Typename && _type.name == "void"
+			source:error "expected '(' for function parameters after void return type";
+		else if method
+			source:error "expected '(' for function parameters after method name";
 		else {
-			value = lexer:skip(Symbol, "=") && Flux::Parsing::Expression:parse( source );
+			value = lexer:skip(Symbol, "=") && (Flux::Parsing::Expression:parse( source ) || source:error "expected definition after '='");
 			source:push( new Flux::Parsing::Definition( _type, name, value, isConst, start ) );
 		}
 	}

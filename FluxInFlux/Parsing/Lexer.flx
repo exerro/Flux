@@ -159,9 +159,6 @@ Token Lexer:consumeWord() {
 	else if token.value == "true" || token.value == "false"
 		token.type = Flux::Parsing::TokenType.Boolean;
 
-	else if token.value == "null"
-		token.type = Flux::Parsing::TokenType.Null;
-
 	return token;
 }
 

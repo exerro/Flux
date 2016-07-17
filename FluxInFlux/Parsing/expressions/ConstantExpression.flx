@@ -13,6 +13,14 @@ class ConstantExpression extends Flux::Parsing::PrimaryExpression {
 
 ConstantExpression ConstantExpression:parse(Source source) {
 	let token = source.lexer:get();
+
+	if source.lexer:skip(Keyword, "null")
+		return new Flux::Parsing::ConstantExpression(
+			Flux::Parsing::ASTNodeType.NullConstant,
+			"null",
+			token.position
+		);
+
 	switch token.type;
 	case String
 		return new Flux::Parsing::ConstantExpression(
@@ -59,12 +67,6 @@ ConstantExpression ConstantExpression:parse(Source source) {
 	case Boolean
 		return new Flux::Parsing::ConstantExpression(
 			Flux::Parsing::ASTNodeType.BooleanConstant,
-			source.lexer:next().value,
-			token.position
-		);
-	case Null
-		return new Flux::Parsing::ConstantExpression(
-			Flux::Parsing::ASTNodeType.NullConstant,
 			source.lexer:next().value,
 			token.position
 		);

@@ -5,9 +5,13 @@ let source_code = '
 int x = 1, y = 2, z;
 const bool a = false, b;
 
+float f:a() = 1;
+
 int x(float v) = math::floor( v ) + 1;
 auto operator+(int a, int b) = a + b;
-int operator+ = 5;
+void f(null int x) {
+	return null "cause its void";
+}
 ';
 
 void main() {
@@ -19,11 +23,10 @@ void main() {
 	source.contexts[1] = context;
 	source.lexer = lexer;
 
-	let last = null;
-
 	while !lexer:isEOF() {
 		Flux::Parsing::Statement:parse( source );
 	}
 
-	foreach expr in source.statements print( expr:serialize() );
+	foreach expr in source.statements
+		print( expr:serialize() );
 }

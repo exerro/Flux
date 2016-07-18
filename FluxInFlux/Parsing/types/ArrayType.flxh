@@ -1,0 +1,6 @@
+
+namespace Flux::Parsing;
+
+class ArrayType extends Flux::Parsing::Type {
+	
+}

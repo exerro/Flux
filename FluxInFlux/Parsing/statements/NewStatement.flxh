@@ -1,0 +1,9 @@
+
+namespace Flux::Parsing;
+
+class NewStatement extends Flux::Parsing::Statement {
+	NewStatement(null Position position = SOMETHING) {
+		
+		self.position = position;
+	}
+}

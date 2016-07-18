@@ -1,0 +1,6 @@
+
+namespace Flux::Parsing;
+
+class ImportStatement extends Flux::Parsing::ASTNode {
+
+}

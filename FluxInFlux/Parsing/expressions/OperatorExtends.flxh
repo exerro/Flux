@@ -1,0 +1,14 @@
+
+namespace Flux::Parsing;
+
+class OperatorExtends extends RightUnaryExpression {
+	ASTNodeType type = Flux::Parsing::ASTNodeType.OperatorExtends;
+	Expression value;
+	Type _type;
+
+	OperatorExtends( Expression value, Type type, null Position position = value.position ) {
+		self.value = value;
+		self._type = type;
+		self.position = position;
+	}
+}

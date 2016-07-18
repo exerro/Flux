@@ -2,6 +2,16 @@
 let table::concat = table.concat;
 let a `concat` b = table::concat( [a, b] );
 
+template<T>
+string concattenate(T[] elements, null string seperator = "") {
+	string[] s = [];
+
+	foreach i, v in elements
+		s[i] = v:serialize();
+
+	return table.concat( s, seperator );
+}
+
 let string__match = string["match"];
 
 import Position;

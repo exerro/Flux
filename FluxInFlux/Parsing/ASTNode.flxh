@@ -1,0 +1,15 @@
+
+import ASTNodeType;
+import Position;
+
+namespace Flux::Parsing;
+
+string ASTNodeTypeTostring(ASTNodeType type);
+
+class ASTNode {
+	ASTNodeType type;
+	Position position;
+
+	static string serialize();
+	static ASTNode parse( Source source );
+}

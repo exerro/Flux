@@ -1,15 +1,9 @@
 
 namespace Flux::Parsing;
 
-class ImportStatement extends Flux::Parsing::ASTNode {
-
-}
-
 ImportStatement ImportStatement:parse(Source source) {
 	let lexer = source.lexer;
 	let name = Flux::Parsing::parseName(source);
 
 	// do importing stuff
 }
-
-// no need to define its serialize() as it's never added to the AST

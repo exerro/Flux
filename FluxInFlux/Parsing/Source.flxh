@@ -1,0 +1,53 @@
+
+import Lexer;
+import Context;
+import Block;
+import statements.Statement;
+import expressions.Expression;
+import definitions.Definition;
+import types.Type;
+
+namespace Flux::Parsing;
+
+const string FLUX_INCLUDE_PATH = "";
+
+class Source {
+	string include_path;
+	string[] current_include_path;
+	bool{string} imported;
+	ASTNode[] statements;
+	Block[] blocks;
+	Context[] contexts;
+
+	Lexer lexer;
+	Context context;
+	ASTNode[] block;
+
+	Source(null string include_path = "") {
+		self.include_path = Flux::Parsing::FLUX_INCLUDE_PATH `concat` include_path;
+		self.current_include_path = [];
+		self.imported = {};
+		self.statements = [];
+		self.block = self.statements;
+		self.blocks = [self.block];
+		self.contexts = [];
+	}
+
+	Context pushContext();
+	Context popContext();
+	Context pushFunctionContext();
+	Context pushLoopContext();
+	Context pushClassContext(string name);
+	Context pushInterfaceContext(string name);
+	Context pushNamespaceContext(string name);
+
+	Block pushBlock();
+	Block popBlock();
+
+	void push(ASTNode t);
+
+	void importFile(string name);
+	void parseFileContent(string content, null string source = "string");
+
+	void error(string err);
+}

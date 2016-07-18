@@ -1,18 +1,6 @@
 
 namespace Flux::Parsing;
 
-class OperatorTypeof extends RightUnaryExpression {
-	ASTNodeType type = Flux::Parsing::ASTNodeType.OperatorTypeof;
-	Expression value;
-	Type _type;
-
-	OperatorTypeof( Expression value, null Type type, null Position position = value.position ) {
-		self.value = value;
-		self._type = type;
-		self.position = position;
-	}
-}
-
 OperatorTypeof OperatorTypeof:parse( Source source, null Expression value )
 	= isCalled && new Flux::Parsing::OperatorTypeof( value, type, position )
 	where lexer = source.lexer

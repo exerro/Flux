@@ -1,23 +1,5 @@
 
-import FunctionParameter;
-
 namespace Flux::Parsing;
-
-class Definition extends ASTNode {
-	ASTNodeType type = Flux::Parsing::ASTNodeType.Definition;
-	Type _type;
-	string name;
-	Expression value;
-	bool isConst;
-	
-	Definition(Type _type, string name, null Expression value, bool isConst, Position position) {
-		self._type = _type;
-		self.name = name;
-		self.value = value;
-		self.isConst = isConst;
-		self.position = position;
-	}
-}
 
 bool Definition:parse(Source source) {
 	let lexer = source.lexer;

@@ -1,0 +1,22 @@
+
+namespace Flux::Parsing;
+
+string getTokenTypeString( TokenType type );
+
+class Token {
+	Position position;
+	TokenType type = "TOKEN";
+	string value = "";
+
+	static Token EOF(Position position);
+
+	Token( TokenType type, null string value = "", null Position position = new Flux::Position() ) {
+		self.type = type;
+		self.value = value;
+		self.position = position;
+		getmetatable( self ).__tostring = self.tostring;
+	}
+
+	string tostring();
+	string getNearString();
+}

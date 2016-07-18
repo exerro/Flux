@@ -1,0 +1,12 @@
+
+namespace Flux::Parsing;
+
+class ConstantExpression extends Flux::Parsing::PrimaryExpression {
+	string value;
+
+	ConstantExpression(ASTNodeType type, string value, Position position) {
+		self.type = type;
+		self.value = value;
+		self.position = position;
+	}
+}

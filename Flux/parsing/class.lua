@@ -187,7 +187,7 @@ function parseClassDefinition( source, pos )
 
 		doMemberAssignment( source, name, statements, position )
 
-	elseif extends or #implements > 0 or container1 then
+	elseif extends or #implements > 0 or container1 or not lexer:skip( "Symbol", ";" ) then
 		throw( lexer, "expected '{' for class body" )
 
 	end

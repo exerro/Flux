@@ -1,0 +1,14 @@
+
+namespace Flux::Parsing;
+
+class WhileLoop extends Flux::Parsing::Statement {
+	ASTNodeType type = Flux::Parsing::ASTNodeType.WhileLoop;
+	Expression condition;
+	Block block;
+
+	WhileLoop(Expression condition, Block block, null Position position = condition.position) {
+		self.condition = condition;
+		self.block = block;
+		self.position = position;
+	}
+}

@@ -1,0 +1,11 @@
+
+namespace Flux::Parsing;
+
+bool parseSemicolon(Lexer lexer);
+
+string parseName(Source source);
+string parseMethodName(Source source);
+
+Block parseFunctionBody(Source source);
+
+string serializeExpression(Expression e);

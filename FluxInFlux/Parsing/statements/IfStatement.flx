@@ -1,25 +1,5 @@
 
-// ! Add ambiguity checks
-// !! if this
-// !! 	if that
-// !! 		thing();
-// !! else other(); <- for the first or second if statement?
-// !! can lead to confusing problems so make it error
-
 namespace Flux::Parsing;
-
-class IfStatement extends Flux::Parsing::Statement {
-	ASTNodeType type = Flux::Parsing::ASTNodeType.IfStatement;
-	Expression condition;
-	Block block, elseblock;
-
-	IfStatement(Expression condition, Block block, Block elseblock, null Position position = condition.position) {
-		self.condition = condition;
-		self.block = block;
-		self.elseblock = elseblock;
-		self.position = position;
-	}
-}
 
 IfStatement IfStatement:parse(Source source) {
 	let lexer = source.lexer;

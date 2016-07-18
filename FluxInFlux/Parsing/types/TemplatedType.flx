@@ -1,18 +1,6 @@
 
 namespace Flux::Parsing;
 
-class TemplatedType extends Flux::Parsing::Type {
-	ASTNodeType type = Flux::Parsing::ASTNodeType.TemplatedType;
-	string name;
-	Type[] _template;
-
-	TemplatedType( string name, Type[] _template, Position position ) {
-		self.name = name;
-		self._template = _template;
-		self.position = position;
-	}
-}
-
 TemplatedType TemplatedType:parse( Source source ) {
 	let lexer = source.lexer;
 	let start = lexer:mark();

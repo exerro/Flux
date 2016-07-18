@@ -1,20 +1,5 @@
 
-// TODO: +=, /= etc check lvalue is Reference, Index or DotIndex
-
 namespace Flux::Parsing;
-
-class BinaryExpression extends RightUnaryExpression {
-	ASTNodeType type = Flux::Parsing::ASTNodeType.BinaryExpression;
-	Expression lvalue, rvalue;
-	string op;
-
-	BinaryExpression( Expression lvalue, Expression rvalue, string op, null Position position = lvalue.position ) {
-		self.lvalue = lvalue;
-		self.rvalue = rvalue;
-		self.op = op;
-		self.position = position;
-	}
-}
 
 BinaryExpression BinaryExpression:parse( Source source ) {
 	let lexer = source.lexer;

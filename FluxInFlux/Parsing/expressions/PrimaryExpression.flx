@@ -1,23 +1,5 @@
 
-// ! FunctionExpression
-// !! requires function parameter parsing, which is a pain in the butt
-// ! Lambdas!!!!
-// !! also requires function parameter parsing, which is still a pain in the butt
-
-import ConstantExpression;
-import ReferenceExpression;
-import ThrowExpression;
-import ArrayExpression;
-import TableExpression;
-import FunctionExpression;
-import NewExpression;
-import MatchExpression;
-
 namespace Flux::Parsing;
-
-class PrimaryExpression extends Flux::Parsing::Expression {
-	
-}
 
 PrimaryExpression PrimaryExpression:parse( Source source )
 	 = expr && (lexer:skip(Symbol, ")") || source:error "expected ')' after expression") && expr

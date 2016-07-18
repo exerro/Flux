@@ -1,16 +1,6 @@
 
 namespace Flux::Parsing;
 
-class DoStatement extends Flux::Parsing::Statement {
-	ASTNodeType type = Flux::Parsing::ASTNodeType.DoStatement;
-	Block block;
-
-	DoStatement(Block block, null Position position = block.position) {
-		self.block = block;
-		self.position = position;
-	}
-}
-
 DoStatement DoStatement:parse(Source source) {
 	let lexer = source.lexer;
 	let position = lexer:get().position;

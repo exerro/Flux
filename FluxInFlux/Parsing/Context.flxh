@@ -1,0 +1,33 @@
+
+namespace Flux::Parsing;
+
+class Context {
+	bool isLoop = false,
+	     isFunction = false,
+	     isClass = false,
+	     isInterface = false,
+	     isNamespace = false,
+	     isVarargFunction = false;
+
+	string class_name;
+	string namespace_name;
+
+	Context(null Context parent)
+		if parent {
+			self.isLoop = parent.isLoop;
+			self.isFunction = parent.isFunction;
+			self.isClass = parent.isClass;
+			self.isInterface = parent.isInterface;
+			self.isNamespace = false;
+			self.class_name = parent.class_name;
+			self.namespace_name = parent.namespace_name;
+	}
+
+	string resolveDefinitionName(string name);
+
+	Context specialiseLoop();
+	Context specialiseFunction(bool isVararg);
+	Context specialiseClass(string name);
+	Context specialiseInterface(string name);
+	Context specialiseNamespace(string name);
+}

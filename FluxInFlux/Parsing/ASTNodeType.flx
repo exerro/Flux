@@ -51,7 +51,6 @@ enum ASTNodeType {
 	// other
 	Block;
 	Typename;
-	ArrayType, TableType;
 	FunctionType;
 	FunctionParameter;
 }

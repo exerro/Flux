@@ -1,21 +1,10 @@
 
-import ASTNodeType;
-import Position;
-
 namespace Flux::Parsing;
 
 string ASTNodeTypeTostring(ASTNodeType type)
 	switch type
 	case 1 nothing;
 	then return type;
-
-class ASTNode {
-	ASTNodeType type;
-	Position position;
-
-	static string serialize();
-	static ASTNode parse( Source source );
-}
 
 string ASTNode:serialize()
 	= "<Serialization of " + Flux::Parsing::ASTNodeTypeTostring( self.type ) + " isn't implemented>";

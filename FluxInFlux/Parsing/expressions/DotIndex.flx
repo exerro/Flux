@@ -1,18 +1,6 @@
 
 namespace Flux::Parsing;
 
-class DotIndex extends RightUnaryExpression {
-	ASTNodeType type = Flux::Parsing::ASTNodeType.DotIndex;
-	Expression value;
-	string index;
-
-	DotIndex( Expression value, string index, null Position position = value.position ) {
-		self.value = value;
-		self.index = index;
-		self.position = position;
-	}
-}
-
 DotIndex DotIndex:parse( Source source, Expression value )
 	= index && new Flux::Parsing::DotIndex( value, index, position )
 	where lexer = source.lexer

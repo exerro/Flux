@@ -1,0 +1,17 @@
+
+namespace Flux::Parsing;
+
+class ForeachLoop extends Flux::Parsing::Statement {
+	ASTNodeType type = Flux::Parsing::ASTNodeType.ForeachLoop;
+	string name1, name2;
+	Expression expression;
+	Block block;
+
+	ForeachLoop(sstring name1, name2, Expression expression, Block block, null Position position = expression.position) {
+		self.name1 = name1;
+		self.name2 = name2;
+		self.expression = expression;
+		self.block = block;
+		self.position = position;
+	}
+}

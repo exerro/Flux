@@ -1,0 +1,6 @@
+
+namespace Flux::Parsing;
+
+class TableType extends Flux::Parsing::Type {
+	
+}

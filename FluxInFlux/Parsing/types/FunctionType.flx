@@ -1,20 +1,6 @@
 
 namespace Flux::Parsing;
 
-class FunctionType extends Flux::Parsing::Type {
-	ASTNodeType type = Flux::Parsing::ASTNodeType.FunctionType;
-	Type returns;
-	Type[] parameters;
-	bool[] nullables;
-
-	FunctionType(Type returns, Type[] parameters, bool[] nullables, null Position position = returns.position) {
-		self.returns = returns;
-		self.parameters = parameters;
-		self.nullables = nullables;
-		self.position = position;
-	}
-}
-
 FunctionType FunctionType:parse( Source source ) {
 	let lexer = source.lexer;
 	let parameters -> Type[] = [];

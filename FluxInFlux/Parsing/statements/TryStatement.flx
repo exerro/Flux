@@ -1,24 +1,6 @@
 
 namespace Flux::Parsing;
 
-class TryStatement extends Flux::Parsing::Statement {
-	ASTNodeType type = Flux::Parsing::ASTNodeType.TryStatement;
-	Block block;
-	Type[] catch_types;
-	string[] catch_names;
-	Block[] catch_blocks;
-	Block _default;
-
-	TryStatement(Block block, Type[] catch_types, string[] catch_names, Block[] catch_blocks, null Block _default, null Position position = block.position) {
-		self.block = block;
-		self.catch_types = catch_types;
-		self.catch_names = catch_names;
-		self.catch_blocks = catch_blocks;
-		self._default = _default;
-		self.position = position;
-	}
-}
-
 TryStatement TryStatement:parse(Source source) {
 	let lexer = source.lexer;
 	let position = lexer:get().position;

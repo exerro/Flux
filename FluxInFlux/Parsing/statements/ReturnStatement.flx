@@ -1,16 +1,6 @@
 
 namespace Flux::Parsing;
 
-class ReturnStatement extends Flux::Parsing::Statement {
-	ASTNodeType type = Flux::Parsing::ASTNodeType.ReturnStatement;
-	Expression value;
-
-	ReturnStatement(Expression value, null Position position = value.position) {
-		self.position = position;
-		self.value = value;
-	}
-}
-
 ReturnStatement ReturnStatement:parse(Source source)
 	= expr && (Flux::Parsing::parseSemicolon(lexer) && new Flux::Parsing::ReturnStatement(expr, position) || source:error "expected ';' after return")
 	where lexer = source.lexer

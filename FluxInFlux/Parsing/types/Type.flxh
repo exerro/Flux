@@ -1,0 +1,12 @@
+
+import Typename;
+import TemplatedType;
+import ArrayType;
+import TableType;
+import FunctionType;
+
+namespace Flux::Parsing;
+
+class Type extends Flux::Parsing::ASTNode {
+	static Type autoType( Position position );
+}

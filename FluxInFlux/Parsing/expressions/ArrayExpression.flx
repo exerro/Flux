@@ -1,16 +1,6 @@
 
 namespace Flux::Parsing;
 
-class ArrayExpression extends Flux::Parsing::PrimaryExpression {
-	ASTNodeType type = Flux::Parsing::ASTNodeType.ArrayExpression;
-	Expression[] values;
-
-	ArrayExpression(Expression[] values, Position position) {
-		self.values = values;
-		self.position = position;
-	}
-}
-
 ArrayExpression ArrayExpression:parse(Source source)
 	let position = source.lexer:get().position;
 	then if source.lexer:skip(Symbol, "[") {

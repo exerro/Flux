@@ -1,0 +1,18 @@
+
+import ASTNodeType;
+import Position;
+
+namespace Flux::Parsing;
+
+class Block (ASTNode) extends ASTNode {
+	ASTNodeType type = Flux::Parsing::ASTNodeType.Block;
+
+	// void operator[]=(int index, ASTNode value) = self:__set__(index, value);
+	// ASTNode operator[](int index) = self:__get__(index);
+	// int operator#() = self:__len__();
+
+	Block(ASTNode nodes, null Position position = nodes[1] && nodes[1].position)
+		foreach i, node in nodes
+			self[i] = node;
+		then self.position = position;
+}

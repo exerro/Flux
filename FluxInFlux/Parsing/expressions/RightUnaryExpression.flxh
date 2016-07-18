@@ -1,0 +1,28 @@
+
+// TODO: ++, -- check lvalue is Reference, Index or DotIndex
+
+import RightUnaryOperator;
+import FunctionCall;
+import MethodCall;
+import Index;
+import DotIndex;
+import Cast;
+import OperatorExtends;
+import OperatorImplements;
+import OperatorTypeof;
+
+namespace Flux::Parsing;
+
+string RightUnaryOperatorTostring(RightUnaryOperator op);
+
+class RightUnaryExpression extends Flux::Parsing::PrimaryExpression {
+	ASTNodeType type = Flux::Parsing::ASTNodeType.RightUnaryExpression;
+	Expression value;
+	RightUnaryOperator op;
+
+	RightUnaryExpression(Expression value, RightUnaryOperator op, null Position position = value.position) {
+		self.value = value;
+		self.op = op;
+		self.position = position;
+	}
+}

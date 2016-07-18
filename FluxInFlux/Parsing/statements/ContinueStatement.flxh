@@ -1,0 +1,10 @@
+
+namespace Flux::Parsing;
+
+class ContinueStatement extends Flux::Parsing::Statement {
+	ASTNodeType type = Flux::Parsing::ASTNodeType.ContinueStatement;
+
+	ContinueStatement(Position position) {
+		self.position = position;
+	}
+}

@@ -536,6 +536,7 @@ function compileStatement( emitter, t )
 		emitter:pushWord "end"
 
 	elseif t.type == "ForLoop" then
+		emitter:define( t.init_name )
 		emitter:pushWord "local"
 		emitter:pushWord( t.init_name )
 		emitter:pushOperator "="

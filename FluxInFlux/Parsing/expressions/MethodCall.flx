@@ -1,20 +1,6 @@
 
 namespace Flux::Parsing;
 
-class MethodCall extends RightUnaryExpression {
-	ASTNodeType type = Flux::Parsing::ASTNodeType.MethodCall;
-	string name;
-	Expression value;
-	Expression[] parameters;
-
-	MethodCall( Expression value, string name, Expression[] parameters, null Position position = value.position ) {
-		self.name = name;
-		self.value = value;
-		self.parameters = parameters;
-		self.position = position;
-	}
-}
-
 MethodCall MethodCall:parse( Source source, Expression value ) {
 	let lexer = source.lexer;
 	let parameters -> Expression[] = [];

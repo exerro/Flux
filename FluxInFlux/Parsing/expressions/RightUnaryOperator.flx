@@ -1,6 +1,0 @@
-
-namespace Flux::Parsing;
-
-enum RightUnaryOperator {
-	Increment, Decrement;
-}

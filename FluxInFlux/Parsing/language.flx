@@ -133,6 +133,9 @@ let _ = (function() {
 	Flux::Parsing::language::binary_operators[">>"] = Flux::Parsing::language::binary_operators["<<"];
 	Flux::Parsing::language::binary_operators[">="] = Flux::Parsing::language::binary_operators["<="];
 	Flux::Parsing::language::binary_operators[">>="] = Flux::Parsing::language::binary_operators["<<="];
+	Flux::Parsing::language::operators[">>"] = true;
+	Flux::Parsing::language::operators[">="] = true;
+	Flux::Parsing::language::operators[">>="] = true;
 
 	// define '-' as an unary operator as well as binary
 	Flux::Parsing::language::unary_operators["-"] = true;

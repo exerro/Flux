@@ -1,6 +1,9 @@
 
 namespace Flux::Parsing;
 
+bool isAssignmentOperator( string op )
+	= Flux::Parsing::language::binary_operators[op] == 1;
+
 BinaryExpression BinaryExpression:parse( Source source ) {
 	let lexer = source.lexer;
 	void collapse();
@@ -15,12 +18,15 @@ BinaryExpression BinaryExpression:parse( Source source ) {
 	if !operand_stack[1] return;
 	
 	void collapse() {
-		operand_stack[#operand_stack - 1]
-			= new Flux::Parsing::BinaryExpression(
-				/* lvalue */ operand_stack[#operand_stack - 1],
-				/* rvalue */ operand_stack[#operand_stack],
-				/* operator */ operator_stack[#operator_stack],
-				/* position */ operator_positions[#operator_positions] );
+		let lvalue = operand_stack[#operand_stack - 1],
+		    rvalue = operand_stack[#operand_stack],
+			op = operator_stack[#operator_stack],
+			pos = operator_positions[#operator_positions];
+
+		if Flux::Parsing::isAssignmentOperator( op ) && !(lvalue.type == Flux::Parsing::ASTNodeType.Reference || lvalue.type == Flux::Parsing::ASTNodeType.Index || lvalue.type == Flux::Parsing::ASTNodeType.DotIndex)
+			source:error( "invalid lvalue to operator '" `concat` op `concat` "'", lvalue.position );
+
+		operand_stack[#operand_stack - 1] = new Flux::Parsing::BinaryExpression( lvalue, rvalue, op, pos );
 		operand_stack[#operand_stack] = null;
 		operator_stack[#operator_stack] = null;
 		operator_positions[#operator_positions] = null;

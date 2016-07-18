@@ -2,14 +2,7 @@
 import flux;
 
 let source_code = '
-let const plot(f) = lambda x y => math::round( f(x) ) == y;
-
-let f(x) = 3 * x + 1;
-new 2DArray<bool> graph( 20, 20 );
-
-void main() {
-	math::graphing::map( graph, plot(f) );
-}
+1++;
 ';
 
 void main() {

@@ -3,6 +3,8 @@
 
 namespace Flux::Parsing;
 
+bool isAssignmentOperator( string op );
+
 class BinaryExpression extends RightUnaryExpression {
 	ASTNodeType type = Flux::Parsing::ASTNodeType.BinaryExpression;
 	Expression lvalue, rvalue;

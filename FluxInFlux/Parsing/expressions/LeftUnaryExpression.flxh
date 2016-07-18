@@ -1,19 +1,16 @@
 
 // TODO: ++, -- check lvalue is Reference, Index or DotIndex
 
-import LeftUnaryOperator;
 import OperatorTypeof;
 
 namespace Flux::Parsing;
 
-string LeftUnaryOperatorTostring(LeftUnaryOperator op);
-
 class LeftUnaryExpression extends Flux::Parsing::PrimaryExpression {
 	ASTNodeType type = Flux::Parsing::ASTNodeType.LeftUnaryExpression;
 	Expression value;
-	LeftUnaryOperator op;
+	string op;
 
-	LeftUnaryExpression(Expression value, LeftUnaryOperator op, null Position position = value.position) {
+	LeftUnaryExpression(Expression value, string op, null Position position = value.position) {
 		self.value = value;
 		self.op = op;
 		self.position = position;

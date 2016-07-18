@@ -1,9 +1,0 @@
-
-namespace Flux::Parsing;
-
-enum LeftUnaryOperator {
-	Increment, Decrement;
-	Not, BNot;
-	Length;
-	Minus;
-}

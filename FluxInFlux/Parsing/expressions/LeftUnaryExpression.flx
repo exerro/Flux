@@ -1,16 +1,6 @@
 
 namespace Flux::Parsing;
 
-string LeftUnaryOperatorTostring(LeftUnaryOperator op)
-	= match op {
-		Flux::Parsing::LeftUnaryOperator.Increment => "++";
-		Flux::Parsing::LeftUnaryOperator.Decrement => "--";
-		Flux::Parsing::LeftUnaryOperator.Not => "!";
-		Flux::Parsing::LeftUnaryOperator.BNot => "~";
-		Flux::Parsing::LeftUnaryOperator.Length => "#";
-		Flux::Parsing::LeftUnaryOperator.Minus => "-";
-	};
-
 ASTNode LeftUnaryExpression:parse(Source source) {
 	let lexer = source.lexer;
 
@@ -18,22 +8,27 @@ ASTNode LeftUnaryExpression:parse(Source source) {
 		return Flux::Parsing::RightUnaryExpression:parse(source);
 
 	let op = match lexer:get().value {
-		"++" => Flux::Parsing::LeftUnaryOperator.Increment;
-		"--" => Flux::Parsing::LeftUnaryOperator.Decrement;
-		"!" => Flux::Parsing::LeftUnaryOperator.Not;
-		"~" => Flux::Parsing::LeftUnaryOperator.BNot;
-		"#" => Flux::Parsing::LeftUnaryOperator.Length;
-		"-" => Flux::Parsing::LeftUnaryOperator.Minus;
-		default => null;
+		"++" => "++";
+		"--" => "--";
+		"!" => "!";
+		"~" => "~";
+		"#" => "#";
+		"-" => "-";
 	};
 
-	if op
+	if op {
 		let position = lexer:next().position;
-		then return new Flux::Parsing::LeftUnaryExpression(Flux::Parsing::LeftUnaryExpression:parse(source), op, position);
+		let lvalue = Flux::Parsing::LeftUnaryExpression:parse(source);
+
+		if !(lvalue.type == Flux::Parsing::ASTNodeType.Reference || lvalue.type == Flux::Parsing::ASTNodeType.Index || lvalue.type == Flux::Parsing::ASTNodeType.DotIndex)
+			source:error( "invalid rvalue to operator '" `concat` op `concat` "'", lvalue.position );
+
+		return new Flux::Parsing::LeftUnaryExpression( lvalue, op, position );
+	}
 	else
 		return Flux::Parsing::OperatorTypeof:parse(source) || Flux::Parsing::RightUnaryExpression:parse(source);
 }
 
 string LeftUnaryExpression:serialize()
-	= Flux::Parsing::LeftUnaryOperatorTostring(self.op) `concat` value
+	= self.op `concat` value
 	where value = Flux::Parsing::serializeExpression(self.value);

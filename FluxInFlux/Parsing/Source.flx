@@ -72,11 +72,10 @@ void Source:parseFileContent(string content, null string source = "string") {
 	self.lexer = old_lexer;
 }
 
-void Source:error(string err)
+void Source:error(string err, null Position position = self.lexer:get().position)
 	= throw new ParserException(src `concat` "[" `concat` line `concat` "]: " `concat` err `concat` "\n\t"
 		`concat` strline `concat` "\n\t"
 		`concat` char_pointer)
-	where position = self.lexer:get().position
 	where src = position.source
 	where line = position.line
 	where strline = position.strline:gsub( "\t", " " )

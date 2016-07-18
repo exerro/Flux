@@ -53,8 +53,28 @@ Block parseFunctionBody( Source source ) {
 
 	if lexer:skip( Symbol, "=" ) {
 		let expr = Flux::Parsing::Expression:parse( source ) || source:error "expected expression after '='";
-		if !Flux::Parsing::parseSemicolon(lexer) source:error "expected ';' after function return";
-		return new Flux::Parsing::Block( [new Flux::Parsing::ReturnStatement( expr, position )], position );
+		Statement[] statements = [];
+
+		while lexer:test( Keyword, "where" ) {
+			Position position = lexer:next().position;
+			string name = lexer:skipValue( Identifier ) || source:error "expected name after 'where'";
+			Expression value;
+			Typename _type = new Flux::Parsing::Typename( "auto", position );
+			
+			if lexer:skip( Symbol, "=" ) 
+				value = Flux::Parsing::Expression:parse( source ) || source:error "expected expression after '='";
+			else
+				source:error "expected '='";
+
+			statements[#statements + 1] = new Flux::Parsing::Definition( _type, name, value, true, position );
+		}
+
+		statements[#statements + 1] = new Flux::Parsing::ReturnStatement( expr, position );
+
+		if !Flux::Parsing::parseSemicolon(lexer)
+			source:error "expected ';' after function return";
+
+		return new Flux::Parsing::Block( statements, position );
 	}
 	else
 		return Flux::Parsing::Block:parse( source );

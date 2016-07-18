@@ -12,6 +12,7 @@ import NewStatement;
 import ReturnStatement;
 import BreakStatement;
 import ContinueStatement;
+import LetStatement;
 
 namespace Flux::Parsing;
 

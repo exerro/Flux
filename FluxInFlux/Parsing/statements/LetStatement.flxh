@@ -1,6 +1,6 @@
 
 namespace Flux::Parsing;
 
-class NewStatement extends Flux::Parsing::Statement {
+class LetStatement extends ASTNode {
 	bool parse( Source source );
 }

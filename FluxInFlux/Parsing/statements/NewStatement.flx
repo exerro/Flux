@@ -1,8 +1,50 @@
 
 namespace Flux::Parsing;
 
-NewStatement NewStatement:parse(Source source) {
+bool NewStatement:parse(Source source) {
+	let lexer = source.lexer;
+	let position = lexer:get().position;
+	let start = lexer:mark();
 
+	if !lexer:skip( Keyword, "new" ) return false;
+
+	Type _type;
+	Expression[] parameters = [];
+	string name;
+
+	try {
+		_type = Flux::Parsing::Type:parse( source );
+	}
+	catch ParserException e {
+		lexer:jump( start );
+		return false;
+	}
+
+	name = lexer:skipValue( Identifier );
+
+	if !name {
+		lexer:jump( start ); 
+		return false;
+	}
+
+	if lexer:skip( Symbol, "(" ) {
+		if !lexer:skip( Symbol, ")" ) {
+			repeat {
+				parameters[#parameters + 1] = Flux::Parsing::Expression:parse( source );
+			}
+			while lexer:skip( Symbol, "," );
+
+			if !lexer:skip( Symbol, ")" )
+				source:error "expected ')'";
+		}
+	}
+
+	if !lexer:skip( Symbol, ";" )
+		source:error "expected ';' after new statement";
+
+	source:push( new Flux::Parsing::Definition( _type, name, new Flux::Parsing::NewExpression( _type, parameters, position ), false, position ) );
+
+	return true;
 }
 
 // no need to define its serialize() as it's never added to the AST

@@ -1,0 +1,83 @@
+
+namespace Flux::Parsing;
+
+bool LetStatement:parse(Source source) {
+	let lexer = source.lexer;
+	let position = lexer:get().position;
+
+	if !lexer:skip( Keyword, "let" ) return false;
+
+	bool isConst = lexer:skip( Keyword, "const" ) && true || false;
+
+	repeat {
+		Position position = lexer:get().position;
+		string name1 = Flux::Parsing::parseName( source );
+		Type cast1 = name1 && (lexer:skip( Symbol, "->" ) && Flux::Parsing::Type:parse( source ) || new Flux::Parsing::Typename( "auto", position ));
+		string backtick = lexer:skipValue( Backtick );
+		string name2 = backtick && Flux::Parsing::parseName( source ) || !name1 && source:error "expected name";
+		Type cast2 = name2 && (lexer:skip( Symbol, "->" ) && Flux::Parsing::Type:parse( source ) || new Flux::Parsing::Typename( "auto", lexer:get(-1).position ));
+		FunctionParameter[] parameters;
+		Expression expr;
+
+		if backtick {
+			parameters = [];
+
+			if name1 {
+				parameters[1] = new Flux::Parsing::FunctionParameter( cast1, name1, false );
+				if name2
+					parameters[2] = new Flux::Parsing::FunctionParameter( cast2, name2, false );
+			}
+			else if name2
+				parameters[1] = new Flux::Parsing::FunctionParameter( cast2, name2, false );
+
+			name1 = backtick;
+		}
+		else if lexer:skip( Symbol, "(" ) {
+			parameters = [];
+
+			if !lexer:skip( Symbol, ")" ) {
+				repeat {
+					let position = lexer:get().position;
+					let name = lexer:skipValue( Identifier ) || source:error "expected parameter name";
+					let _type = lexer:skip( Symbol, "->" ) && Flux::Parsing::Type:parse( source ) || new Flux::Parsing::Typename( "auto", position );
+
+					parameters[#parameters + 1] = new Flux::Parsing::FunctionParameter( _type, name, false );
+				}
+				while lexer:skip( Symbol, "," );
+
+				if !lexer:skip( Symbol, ")" )
+					source:error "expected ')'";
+			}
+		}
+
+		if !lexer:skip( Symbol, "=" ) source:error "expected '='";
+
+		expr = Flux::Parsing::Expression:parse( source ) || source:error "expected expression after '='";
+
+		if parameters {
+			expr = new Flux::Parsing::FunctionExpression(
+				parameters,
+				new Flux::Parsing::Typename( "auto", position ),
+				new Flux::Parsing::Block( [new Flux::Parsing::ReturnStatement( expr )], position ),
+				position
+			);
+		}
+
+		source:push( new Flux::Parsing::Definition(
+			new Flux::Parsing::Typename( "auto", position ),
+			name1,
+			expr,
+			isConst,
+			position
+		) );
+
+		if parameters break;
+	}
+	while lexer:skip( Symbol, "," );
+
+	if !lexer:skip( Symbol, ";" ) source:error "expected ';' after let statement";
+
+	return true;
+}
+
+// no need to define its serialize() as it's never added to the AST

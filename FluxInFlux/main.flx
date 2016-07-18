@@ -2,15 +2,13 @@
 import flux;
 
 let source_code = '
-int x = 1, y = 2, z;
-const bool a = false, b;
+let const plot(f) = lambda x y => math::round( f(x) ) == y;
 
-float f:a() = 1;
+let f(x) = 3 * x + 1;
+new 2DArray<bool> graph( 20, 20 );
 
-int x(float v) = math::floor( v ) + 1;
-auto operator+(int a, int b) = a + b;
-void f(null int x) {
-	return null "cause its void";
+void main() {
+	math::graphing::map( graph, plot(f) );
 }
 ';
 

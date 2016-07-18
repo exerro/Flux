@@ -17,4 +17,6 @@ class Definition extends ASTNode {
 		self.isConst = isConst;
 		self.position = position;
 	}
+
+	bool parse( Source source );
 }

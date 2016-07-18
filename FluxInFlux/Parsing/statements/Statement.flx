@@ -1,16 +1,14 @@
 
 namespace Flux::Parsing;
 
-Statement Statement:parse(Source source) {
+void Statement:parse(Source source) {
 	let lexer = source.lexer;
-	let isDefinition = Flux::Parsing::Definition:parse(source);
 
-	if isDefinition return;
+	if Flux::Parsing::Definition:parse(source) || Flux::Parsing::LetStatement:parse( source ) || Flux::Parsing::NewStatement:parse(source)
+		return;
 
-	let newstatement = !isDefinition && Flux::Parsing::NewStatement:parse(source);
-	let expr = !newstatement && Flux::Parsing::Expression:parse(source);
-	let statement = newstatement
-		|| expr && (Flux::Parsing::parseSemicolon(lexer) && expr || source:error "expected ';' after expression")
+	let expr = Flux::Parsing::Expression:parse(source);
+	let statement = expr && (Flux::Parsing::parseSemicolon(lexer) && expr || source:error "expected ';' after expression")
 		|| Flux::Parsing::IfStatement:parse( source )
 		|| Flux::Parsing::WhileLoop:parse( source )
 		|| Flux::Parsing::RepeatLoop:parse( source )

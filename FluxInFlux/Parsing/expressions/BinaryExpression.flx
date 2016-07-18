@@ -37,8 +37,15 @@ BinaryExpression BinaryExpression:parse( Source source ) {
 		let precedence = Flux::Parsing::language::binary_operators[op_token.value];
 		let position = op_token.position;
 		
-		if op == ">" && lexer:skip( Symbol, ">" ) op = ">>"; then
-			precedence = Flux::Parsing::language::binary_operators[op_token.value];
+		if op == ">" && lexer:skip( Symbol, ">" ) { // make this also test that the token is 1 past the previous one
+			op = ">>";
+			precedence = Flux::Parsing::language::binary_operators[op];
+		}
+
+		if (op == ">" || op == ">>") && lexer:skip( Symbol, "=" ) { // make this also test that the token is 1 past the previous one
+			op = op `concat` "=";
+			precedence = Flux::Parsing::language::binary_operators[op];
+		}
 
 		while operator_precedences[1] && (precedence < operator_precedences[#operator_precedences]
 		      || precedence > 1 && precedence == operator_precedences[#operator_precedences])

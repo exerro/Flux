@@ -51,6 +51,9 @@ Block parseFunctionBody( Source source ) {
 	let lexer = source.lexer;
 	let position = lexer:get().position;
 
+	Block block;
+	source:pushFunctionContext();
+
 	if lexer:skip( Symbol, "=" ) {
 		let expr = Flux::Parsing::Expression:parse( source ) || source:error "expected expression after '='";
 		Statement[] statements = [];
@@ -74,10 +77,14 @@ Block parseFunctionBody( Source source ) {
 		if !Flux::Parsing::parseSemicolon(lexer)
 			source:error "expected ';' after function return";
 
-		return new Flux::Parsing::Block( statements, position );
+		block = new Flux::Parsing::Block( statements, position );
 	}
 	else
-		return Flux::Parsing::Block:parse( source );
+		block = Flux::Parsing::Block:parse( source );
+
+	source:popContext();
+
+	return block;
 }
 
 string serializeExpression(Expression e)

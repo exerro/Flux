@@ -11,9 +11,6 @@ ASTNode RightUnaryExpression:parse(Source source) {
 		if lexer:test( Symbol, "++" ) || lexer:test( Symbol, "--" ) {
 			let token = lexer:next();
 
-			if !(expr.type == Flux::Parsing::ASTNodeType.Reference || expr.type == Flux::Parsing::ASTNodeType.Index || expr.type == Flux::Parsing::ASTNodeType.DotIndex)
-				source:error( "invalid lvalue to operator '" `concat` token.value `concat` "'", expr.position );
-
 			new_expr = new Flux::Parsing::RightUnaryExpression( expr, token.value, token.position );
 		}
 		else new_expr =

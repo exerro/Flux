@@ -23,9 +23,6 @@ BinaryExpression BinaryExpression:parse( Source source ) {
 			op = operator_stack[#operator_stack],
 			pos = operator_positions[#operator_positions];
 
-		if Flux::Parsing::isAssignmentOperator( op ) && !(lvalue.type == Flux::Parsing::ASTNodeType.Reference || lvalue.type == Flux::Parsing::ASTNodeType.Index || lvalue.type == Flux::Parsing::ASTNodeType.DotIndex)
-			source:error( "invalid lvalue to operator '" `concat` op `concat` "'", lvalue.position );
-
 		operand_stack[#operand_stack - 1] = new Flux::Parsing::BinaryExpression( lvalue, rvalue, op, pos );
 		operand_stack[#operand_stack] = null;
 		operator_stack[#operator_stack] = null;

@@ -1,19 +1,33 @@
 
 namespace Flux::Parsing;
 
-ForLoop ForLoop:parse(Source source) {
+ASTNode ForLoop:parse(Source source) {
 	let lexer = source.lexer;
 	let position = lexer:get().position;
 
 	if !lexer:skip( Keyword, "for" ) return;
 
 	let openbracket = lexer:skip( Symbol, "(" ) && true || false;
+
+	Type _type;
+	string name;
+	Expression value;
+	Expression condition;
+	Expression increment;
 	
-	// some kind of definition parsing
-	// some kind of delimiter parsing
-	// some kind of expression parsing
-	// some kind of delimiter parsing
-	// some kind of expression parsing
+	_type = Flux::Parsing::Type:parse( source );
+	name = lexer:skipValue( Identifier ) || source:error "expected name after type";
+	value = lexer:skip( Symbol, "=" ) &&
+		(Flux::Parsing::Expression:parse( source ) || source:error "expected expression after '='")
+		|| source:error "expected '='";
+
+	if !lexer:skip( Symbol, ";" ) && !lexer:skip( Symbol, "," ) source:error "expected ';'";
+	
+	condition = Flux::Parsing::Expression:parse( source ) || source:error "expected expression";
+
+	if !lexer:skip( Symbol, ";" ) && !lexer:skip( Symbol, "," ) source:error "expected ';'";
+
+	increment = Flux::Parsing::Expression:parse( source ) || source:error "expected expression";
 
 	if openbracket && !lexer:skip( Symbol, ")" ) source:error "expected ')'";
 
@@ -21,8 +35,14 @@ ForLoop ForLoop:parse(Source source) {
 	let block = Flux::Parsing::Block:parse( source );
 	source:popContext();
 
-	return new Flux::Parsing::ForLoop();
+	block[#block + 1] = increment;
+
+	let doblock = new Flux::Parsing::Block( [
+		new Flux::Parsing::Definition( _type, name, value, false ),
+		new Flux::Parsing::WhileLoop(condition, block)
+	], position );
+
+	return new Flux::Parsing::DoStatement( doblock, position );
 }
 
-string ForLoop:serialize()
-	= "nope";
+// no need for serialize() as it's never added to the AST

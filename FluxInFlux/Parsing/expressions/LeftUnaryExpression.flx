@@ -20,9 +20,6 @@ ASTNode LeftUnaryExpression:parse(Source source) {
 		let position = lexer:next().position;
 		let lvalue = Flux::Parsing::LeftUnaryExpression:parse(source);
 
-		if !(lvalue.type == Flux::Parsing::ASTNodeType.Reference || lvalue.type == Flux::Parsing::ASTNodeType.Index || lvalue.type == Flux::Parsing::ASTNodeType.DotIndex)
-			source:error( "invalid rvalue to operator '" `concat` op `concat` "'", lvalue.position );
-
 		return new Flux::Parsing::LeftUnaryExpression( lvalue, op, position );
 	}
 	else

@@ -2,7 +2,10 @@
 import flux;
 
 let source_code = '
-a >= 5;
+for (int i = 0, i < 10, i++)
+	void f()
+		foreach i in t 
+			continue;
 ';
 
 void main() {

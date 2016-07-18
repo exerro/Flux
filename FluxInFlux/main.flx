@@ -2,7 +2,7 @@
 import flux;
 
 let source_code = '
-1++;
+a >= 5;
 ';
 
 void main() {

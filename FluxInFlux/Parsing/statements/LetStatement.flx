@@ -65,6 +65,7 @@ bool LetStatement:parse(Source source) {
 
 		source:push( new Flux::Parsing::Definition(
 			new Flux::Parsing::Typename( "auto", position ),
+			null,
 			name1,
 			expr,
 			isConst,

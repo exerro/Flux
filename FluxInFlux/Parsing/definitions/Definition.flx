@@ -34,6 +34,10 @@ bool Definition:parse(Source source) {
 
 		start = lexer:get().position;
 		name = Flux::Parsing::parseMethodName(source);
+		
+		if name:find "[^%w_]" && lexer:test( Symbol, ":" )
+			source:error "unexpected ':' after operator name";
+
 		method = lexer:skip( Symbol, ":" ) && Flux::Parsing::parseMethodName(source);
 
 		if lexer:skip( Symbol, "(" ) { // function definition
@@ -41,6 +45,7 @@ bool Definition:parse(Source source) {
 			Type[] parameter_types = [];
 			bool[] parameter_nullables = [];
 			FunctionParameter parameter;
+			Type _class;
 
 			if !lexer:skip( Symbol, ")" ) {
 				repeat {
@@ -55,17 +60,18 @@ bool Definition:parse(Source source) {
 					source:error "expected ')' to close function parameters";
 			}
 
+			if method && lexer:test( Symbol, ";" ) source:error "expected function body after method";
+
 			let body = !lexer:skip( Symbol, ";" ) && Flux::Parsing::parseFunctionBody( source );
 			let value = body && new Flux::Parsing::FunctionExpression( parameters, _type, body, start );
 
 			if method {
-				let nameAndIndex = new Flux::Parsing::DotIndex( new Flux::Parsing::ReferenceExpression( name, start ), method, start );
-				source:push( new Flux::Parsing::BinaryExpression( nameAndIndex, value, "=" ) );
+				_class = new Flux::Parsing::Typename( name, start );
+				name = method;
 			}
-			else {
-				let function_type = new Flux::Parsing::FunctionType(_type, parameter_types, parameter_nullables);
-				source:push( new Flux::Parsing::Definition( function_type, name, value, isConst, start ) );
-			}
+
+			let function_type = new Flux::Parsing::FunctionType(_type, parameter_types, parameter_nullables);
+			source:push( new Flux::Parsing::Definition( function_type, _class, name, value, isConst, start ) );
 
 			return true;
 		}
@@ -77,7 +83,7 @@ bool Definition:parse(Source source) {
 			source:error "expected '(' for function parameters after method name";
 		else {
 			value = lexer:skip(Symbol, "=") && (Flux::Parsing::Expression:parse( source ) || source:error "expected definition after '='");
-			source:push( new Flux::Parsing::Definition( _type, name, value, isConst, start ) );
+			source:push( new Flux::Parsing::Definition( _type, null, name, value, isConst, start ) );
 		}
 	}
 	while lexer:skip( Symbol, "," );
@@ -90,8 +96,9 @@ bool Definition:parse(Source source) {
 
 string Definition:serialize() {
 	return (self.isConst && "const " || "")
-		`concat` self._type:serialize()
-		`concat` " " `concat` self.name
+		`concat` self._type:serialize() `concat` " " 
+		`concat` (self._class && self._class:serialize() `concat` ":" || "")
+		`concat` self.name
 		`concat` (self.value && " = " `concat` self.value:serialize() || "")
 		`concat` ";";
 }

@@ -26,20 +26,32 @@ string parseName(Source source) {
 string parseMethodName(Source source) {
 	let lexer = source.lexer;
 
-	if lexer:skip(Keyword, "operator") {
-		if lexer:skip(Symbol, "(") {
-			error "Nope";
+	if lexer:skip( Keyword, "operator" ) {
+		if lexer:test( Symbol, "(" ) {
+			return "()";
 		}
-		else if lexer:skip(Symbol, "[") {
-			error "Nope";
+		else if lexer:skip( Symbol, "[" ) {
+			if !lexer:skip( Symbol, "]" ) source:error "expected ']' after '['";
+			return lexer:skip( Symbol, "=" ) && "[]=" || "[]";
 		}
 		else {
-			let symbol = lexer:skip(Symbol);
-			if symbol && Flux::Parsing::language::operators[symbol.value] {
-				return symbol.value;
+			let symbol = lexer:skip( Symbol );
+			let op = symbol && symbol.value;
+			let ol = symbol && symbol.position.line, oc = symbol && symbol.position.character;
+			
+			if op == ">" && lexer:get().position.line == ol && lexer:get().position.character == oc + 1 && lexer:skip( Symbol, ">" ) {
+				op = ">>";
+				oc++;
+			}
+
+			if (op == ">" || op == ">>") && lexer:get().position.line == ol && lexer:get().position.character == oc + 1 && lexer:skip( Symbol, "=" )
+				op = op `concat` "=";
+
+			if Flux::Parsing::language::operators[op] {
+				return op;
 			}
 			else {
-				source:error "expected operator after 'operator'";
+				source:error( "expected operator after 'operator'", symbol && symbol.position );
 			}
 		}
 	}
@@ -69,7 +81,7 @@ Block parseFunctionBody( Source source ) {
 			else
 				source:error "expected '='";
 
-			statements[#statements + 1] = new Flux::Parsing::Definition( _type, name, value, true, position );
+			statements[#statements + 1] = new Flux::Parsing::Definition( _type, null, name, value, true, position );
 		}
 
 		statements[#statements + 1] = new Flux::Parsing::ReturnStatement( expr, position );

@@ -42,7 +42,7 @@ bool NewStatement:parse(Source source) {
 	if !lexer:skip( Symbol, ";" )
 		source:error "expected ';' after new statement";
 
-	source:push( new Flux::Parsing::Definition( _type, name, new Flux::Parsing::NewExpression( _type, parameters, position ), false, position ) );
+	source:push( new Flux::Parsing::Definition( _type, null, name, new Flux::Parsing::NewExpression( _type, parameters, position ), false, position ) );
 
 	return true;
 }

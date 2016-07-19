@@ -25,7 +25,7 @@ bool InterfaceDefinition:parse(Source source) {
 	while !lexer:skip( Symbol, "}" ) {
 		if lexer:isEOF() source:error "expected '}' to close interface body";
 
-		Flux::Parsing::Definition:parse( source );
+		Flux::Parsing::Definition:parse( source ) || source:error "expected definition";
 	}
 
 	source:popContext();

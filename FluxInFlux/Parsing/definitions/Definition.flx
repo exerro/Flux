@@ -5,6 +5,7 @@ bool Definition:parse(Source source) {
 	let lexer = source.lexer;
 	let start = lexer:mark();
 	let isClassDef = source.context.isInterface || source.context.isClass;
+	let classname = source.context.isClass && source.context.class_name:gsub( ".+::", "" );
 
 	TemplateList _template;
 
@@ -17,11 +18,19 @@ bool Definition:parse(Source source) {
 	bool isConst = lexer:skip( Keyword, "const" );
 	Type _type;
 	string name, method;
+	int _mark = lexer:mark();
 
-	try {
-		_type = Flux::Parsing::Type:parse( source );
+	if source.context.isClass && lexer:skip( Identifier, classname ) && lexer:test( Symbol, "(" ) {
+		_type = new Flux::Parsing::Typename( "void", position );
+		name = source.context.class_name:gsub( ".+::", "" );
 	}
-	catch ParserException e {}
+	else {
+		lexer:jump( _mark );
+		try {
+			_type = Flux::Parsing::Type:parse( source );
+		}
+		catch ParserException e {}
+	}
 
 	let _mark = lexer:mark();
 
@@ -29,7 +38,7 @@ bool Definition:parse(Source source) {
 	// if the type is a typename, and a : and correct method name is found after, it's probably a constructor definition
 	// note, this'll break any static Button:Button() calls, might need to fix in the future
 	// then again, can it be fixed? it might just need to be a syntax flaw
-	if _type && _type.type == Flux::Parsing::ASTNodeType.Typename && lexer:skip( Symbol, ":" ) && lexer:skip( Identifier, _type.name:gsub( ".+::", "" ) ) {
+	if !isClassDef && _type && _type.type == Flux::Parsing::ASTNodeType.Typename && lexer:skip( Symbol, ":" ) && lexer:skip( Identifier, _type.name:gsub( ".+::", "" ) ) {
 		name = _type.name; // the class name
 		method = name:gsub( ".+::", "" ); // the method name can't contain the namespace the class is it, hence the gsub()
 		_type = new Flux::Parsing::Typename( "void", _type.position ); // constructors return void... or self? maybe self... maybe change this, it'll make object creation more inline when compiled, and do stuff with the returns in constructor...?
@@ -42,7 +51,7 @@ bool Definition:parse(Source source) {
 	// no need to put this above the constructor test as you can't have a class called 'void' anyway
 
 	// if a type wasn't given or there isn't a name next, it's not a definition
-	if !_type || (!name && !lexer:test(Identifier) && !lexer:test(Keyword, "operator")) {
+	if !_type || (!name && !lexer:test(Identifier) && !lexer:test(Keyword, "operator") && (!isClassDef || !lexer:test( Keyword, "setter" ) && !lexer:test( Keyword, "getter" ))) {
 		lexer:jump( start );
 		if _template {
 			lexer:next();
@@ -71,6 +80,11 @@ bool Definition:parse(Source source) {
 
 		// if we're adding a method to a template class
 		if !method && !name:find "[^%w_:]" && lexer:test( Symbol, "<" ) {
+			if source.context.isClass
+				source:error "unexpected '<' in class member definition";
+			if source.context.isInterface
+				source:error "unexpected '<' in interface member definition";
+
 			lexer:jump( _mark );
 			_class = Flux::Parsing::Type:parse( source );
 
@@ -83,6 +97,12 @@ bool Definition:parse(Source source) {
 		// otherwise
 		else {
 			// if a method is defined, swap the name and method and define the class being modified
+			if !method && isClassDef && lexer:test( Symbol, ":" )
+				if source.context.isClass
+					source:error "unexpected ':' for method name in class member definition";
+				else
+					source:error "unexpected ':' for method name in interface member definition";
+
 			method = method || lexer:skip( Symbol, ":" ) && Flux::Parsing::parseMethodName(source);
 
 			if method {
@@ -100,6 +120,9 @@ bool Definition:parse(Source source) {
 			bool parameterNamesGiven = true;
 			bool defaults_started = false;
 
+			if name == classname && (_type.type != Flux::Parsing::ASTNodeType.Typename || _type.name != "void")
+				source:error( "expected return type of void for constructor", _type.position );
+
 			if !lexer:skip( Symbol, ")" ) { // if it takes arguments
 				let _mark = lexer:mark(); // below: test for a partial definition i.e. int f(int)
 				if !method && (lexer:skip( Keyword, "void" ) && true || true) && (lexer:skip( Keyword, "auto" ) || lexer:skip( Identifier )) && (lexer:skip( Symbol, "=" ) || lexer:skip( Symbol, "," ) || lexer:skip( Symbol, ")" )) {
@@ -111,7 +134,7 @@ bool Definition:parse(Source source) {
 					repeat { // get partial parameters, generating names for each parameter
 						let pos = lexer:get().position;
 						let nullable = lexer:skip( Keyword, "null" ) && true || false;
-						let type = (lexer:test( Symbol, "=" ) || lexer:test( Symbol, "," ) || lexer:test( Symbol, ")")) && last_type || Flux::Parsing::Type:parse( source ); // TODO: make it test for , or = and use last type, i.e. int f(int,) == int f(int, int)
+						let type = (lexer:test( Symbol, "=" ) || lexer:test( Symbol, "," ) || lexer:test( Symbol, ")")) && last_type || Flux::Parsing::Type:parse( source );
 						let name = Flux::Parsing::intToName( n++ );
 
 						if lexer:test( Symbol, "=" ) && method
@@ -211,11 +234,14 @@ bool Definition:parse(Source source) {
 
 			return true;
 		}
-		else if _template {
+		else if _template
 			source:error "expected '(' for function parameters after template";
-		}
+		else if name:find "^setter " || name:find "^getter "
+			source:error( "expected '(' for function parameters after " `concat` name:sub( 1, 1 ) `concat` "etter name" );
 		else if name:find "[^%w_:]"
 			source:error "expected '(' for function parameters after operator name";
+		else if source.context.isClass && name == classname
+			source:error "expected '(' for function parameters after constructor name";
 		else if method
 			source:error "expected '(' for function parameters after method name";
 		else if _type.type == Flux::Parsing::ASTNodeType.Typename && _type.name == "void"

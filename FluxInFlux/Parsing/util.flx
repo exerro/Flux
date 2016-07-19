@@ -55,8 +55,13 @@ string parseMethodName(Source source) {
 			}
 		}
 	}
+	else if source.context.isClass || source.context.isInterface // setters and getters might not be allowed in interfaces...
+		if lexer:skip( Keyword, "setter" )
+			return "setter " `concat` (lexer:skipValue( Identifier ) || source:error "expected name after 'setter'");
+		else if lexer:skip( Keyword, "getter" )
+			return "getter " `concat` (lexer:skipValue( Identifier ) || source:error "expected name after 'getter'");
 
-	return lexer:skipValue(Identifier);
+	return lexer:skipValue( Identifier ) || source:error "expected name";
 }
 
 string resolveDefinitionName(Source source, string name)

@@ -30,13 +30,13 @@ bool ClassDefinition:parse(Source source) {
 	if !lexer:skip( Symbol, "{" )
 		source:error "expected '{' for class body";
 
-	source:pushInterfaceContext();
+	source:pushClassContext(name);
 	source:pushBlock();
 
 	while !lexer:skip( Symbol, "}" ) {
 		if lexer:isEOF() source:error "expected '}' to close class body";
 
-		Flux::Parsing::Definition:parse( source );
+		Flux::Parsing::Definition:parse( source ) || source:error "expected definition";
 	}
 
 	source:popContext();

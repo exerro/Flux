@@ -11,7 +11,8 @@ Type Type:parse( Source source ) {
 	while true {
 		let change
 			 = Flux::Parsing::TableType:parse( source, name )
-			|| Flux::Parsing::ArrayType:parse( source, name );
+			|| Flux::Parsing::ArrayType:parse( source, name )
+			|| Flux::Parsing::ReferenceType:parse( source, name );
 		
 		if change name = change;
 		else break;

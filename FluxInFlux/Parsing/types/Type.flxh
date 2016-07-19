@@ -4,6 +4,7 @@ import TemplatedType;
 import ArrayType;
 import TableType;
 import FunctionType;
+import ReferenceType;
 
 namespace Flux::Parsing;
 

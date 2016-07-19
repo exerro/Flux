@@ -2,7 +2,31 @@
 import flux;
 
 let source_code = '
-int f(=0,=1,=2);
+class 2DArray {
+  T[][] elements;
+
+  2DArray(int dim1 = 0, dim2 = 0, T value = new T) {
+    foreach (i in 0 .. dim2-1) { // note the brackets are optional
+      elements[i] = [];
+      for (int n = 0, n < dim1, n++)
+        elements[i][n] = value;
+    }
+  }
+
+  auto getter elements() {
+    return table::copy(elements);
+  }
+
+  T operator[](int i1, i2)
+    = elements[i2] && elements[i2][i1];
+
+  void operator[]=(int i1, i2, T value) {
+    elements[i2] = elements[i2] || [];
+    elements[i2][i1] = value;
+  }
+}
+
+new 2DArray<int> myArray(5, 5);
 ';
 
 void main() {

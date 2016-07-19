@@ -2,8 +2,14 @@
 import flux;
 
 let source_code = '
-int f(int = 0, float = 1.0);
-int f(int x, float y) = x + y -> int;
+interface I {
+	int b(float x = 0, y = 1);
+}
+
+int I:b(float x, y) {
+	print( x + y );
+	return 0;
+}
 ';
 
 void main() {

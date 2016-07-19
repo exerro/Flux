@@ -4,7 +4,12 @@ namespace Flux::Parsing;
 void Statement:parse(Source source) {
 	let lexer = source.lexer;
 
-	if Flux::Parsing::Definition:parse(source) || Flux::Parsing::LetStatement:parse( source ) || Flux::Parsing::NewStatement:parse(source)
+	if Flux::Parsing::Definition:parse(source)
+	|| Flux::Parsing::LetStatement:parse( source )
+	|| Flux::Parsing::NewStatement:parse(source)
+	|| Flux::Parsing::EnumDefinition:parse( source )
+	|| Flux::Parsing::ClassDefinition:parse(source)
+	|| Flux::Parsing::InterfaceDefinition:parse( source )
 		return;
 
 	let expr = Flux::Parsing::Expression:parse(source);
@@ -22,9 +27,6 @@ void Statement:parse(Source source) {
 		|| Flux::Parsing::ContinueStatement:parse( source )
 		|| Flux::Parsing::NamespaceStatement:parse( source )
 		|| Flux::Parsing::UsingStatement:parse( source )
-		|| Flux::Parsing::EnumDefinition:parse( source )
-		|| Flux::Parsing::ClassDefinition:parse( source )
-		|| Flux::Parsing::InterfaceDefinition:parse( source )
 		|| source:error "unexpected token";
 
 	source:push( statement );

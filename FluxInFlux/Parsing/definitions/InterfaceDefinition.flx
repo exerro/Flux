@@ -1,8 +1,38 @@
 
 namespace Flux::Parsing;
 
-string InterfaceDefinition:parse(Source source) {
+bool InterfaceDefinition:parse(Source source) {
+	let lexer = source.lexer;
+	let position = lexer:get().position;
+
+	if !source.context.isNamespace || !lexer:skip( Keyword, "interface" ) return false;
 	
+	string name = Flux::Parsing::parseName( source ) || source:error "expected name after 'interface'";
+	string[] _implements = [];
+	
+	if lexer:skip( Keyword, "implements" )
+		repeat {
+			_implements[#_implements + 1] = Flux::Parsing::parseName( source ) || source:error "expected interface name";
+		}
+		while lexer:skip( Symbol, "," );
+
+	if !lexer:skip( Symbol, "{" )
+		source:error "expected '{' for interface body";
+
+	source:pushInterfaceContext();
+	source:pushBlock();
+
+	while !lexer:skip( Symbol, "}" ) {
+		if lexer:isEOF() source:error "expected '}' to close interface body";
+
+		Flux::Parsing::Definition:parse( source );
+	}
+
+	source:popContext();
+
+	let definitions = source:popBlock();
+
+	return true;
 }
 
 string InterfaceDefinition:serialize()

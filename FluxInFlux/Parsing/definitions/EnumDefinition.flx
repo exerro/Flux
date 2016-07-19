@@ -1,11 +1,11 @@
 
 namespace Flux::Parsing;
 
-string EnumDefinition:parse(Source source) {
+bool EnumDefinition:parse(Source source) {
 	let lexer = source.lexer;
 	let position = lexer:get().position;
 
-	if !source.context.isNamespace || !lexer:skip( Keyword, "enum" ) return;
+	if !source.context.isNamespace || !lexer:skip( Keyword, "enum" ) return false;
 	
 	string name = Flux::Parsing::parseName( source ) || source:error "expected enum name after 'enum'";
 	string[] members = [];
@@ -18,7 +18,16 @@ string EnumDefinition:parse(Source source) {
 
 	if !lexer:skip( Symbol, "}" ) source:error "expected '}' after enum body";
 
-	return new Flux::Parsing::EnumDefinition( name, members, position );
+	source:push( new Flux::Parsing::EnumDefinition( name, members, position ) );
+
+	let enum_type = new Flux::Parsing::Typename( name, position );
+	let enum_ref = new Flux::Parsing::ReferenceExpression( name, position );
+
+	foreach member in members {
+		source:push( new Flux::Parsing::Definition( enum_type, null, member, new Flux::Parsing::DotIndex( enum_ref, member ), true, position ) );
+	}
+
+	return true;
 }
 
 string EnumDefinition:serialize()

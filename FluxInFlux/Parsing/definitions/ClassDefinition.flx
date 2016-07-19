@@ -1,7 +1,11 @@
 
 namespace Flux::Parsing;
 
-string ClassDefinition:parse(Source source) {
+bool ClassDefinition:parse(Source source) {
+	let lexer = source.lexer;
+	let position = lexer:get().position;
+
+	if !source.context.isNamespace || !lexer:skip( Keyword, "class" ) return false;
 	
 }
 

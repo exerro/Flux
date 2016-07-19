@@ -1,9 +1,8 @@
 
 namespace Flux::Parsing;
 
-ASTNode RightUnaryExpression:parse(Source source) {
+ASTNode RightUnaryExpression:parse( Source source, null Expression expr = Flux::Parsing::PrimaryExpression:parse( source ) ) {
 	let lexer = source.lexer;
-	let expr = Flux::Parsing::PrimaryExpression:parse( source );
 
 	while true {
 		Expression new_expr;

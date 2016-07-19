@@ -2,11 +2,27 @@
 import flux;
 
 let source_code = '
-class C {
-	private: int x = 1, y = 2; int z = 3;
-	template<T> public static const int f(T x) = 0;
+// template<T>
+class Reference /*<T>*/ {
+	T value;
+
+	Reference(auto vararg);
+	Reference(T v) value = v;
+
+	auto operator+(auto v) = value + v;
+	auto operator-(auto v) = value - v;
+	auto operator*(auto v) = value * v;
+	auto operator/(auto v) = value / v;
+
+	T operator^() = value;
 }
 
+template<T>
+Reference<T>:Reference(auto vararg) {
+	self.value = new T(vararg);
+}
+
+int& i = 0;
 ';
 
 void main() {

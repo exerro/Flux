@@ -1,6 +1,4 @@
 
-// TODO: ++, -- check lvalue is Reference, Index or DotIndex
-
 import OperatorTypeof;
 
 namespace Flux::Parsing;

@@ -25,8 +25,9 @@ bool Definition:parse(Source source) {
 	bool isStatic = source.context.isClass && lexer:skip( Keyword, "static" ) && true || false;
 	bool isConst = lexer:skip( Keyword, "const" ) && true || false;
 	Type _type;
-	string name, method;
+	string method, name;
 	int _mark = lexer:mark();
+	Type _class;
 
 	if source.context.isClass && lexer:skip( Identifier, classname ) && lexer:test( Symbol, "(" ) {
 		_type = new Flux::Parsing::Typename( "void", position );
@@ -47,8 +48,13 @@ bool Definition:parse(Source source) {
 	// note, this'll break any static Button:Button() calls, might need to fix in the future
 	// then again, can it be fixed? it might just need to be a syntax flaw
 	if !isClassDef && _type && _type.type == Flux::Parsing::ASTNodeType.Typename && lexer:skip( Symbol, ":" ) && lexer:skip( Identifier, _type.name:gsub( ".+::", "" ) ) {
-		name = _type.name; // the class name
-		method = name:gsub( ".+::", "" ); // the method name can't contain the namespace the class is it, hence the gsub()
+		_class = _type;
+		name = _type.name:gsub( ".+::", "" ); // the method name can't contain the namespace the class is it, hence the gsub()
+		_type = new Flux::Parsing::Typename( "void", _type.position ); // constructors return void... or self? maybe self... maybe change this, it'll make object creation more inline when compiled, and do stuff with the returns in constructor...?
+	}
+	else if !isClassDef && _type && _type.type == Flux::Parsing::ASTNodeType.TemplatedType && lexer:skip( Symbol, ":" ) && lexer:skip( Identifier, _type.name:gsub( ".+::", "" ) ) {
+		_class = _type;
+		name = _type.name:gsub( ".+::", "" ); // the method name can't contain the namespace the class is it, hence the gsub()
 		_type = new Flux::Parsing::Typename( "void", _type.position ); // constructors return void... or self? maybe self... maybe change this, it'll make object creation more inline when compiled, and do stuff with the returns in constructor...?
 	}
 	else lexer:jump( _mark );
@@ -76,31 +82,33 @@ bool Definition:parse(Source source) {
 		Position start;
 		Expression value;
 		int _mark;
-		Type _class;
 
 		start = lexer:get().position;
 		_mark = lexer:mark();
-		name = name || Flux::Parsing::parseMethodName(source);
 
-		// error if there's a colon (for a method) after an operator name
-		if name:find "[^%w_:]" && lexer:test( Symbol, ":" )
-			source:error "unexpected ':' after operator name";
+		if !_class {
+			name = name || Flux::Parsing::parseMethodName(source);
 
-		// if we're adding a method to a template class
-		if !method && !name:find "[^%w_:]" && lexer:test( Symbol, "<" ) {
-			if source.context.isClass
-				source:error "unexpected '<' in class member definition";
-			if source.context.isInterface
-				source:error "unexpected '<' in interface member definition";
+			// error if there's a colon (for a method) after an operator name
+			if name:find "[^%w_:]" && lexer:test( Symbol, ":" )
+				source:error "unexpected ':' after operator name";
 
-			lexer:jump( _mark );
-			_class = Flux::Parsing::Type:parse( source );
+			// if we're adding a method to a template class
+			if !method && !name:find "[^%w_:]" && lexer:test( Symbol, "<" ) {
+				if source.context.isClass
+					source:error "unexpected '<' in class member definition";
+				if source.context.isInterface
+					source:error "unexpected '<' in interface member definition";
 
-			if !lexer:skip( Symbol, ":" )
-				source:error "expected ':' after class template";
+				lexer:jump( _mark );
+				_class = Flux::Parsing::Type:parse( source );
 
-			name = Flux::Parsing::parseMethodName(source);
-			method = "";
+				if !lexer:skip( Symbol, ":" )
+					source:error "expected ':' after class template";
+
+				name = Flux::Parsing::parseMethodName(source);
+				method = "";
+			}
 		}
 		// otherwise
 		else {
@@ -260,6 +268,7 @@ bool Definition:parse(Source source) {
 		}
 
 		name = null;
+		_class = null;
 		method = null;
 	}
 	while lexer:skip( Symbol, "," );

@@ -14,9 +14,22 @@ ASTNode LeftUnaryExpression:parse(Source source) {
 		"~" => "~";
 		"#" => "#";
 		"-" => "-";
+		"^" => "^";
 	};
 
-	if op {
+	if op == "^" {
+		let position = lexer:next().position;
+		let primary = Flux::Parsing::PrimaryExpression:parse( source );
+
+		if primary {
+			return Flux::Parsing::RightUnaryExpression:parse( source, new Flux::Parsing::LeftUnaryExpression( primary, op, position ) );
+		}
+		else {
+			let lvalue = Flux::Parsing::LeftUnaryExpression:parse( source );
+			return new Flux::Parsing::LeftUnaryExpression( lvalue, op, position );
+		}
+	}
+	else if op {
 		let position = lexer:next().position;
 		let lvalue = Flux::Parsing::LeftUnaryExpression:parse(source);
 

@@ -1,12 +1,18 @@
 
+import ClassMember;
+
 namespace Flux::Parsing;
 
 class InterfaceDefinition extends ASTNode {
 	ASTNodeType type = Flux::Parsing::ASTNodeType.InterfaceDefinition;
-	
+	string name;
+	ClassMember[] members;
+	string[] _implements;
 
-	InterfaceDefinition(Position position) {
-		
+	InterfaceDefinition(string name, ClassMember[] members, string[] _implements, Position position) {
+		self.name = name;
+		self.members = members;
+		self._implements = _implements;
 		self.position = position;
 	}
 }

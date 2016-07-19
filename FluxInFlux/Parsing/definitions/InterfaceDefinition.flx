@@ -31,9 +31,32 @@ bool InterfaceDefinition:parse(Source source) {
 	source:popContext();
 
 	let definitions = source:popBlock();
+	let selftype = new Flux::Parsing::Typename( name, position );
+	let selfref = new Flux::Parsing::ReferenceExpression( name, position );
+
+	ClassMember[] members = [];
+
+	foreach definition in definitions {
+		members[#members + 1] = new Flux::Parsing::ClassMember( definition );
+	}
+
+	source:push( new Flux::Parsing::InterfaceDefinition( name, members, _implements, position ) );
+
+	foreach definition in definitions {
+		if definition.value && definition._type.type == Flux::Parsing::ASTNodeType.FunctionType
+			source:push( new Flux::Parsing::Definition(
+				definition._type, selftype, definition.name, definition.value, definition.isConst, definition.position ) );
+		else if definition.value
+			source:push( new Flux::Parsing::BinaryExpression( 
+				new Flux::Parsing::DotIndex( selfref, definition.name ),
+				new Flux::Parsing::Cast( definition.value, definition._type ),
+				"=", position ) );
+	}
 
 	return true;
 }
 
 string InterfaceDefinition:serialize()
-	= "nope";
+	= "interface " `concat` self.name
+		`concat` (#self._implements > 0 && " implements " `concat` table.concat(self._implements, ", ") || "")
+		`concat` " {\n\t" `concat` (self.members `concattenate` "\n\t") `concat` "\n}";

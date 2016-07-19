@@ -211,7 +211,7 @@ bool Definition:parse(Source source) {
 	}
 	while lexer:skip( Symbol, "," );
 
-	if !lexer:skip( Symbol, ";" )
+	if !Flux::Parsing::parseSemicolon( lexer )
 		source:error "expected ';' after definition(s)";
 
 	return true;

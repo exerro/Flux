@@ -8,7 +8,68 @@ bool ClassDefinition:parse(Source source) {
 	if !source.context.isNamespace || !lexer:skip( Keyword, "class" ) return false;
 	
 	string name = Flux::Parsing::resolveDefinitionName( source, Flux::Parsing::parseName( source ) || source:error "expected name after 'class'" );
+	string _extends = lexer:skip( Keyword, "extends" ) && (Flux::Parsing::parseName( source ) || source:error "expected name after 'extends'");
+	string[] _implements = [];
+	Type[] container;
+
+	if lexer:skip( Symbol, "(" ) {
+		let t1 = Flux::Parsing::Type:parse( source );
+		if lexer:skip( Symbol, "," )
+			container = [t1, Flux::Parsing::Type:parse( source )];
+		else
+			container = [new Flux::Parsing::Typename( "int", t1.position ), t1];
+		if !lexer:skip( Symbol, ")" ) source:error "expected ')' to close container";
+	}
+	
+	if lexer:skip( Keyword, "implements" )
+		repeat {
+			_implements[#_implements + 1] = Flux::Parsing::parseName( source ) || source:error "expected interface name";
+		}
+		while lexer:skip( Symbol, "," );
+
+	if !lexer:skip( Symbol, "{" )
+		source:error "expected '{' for class body";
+
+	source:pushInterfaceContext();
+	source:pushBlock();
+
+	while !lexer:skip( Symbol, "}" ) {
+		if lexer:isEOF() source:error "expected '}' to close class body";
+
+		Flux::Parsing::Definition:parse( source );
+	}
+
+	source:popContext();
+
+	let definitions = source:popBlock();
+	let selftype = new Flux::Parsing::Typename( name, position );
+	let selfref = new Flux::Parsing::ReferenceExpression( name, position );
+
+	ClassMember[] members = [];
+
+	foreach definition in definitions {
+		members[#members + 1] = new Flux::Parsing::ClassMember( definition );
+	}
+
+	source:push( new Flux::Parsing::ClassDefinition( name, _extends, container, members, _implements, position ) );
+
+	foreach definition in definitions {
+		if definition.value && definition._type.type == Flux::Parsing::ASTNodeType.FunctionType
+			source:push( new Flux::Parsing::Definition(
+				definition._type, selftype, definition.name, definition.value, definition.isConst, definition.position ) );
+		else if definition.value
+			source:push( new Flux::Parsing::BinaryExpression( 
+				new Flux::Parsing::DotIndex( selfref, definition.name ),
+				new Flux::Parsing::Cast( definition.value, definition._type ),
+				"=", position ) );
+	}
+
+	return true;
 }
 
 string ClassDefinition:serialize()
-	= "nope";
+	= "class " `concat` self.name
+		`concat` (self._extends && " extends " `concat` self._extends || "")
+		`concat` (self.container && " (" `concat` self.container[1]:serialize() `concat` ", " `concat` self.container[2]:serialize() `concat` ")" || "")
+		`concat` (#self._implements > 0 && " implements " `concat` table.concat(self._implements, ", ") || "")
+		`concat` " {\n\t" `concat` (self.members `concattenate` "\n\t") `concat` "\n}";

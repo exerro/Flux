@@ -1,0 +1,18 @@
+
+namespace Flux::Parsing;
+
+class ClassMember {
+	string[] name;
+	Type type;
+	bool isConst;
+	Position position;
+	
+	ClassMember(Definition d) {
+		self.name = d.name;
+		self.type = d._type;
+		self.isConst = d.isConst;
+		self.position = d.position;
+	}
+
+	string serialize();
+}

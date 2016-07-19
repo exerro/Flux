@@ -2,7 +2,16 @@
 import flux;
 
 let source_code = '
-let a `nativeadd` b = a + b;
+class C extends P (string) implements float {
+	int x = 0, y = 1;
+	int f() = 0;
+	function int() f = 1;
+}
+
+int f() = 0;
+
+function int() f = function ->int()
+	return 0;
 ';
 
 void main() {

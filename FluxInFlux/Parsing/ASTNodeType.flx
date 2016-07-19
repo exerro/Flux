@@ -38,7 +38,8 @@ enum ASTNodeType {
 	ReturnStatement, BreakStatement, ContinueStatement;
 
 	// definitions
-	Definition, TemplateDefinition;
+	Definition;
+	TemplateDefinition, TemplateList;
 	ClassDefinition;
 	InterfaceDefinition;
 	EnumDefinition;

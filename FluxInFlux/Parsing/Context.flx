@@ -31,6 +31,6 @@ Context Context:specialiseInterface() {
 
 Context Context:specialiseNamespace(string name) {
 	self.isNamespace = true;
-	self.namespace_name = self.namespace_name && self.namespace_name `concat` name || name;
+	self.namespace_name = self.namespace_name && self.namespace_name `concat` "::" `concat` name || name;
 	return self;
 }

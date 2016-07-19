@@ -1,0 +1,7 @@
+
+namespace Flux::Parsing;
+
+TemplatedType ReferenceType:parse( Source source, Type t )
+	= lexer:skip( Symbol, "&" ) && new Flux::Parsing::TemplatedType( "Reference", [t], position )
+	where lexer = source.lexer
+	where position = lexer:get().position

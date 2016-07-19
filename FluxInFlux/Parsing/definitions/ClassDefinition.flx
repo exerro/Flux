@@ -7,6 +7,7 @@ bool ClassDefinition:parse(Source source) {
 
 	if !source.context.isNamespace || !lexer:skip( Keyword, "class" ) return false;
 	
+	string name = Flux::Parsing::resolveDefinitionName( source, Flux::Parsing::parseName( source ) || source:error "expected name after 'class'" );
 }
 
 string ClassDefinition:serialize()

@@ -3,6 +3,7 @@ import FunctionParameter;
 import EnumDefinition;
 import ClassDefinition;
 import InterfaceDefinition;
+import TemplateDefinition;
 
 namespace Flux::Parsing;
 

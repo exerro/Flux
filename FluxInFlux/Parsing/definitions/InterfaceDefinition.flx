@@ -7,7 +7,7 @@ bool InterfaceDefinition:parse(Source source) {
 
 	if !source.context.isNamespace || !lexer:skip( Keyword, "interface" ) return false;
 	
-	string name = Flux::Parsing::parseName( source ) || source:error "expected name after 'interface'";
+	string name = Flux::Parsing::resolveDefinitionName( source, Flux::Parsing::parseName( source ) || source:error "expected name after 'interface'" );
 	string[] _implements = [];
 	
 	if lexer:skip( Keyword, "implements" )

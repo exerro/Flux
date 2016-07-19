@@ -15,7 +15,7 @@ bool LetStatement:parse(Source source) {
 		Type cast1 = name1 && (lexer:skip( Symbol, "->" ) && Flux::Parsing::Type:parse( source ) || new Flux::Parsing::Typename( "auto", position ));
 		string backtick = lexer:skipValue( Backtick );
 		string name2 = backtick && Flux::Parsing::parseName( source ) || !name1 && source:error "expected name";
-		Type cast2 = name2 && (lexer:skip( Symbol, "->" ) && Flux::Parsing::Type:parse( source ) || new Flux::Parsing::Typename( "auto", lexer:get(-1).position ));
+		Type cast2 = name2 && (lexer:skip( Symbol, "->" ) && Flux::Parsing::Type:parse( source ) || new Flux::Parsing::Typename( "auto", lexer:peek(-1).position ));
 		FunctionParameter[] parameters;
 		Expression expr;
 
@@ -66,7 +66,7 @@ bool LetStatement:parse(Source source) {
 		source:push( new Flux::Parsing::Definition(
 			new Flux::Parsing::Typename( "auto", position ),
 			null,
-			name1,
+			Flux::Parsing::resolveDefinitionName( source, name1 ),
 			expr,
 			isConst,
 			position

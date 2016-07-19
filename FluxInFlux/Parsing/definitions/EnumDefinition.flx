@@ -7,7 +7,7 @@ bool EnumDefinition:parse(Source source) {
 
 	if !source.context.isNamespace || !lexer:skip( Keyword, "enum" ) return false;
 	
-	string name = Flux::Parsing::parseName( source ) || source:error "expected enum name after 'enum'";
+	string name = Flux::Parsing::resolveDefinitionName( source, Flux::Parsing::parseName( source ) || source:error "expected enum name after 'enum'" );
 	string[] members = [];
 
 	if !lexer:skip( Symbol, "{" ) source:error "expected '{' after enum name";
@@ -24,7 +24,8 @@ bool EnumDefinition:parse(Source source) {
 	let enum_ref = new Flux::Parsing::ReferenceExpression( name, position );
 
 	foreach member in members {
-		source:push( new Flux::Parsing::Definition( enum_type, null, member, new Flux::Parsing::DotIndex( enum_ref, member ), true, position ) );
+		let name = Flux::Parsing::resolveDefinitionName( source, member );
+		source:push( new Flux::Parsing::Definition( enum_type, null, name, new Flux::Parsing::DotIndex( enum_ref, member ), true, position ) );
 	}
 
 	return true;

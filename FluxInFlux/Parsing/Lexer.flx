@@ -80,13 +80,30 @@ Token Lexer:consumeString() {
 
 Token Lexer:consumeBacktick() {
 	let content = string__match( self.text, "`([^\n]-)`", self.position );
+	let len = #content;
 
 	if !content
 		self:error "missing end of '`'";
 
-	self.position += #content + 2;
+	bool okay = content:find "^[%w_:]+$" && true || false;
 
-	return Token( "Backtick", content, self:getPosition( #content + 2 ) );
+	if !okay foreach k, v in Flux::Parsing::language::operators
+		okay = okay || k == content;
+
+	if !okay && content:find "^native %w+$" {
+		string native_operator = string__match( content, "^native (%w+)$" );
+		if !Flux::Parsing::language::valid_native_operators[native_operator]
+			self:error( "invalid operator '" `concat` native_operator `concat` "'" );
+		okay = true;
+		content = content:gsub( " ", "" );
+	}
+
+	if !okay
+		self:error "invalid content of backticks";
+
+	self.position += len + 2;
+
+	return Token( "Backtick", content, self:getPosition( len + 2 ) );
 }
 
 Token Lexer:consumeWord() {

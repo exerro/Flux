@@ -6,6 +6,7 @@ int {string} binary_operators = [];
 bool{string} unary_operators = [];
 bool{string} operators = [];
 bool{string} symbols = [];
+bool{string} valid_native_operators = [];
 
 string keyword_str, operator_str, symbol_str;
 

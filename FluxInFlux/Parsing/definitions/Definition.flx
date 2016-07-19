@@ -5,8 +5,16 @@ bool Definition:parse(Source source) {
 	let lexer = source.lexer;
 	let start = lexer:mark();
 	let isClassDef = source.context.isInterface || source.context.isClass;
-	let isConst = lexer:skip( Keyword, "const" );
 
+	TemplateList _template;
+
+	if lexer:skip( Keyword, "template" ) {
+		if !lexer:skip( Symbol, "<" ) source:error "expected '<' after 'template'";
+		_template = Flux::Parsing::TemplateList:parse( source );
+		if !lexer:skip( Symbol, ">" ) source:error "expected '>' after template list";
+	}
+
+	bool isConst = lexer:skip( Keyword, "const" );
 	Type _type;
 	string name, method;
 
@@ -36,7 +44,11 @@ bool Definition:parse(Source source) {
 	// if a type wasn't given or there isn't a name next, it's not a definition
 	if !_type || (!name && !lexer:test(Identifier) && !lexer:test(Keyword, "operator")) {
 		lexer:jump( start );
-		if isConst {
+		if _template {
+			lexer:next();
+			source:error "expected definition after 'template'";
+		}
+		else if isConst {
 			lexer:next();
 			source:error "expected definition after 'const'";
 		}
@@ -137,8 +149,12 @@ bool Definition:parse(Source source) {
 			let body = !lexer:skip( Symbol, ";" ) && Flux::Parsing::parseFunctionBody( source );
 			let value = body && new Flux::Parsing::FunctionExpression( parameters, _type, body, start );
 			let function_type = new Flux::Parsing::FunctionType( _type, parameter_types, parameter_nullables );
-			
-			source:push( new Flux::Parsing::Definition( function_type, _class, name, value, isConst, start ) );
+			let def_name = method && name || Flux::Parsing::resolveDefinitionName( source, name );
+
+			if _template
+				source:push( new Flux::Parsing::TemplateDefinition( function_type, _class, def_name, value, isConst, _template, start ) );
+			else
+				source:push( new Flux::Parsing::Definition( function_type, _class, def_name, value, isConst, start ) );
 
 			// create the overloads for the default parameters, each one calling the 'parent' function
 			if defaults_started {
@@ -161,17 +177,23 @@ bool Definition:parse(Source source) {
 					// loop this to include *all* the default parameters past #defaults-i+1?
 					call_parameters[#call_parameters + 1] = defaults[#defaults - i + 1];
 
-					let function_ref = new Flux::Parsing::ReferenceExpression( name, start ); // reference to main function
+					let function_ref = new Flux::Parsing::ReferenceExpression( def_name, start ); // reference to main function
 					let function_call = new Flux::Parsing::FunctionCall( function_ref, call_parameters ); // calling the main function
 					let body = new Flux::Parsing::Block( [new Flux::Parsing::ReturnStatement( function_call )], start ); // block containing return of above
 					let function_type = new Flux::Parsing::FunctionType( _type, partial_parameter_types, partial_parameter_nullables ); // type of overload
 					let value = new Flux::Parsing::FunctionExpression( partial_parameters, _type, body, start ); // the function value containing the call to main function
 
-					source:push( new Flux::Parsing::Definition( function_type, _class, name, value, isConst, start ) ); // push the overload
+					if _template
+						source:push( new Flux::Parsing::TemplateDefinition( function_type, _class, def_name, value, isConst, _template, start ) ); // push the overload
+					else
+						source:push( new Flux::Parsing::Definition( function_type, _class, def_name, value, isConst, start ) ); // push the overload
 				}
 			}
 
 			return true;
+		}
+		else if _template {
+			source:error "expected '(' for function parameters after template";
 		}
 		else if name:find "[^%w_:]"
 			source:error "expected '(' for function parameters after operator name";
@@ -181,7 +203,7 @@ bool Definition:parse(Source source) {
 			source:error "expected '(' for function parameters after method name";
 		else {
 			value = lexer:skip(Symbol, "=") && (Flux::Parsing::Expression:parse( source ) || source:error "expected definition after '='");
-			source:push( new Flux::Parsing::Definition( _type, null, name, value, isConst, start ) );
+			source:push( new Flux::Parsing::Definition( _type, null, Flux::Parsing::resolveDefinitionName( source, name ), value, isConst, start ) );
 		}
 
 		name = null;

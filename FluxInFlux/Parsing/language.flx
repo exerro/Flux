@@ -2,6 +2,37 @@
 namespace Flux::Parsing::language;
 
 let _ = (function() {
+	Flux::Parsing::language::valid_native_operators = {
+		["and"] = true, ["or"] = true;
+
+		["andeq"] = true, ["oreq"] = true;
+
+		["add"] = true, ["sub"] = true;
+		["mul"] = true, ["div"] = true;
+		["mod"] = true, ["pow"] = true;
+
+		["addeq"] = true, ["subeq"] = true;
+		["muleq"] = true, ["diveq"] = true;
+		["modeq"] = true, ["poweq"] = true;
+
+		["blshift"] = true, ["brshift"] = true;
+		["band"] = true, ["bor"] = true, ["bxor"] = true;
+
+		["blshifteq"] = true, ["brshifteq"] = true;
+		["bandeq"] = true, ["boreq"] = true, ["bxoreq"] = true;
+
+		["gt"] = true, ["gte"] = true;
+		["lt"] = true, ["lte"] = true;
+		["eq"] = true, ["neq"] = true;
+
+		["unm"] = true;
+		["bnot"] = true;
+		["len"] = true;
+		["not"] = true;
+
+		["concat"] = true;
+	};
+
 	Flux::Parsing::language::keyword_str = "
 
 	import
@@ -49,7 +80,7 @@ let _ = (function() {
 	Flux::Parsing::language::operator_str = "
 	++ -- # ! ~
 
-	= += -= *= /= %= **= &= |= ^= <<=
+	= += -= *= /= %= **= &= |= ^= <<= &&= ||=
 
 	||
 	&&

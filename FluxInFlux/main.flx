@@ -2,67 +2,7 @@
 import flux;
 
 let source_code = '
-
-template<T1, T2>
-T1 operator &&(null T2 a, null T1 b) = (a `LuaOperator and` b) `LuaOperator or` null;
-
-template<T>
-T operator ||(null T a, b) = (a `LuaOperator or` b);
-
-template<T [int, float]>
-T operator +(T a, b) = a `LuaOperator+` b;
-byte operator +(byte a, b) = (a `LuaOperator+` b) % 256;
-
-template<T [int, float, string]>
-string operator +(T a, string b) = a `LuaOperator..` b;
-
-template<T [int, float, string]>
-string operator +(string a, T b) = a `LuaOperator..` b;
-
-template<T [int, float]>
-T operator -(T a, b) = a `LuaOperator-` b;
-byte operator -(byte a, b) = (a `LuaOperator-` b) `LuaOperator %` 256;
-
-template<T [int, float]>
-T operator *(T a, b) = a `LuaOperator*` b;
-int operator *(byte a, b) = (a `LuaOperator*` b) `LuaOperator %` 256;
-
-float operator /(float a, b) = a `LuaOperator/` b;
-int operator /(int a, b) = math::floor( a `LuaOperator/` b );
-byte operator /(byte a, b) = math::floor( a `LuaOperator/` b );
-
-template<T [int, float]>
-T operator %(T a, b) = a `LuaOperator%` b;
-byte operator %(byte a, b) = a `LuaOperator%` b;
-
-template<T [int, float]>
-T operator **(T a, b) = a `LuaOperator^` b;
-int operator **(byte a, b) = (a `LuaOperator^` b) `LuaOperator %` 256;
-
-template<T1, T2>
-bool operator ==(null T1 a, null T2 b) = false;
-
-template<T>
-bool operator ==(null T a, b) = a `LuaOperator==` b;
-
-template<T1, T2>
-bool operator !=(null T1 a, null T2 b) = true;
-
-template<T>
-bool operator !=(null T a, b) = a `LuaOperator~=` b;
-
-template<T [int, float]>
-bool operator >=(null T a, b) = a `LuaOperator>=` b;
-
-template<T [int, float]>
-bool operator >(null T a, b) = a `LuaOperator>` b;
-
-template<T [int, float]>
-bool operator <=(null T a, b) = a `LuaOperator<=` b;
-
-template<T [int, float]>
-bool operator <(null T a, b) = a `LuaOperator<` b;
-
+let a `nativeadd` b = a + b;
 ';
 
 void main() {

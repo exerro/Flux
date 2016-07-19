@@ -15,7 +15,15 @@ bool Definition:parse(Source source) {
 		if !lexer:skip( Symbol, ">" ) source:error "expected '>' after template list";
 	}
 
-	bool isConst = lexer:skip( Keyword, "const" );
+	bool isPublic = (source.context.isInterface || source.context.isClass) && source.context.isPublic;
+
+	if isClassDef && lexer:skip( Keyword, "public" )
+		isPublic = true;
+	else if isClassDef && lexer:skip( Keyword, "private" )
+		isPublic = false;
+
+	bool isStatic = source.context.isClass && lexer:skip( Keyword, "static" ) && true || false;
+	bool isConst = lexer:skip( Keyword, "const" ) && true || false;
 	Type _type;
 	string name, method;
 	int _mark = lexer:mark();
@@ -194,9 +202,9 @@ bool Definition:parse(Source source) {
 			let def_name = method && name || Flux::Parsing::resolveDefinitionName( source, name );
 
 			if _template
-				source:push( new Flux::Parsing::TemplateDefinition( function_type, _class, def_name, value, isConst, _template, start ) );
+				source:push( new Flux::Parsing::TemplateDefinition( function_type, _class, def_name, value, isConst, isPublic, isStatic, _template, start ) );
 			else
-				source:push( new Flux::Parsing::Definition( function_type, _class, def_name, value, isConst, start ) );
+				source:push( new Flux::Parsing::Definition( function_type, _class, def_name, value, isConst, isPublic, isStatic, start ) );
 
 			// create the overloads for the default parameters, each one calling the 'parent' function
 			if defaults_started {
@@ -226,9 +234,9 @@ bool Definition:parse(Source source) {
 					let value = new Flux::Parsing::FunctionExpression( partial_parameters, _type, body, start ); // the function value containing the call to main function
 
 					if _template
-						source:push( new Flux::Parsing::TemplateDefinition( function_type, _class, def_name, value, isConst, _template, start ) ); // push the overload
+						source:push( new Flux::Parsing::TemplateDefinition( function_type, _class, def_name, value, isConst, isPublic, isStatic, _template, start ) ); // push the overload
 					else
-						source:push( new Flux::Parsing::Definition( function_type, _class, def_name, value, isConst, start ) ); // push the overload
+						source:push( new Flux::Parsing::Definition( function_type, _class, def_name, value, isConst, isPublic, isStatic, start ) ); // push the overload
 				}
 			}
 
@@ -248,7 +256,7 @@ bool Definition:parse(Source source) {
 			source:error "expected '(' for function parameters after void return type";
 		else {
 			value = lexer:skip(Symbol, "=") && (Flux::Parsing::Expression:parse( source ) || source:error "expected definition after '='");
-			source:push( new Flux::Parsing::Definition( _type, null, Flux::Parsing::resolveDefinitionName( source, name ), value, isConst, start ) );
+			source:push( new Flux::Parsing::Definition( _type, null, Flux::Parsing::resolveDefinitionName( source, name ), value, isConst, isPublic, isStatic, start ) );
 		}
 
 		name = null;

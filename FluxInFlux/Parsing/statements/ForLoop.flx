@@ -38,8 +38,8 @@ ASTNode ForLoop:parse(Source source) {
 	block[#block + 1] = increment;
 
 	let doblock = new Flux::Parsing::Block( [
-		new Flux::Parsing::Definition( _type, null, name, value, false ),
-		new Flux::Parsing::WhileLoop(condition, block)
+		new Flux::Parsing::Definition( _type, null, name, value, false, false, false ),
+		new Flux::Parsing::WhileLoop( condition, block )
 	], position );
 
 	return new Flux::Parsing::DoStatement( doblock, position );

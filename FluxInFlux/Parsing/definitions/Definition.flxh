@@ -13,14 +13,16 @@ class Definition extends ASTNode {
 	Type _class;
 	string name;
 	Expression value;
-	bool isConst;
+	bool isConst, isPublic, isStatic;
 	
-	Definition(Type _type, null Type _class, string name, null Expression value, bool isConst, Position position) {
+	Definition(Type _type, null Type _class, string name, null Expression value, bool isConst, isPublic, isStatic, Position position) {
 		self._type = _type;
 		self._class = _class;
 		self.name = name;
 		self.value = value;
 		self.isConst = isConst;
+		self.isPublic = isPublic;
+		self.isStatic = isStatic;
 		self.position = position;
 	}
 

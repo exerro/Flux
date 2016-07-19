@@ -100,7 +100,7 @@ Block parseFunctionBody( Source source ) {
 			else
 				source:error "expected '='";
 
-			statements[#statements + 1] = new Flux::Parsing::Definition( _type, null, name, value, true, position );
+			statements[#statements + 1] = new Flux::Parsing::Definition( _type, null, name, value, true, false, false, position );
 		}
 
 		statements[#statements + 1] = new Flux::Parsing::ReturnStatement( expr, position );

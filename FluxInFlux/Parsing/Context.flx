@@ -5,6 +5,10 @@ string Context:resolveDefinitionName(string name)
 	= namespace_name && namespace_name `concat` "::" `concat` name || name
 	where namespace_name = self.isNamespace && self.namespace_name;
 
+void Context:setPublic( bool isPublic ) {
+	self.isPublic = isPublic;
+}
+
 Context Context:specialiseLoop() {
 	self.isLoop = true;
 	return self;

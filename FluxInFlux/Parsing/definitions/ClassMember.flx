@@ -2,4 +2,8 @@
 namespace Flux::Parsing;
 
 string ClassMember:serialize()
-	= (self.isConst && "const " || "") `concat` self.type:serialize() `concat` " " `concat` self.name `concat` ";";
+	= (self.isPublic && "public " || "private ")
+		`concat` (self.isStatic && "static " || "")
+		`concat` (self.isConst && "const " || "")
+		`concat` self.type:serialize()
+		`concat` " " `concat` self.name `concat` ";";

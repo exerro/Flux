@@ -9,15 +9,17 @@ class TemplateDefinition extends ASTNode {
 	Type _class;
 	string name;
 	Expression value;
-	bool isConst;
+	bool isConst, isPublic, isStatic;
 	TemplateList _template;
 	
-	TemplateDefinition(Type _type, null Type _class, string name, null Expression value, bool isConst, TemplateList _template, Position position) {
+	TemplateDefinition(Type _type, null Type _class, string name, null Expression value, bool isConst, isPublic, isStatic, TemplateList _template, Position position) {
 		self._type = _type;
 		self._class = _class;
 		self.name = name;
 		self.value = value;
 		self.isConst = isConst;
+		self.isPublic = isPublic;
+		self.isStatic = isStatic;
 		self._template = _template;
 		self.position = position;
 	}

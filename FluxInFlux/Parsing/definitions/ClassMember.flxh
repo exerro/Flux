@@ -6,12 +6,15 @@ class ClassMember {
 	Type type;
 	bool isConst;
 	Position position;
+	bool isStatic, isPublic;
 	
 	ClassMember(Definition d) {
 		self.name = d.name;
 		self.type = d._type;
 		self.isConst = d.isConst;
 		self.position = d.position;
+		self.isPublic = d.isPublic;
+		self.isStatic = d.isStatic;
 	}
 
 	string serialize();

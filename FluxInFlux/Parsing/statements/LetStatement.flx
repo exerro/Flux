@@ -72,7 +72,7 @@ bool LetStatement:parse(Source source) {
 			null,
 			Flux::Parsing::resolveDefinitionName( source, name1 ),
 			expr,
-			isConst,
+			isConst, false, false,
 			position
 		) );
 

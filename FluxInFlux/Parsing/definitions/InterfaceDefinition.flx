@@ -25,7 +25,12 @@ bool InterfaceDefinition:parse(Source source) {
 	while !lexer:skip( Symbol, "}" ) {
 		if lexer:isEOF() source:error "expected '}' to close interface body";
 
-		Flux::Parsing::Definition:parse( source ) || source:error "expected definition";
+		if (lexer:test( Keyword, "public" ) || lexer:test( Keyword, "private" )) && lexer:test( Symbol, ":", 1 ) {
+			source.context:setPublic( lexer:skip( Keyword, "public" ) && true || lexer:skip( Keyword, "private" ) && false );
+			lexer:next();
+		}
+		else
+			Flux::Parsing::Definition:parse( source ) || source:error "expected definition";
 	}
 
 	source:popContext();
@@ -43,14 +48,15 @@ bool InterfaceDefinition:parse(Source source) {
 	source:push( new Flux::Parsing::InterfaceDefinition( name, members, _implements, position ) );
 
 	foreach definition in definitions {
-		if definition.value && definition._type.type == Flux::Parsing::ASTNodeType.FunctionType
-			source:push( new Flux::Parsing::Definition(
-				definition._type, selftype, definition.name, definition.value, definition.isConst, definition.position ) );
-		else if definition.value
-			source:push( new Flux::Parsing::BinaryExpression( 
-				new Flux::Parsing::DotIndex( selfref, definition.name ),
-				new Flux::Parsing::Cast( definition.value, definition._type ),
-				"=", position ) );
+		if definition.type == Flux::Parsing::ASTNodeType.TemplateDefinition {
+			if definition.value
+				source:push( new Flux::Parsing::TemplateDefinition(
+					definition._type, selftype, definition.name, definition.value, false, false, false, definition._template, definition.position ) );
+		}
+		else
+			if definition.value
+				source:push( new Flux::Parsing::Definition(
+					definition._type, selftype, definition.name, definition.value, false, false, false, definition.position ) );
 	}
 
 	return true;

@@ -7,7 +7,8 @@ class Context {
 	     isClass = false,
 	     isInterface = false,
 	     isNamespace = false,
-	     isVarargFunction = false;
+	     isVarargFunction = false,
+		 isPublic = true;
 
 	string class_name;
 	string namespace_name;
@@ -21,9 +22,12 @@ class Context {
 			self.isNamespace = false;
 			self.class_name = parent.class_name;
 			self.namespace_name = parent.namespace_name;
+			self.isPublic = parent.isPublic;
 	}
 
 	string resolveDefinitionName(string name);
+
+	void setPublic(bool isPublic);
 
 	Context specialiseLoop();
 	Context specialiseFunction(bool isVararg);

@@ -1,0 +1,19 @@
+
+namespace Flux::Parsing;
+
+UsingStatement UsingStatement:parse(Source source) {
+	let lexer = source.lexer;
+	let position = lexer:get().position;
+
+	if !source.context.isNamespace || !lexer:skip( Keyword, "using" ) return;
+
+	string name = Flux::Parsing::parseName( source ) || source:error "expected name after 'namespace'";
+	
+	if !lexer:skip( Symbol, ";" )
+		source:error "expected ';' after namespace name";
+
+	return new Flux::Parsing::UsingStatement( name, position );
+}
+
+string UsingStatement:serialize()
+	= "using " `concat` self.name `concat` ";";

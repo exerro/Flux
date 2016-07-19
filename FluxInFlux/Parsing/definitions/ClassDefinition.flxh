@@ -1,0 +1,12 @@
+
+namespace Flux::Parsing;
+
+class ClassDefinition extends ASTNode {
+	ASTNodeType type = Flux::Parsing::ASTNodeType.ClassDefinition;
+	
+
+	ClassDefinition(Position position) {
+		
+		self.position = position;
+	}
+}

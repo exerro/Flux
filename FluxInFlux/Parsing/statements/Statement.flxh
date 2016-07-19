@@ -14,6 +14,9 @@ import BreakStatement;
 import ContinueStatement;
 import LetStatement;
 
+import NamespaceStatement;
+import UsingStatement;
+
 namespace Flux::Parsing;
 
 class Statement extends Flux::Parsing::ASTNode {

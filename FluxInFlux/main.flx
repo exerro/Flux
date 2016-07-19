@@ -2,13 +2,30 @@
 import flux;
 
 let source_code = '
-int a:b() = 1;
+namespace ABC;
+
+int x = 0;
+int y = 2;
+
+using x::y;
+
+enum X {
+	a, b, c;
+	d, e, f;
+	x, y, z;
+}
+
+void f() {
+	enum T{a}
+}
 ';
 
 void main() {
 	new Flux::Parsing::Source source();
 	new Flux::Parsing::Lexer lexer( source_code );
 	new Flux::Parsing::Context context();
+
+	context.isNamespace = true;
 
 	source.context = context;
 	source.contexts[1] = context;

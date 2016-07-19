@@ -1,5 +1,8 @@
 
 import FunctionParameter;
+import EnumDefinition;
+import ClassDefinition;
+import InterfaceDefinition;
 
 namespace Flux::Parsing;
 

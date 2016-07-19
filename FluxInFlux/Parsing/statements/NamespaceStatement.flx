@@ -1,0 +1,34 @@
+
+namespace Flux::Parsing;
+
+NamespaceStatement NamespaceStatement:parse(Source source) {
+	let lexer = source.lexer;
+	let position = lexer:get().position;
+
+	if !source.context.isNamespace || !lexer:skip( Keyword, "namespace" ) return;
+
+	string name = Flux::Parsing::parseName( source ) || source:error "expected name after 'namespace'";
+	
+	source:pushNamespaceContext( name );
+	source:pushBlock();
+
+	if lexer:skip( Symbol, "{" ) {
+		while !lexer:skip( Symbol, "}" ) {
+			if lexer:isEOF() source:error "expected '}' to block";
+
+			Flux::Parsing::Statement:parse(source);
+		}
+	}
+	else if lexer:skip( Symbol, ";" )
+		while !lexer:isEOF()
+			Flux::Parsing::Statement:parse(source);
+	else
+		source:error "expected '{' after namespace name";
+
+	let statements = source:popBlock();
+
+	return new Flux::Parsing::NamespaceStatement( name, new Flux::Parsing::Block( statements, position ), position );
+}
+
+string NamespaceStatement:serialize()
+	= "namespace " `concat` self.name `concat` " " `concat` self.block:serialize();

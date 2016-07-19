@@ -1,0 +1,25 @@
+
+namespace Flux::Parsing;
+
+string EnumDefinition:parse(Source source) {
+	let lexer = source.lexer;
+	let position = lexer:get().position;
+
+	if !source.context.isNamespace || !lexer:skip( Keyword, "enum" ) return;
+	
+	string name = Flux::Parsing::parseName( source ) || source:error "expected enum name after 'enum'";
+	string[] members = [];
+
+	if !lexer:skip( Symbol, "{" ) source:error "expected '{' after enum name";
+
+	repeat
+		members[#members + 1] = lexer:skipValue( Identifier ) || source:error "expected name in enum body";
+	while (lexer:skip( Symbol, "," ) || lexer:skip( Symbol, ";" ) && !lexer:test( Symbol, "}" ));
+
+	if !lexer:skip( Symbol, "}" ) source:error "expected '}' after enum body";
+
+	return new Flux::Parsing::EnumDefinition( name, members, position );
+}
+
+string EnumDefinition:serialize()
+	= "enum " `concat` self.name `concat` " {\n\t" `concat` table.concat( self.members, ";\n\t" ) `concat` ";\n}";

@@ -1,0 +1,9 @@
+
+namespace Flux::Parsing;
+
+string InterfaceDefinition:parse(Source source) {
+	
+}
+
+string InterfaceDefinition:serialize()
+	= "nope";

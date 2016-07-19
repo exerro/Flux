@@ -46,11 +46,12 @@ enum ASTNodeType {
 	// root statements
 	NamespaceStatement;
 	UsingStatement;
-	LuaSource;
+	LuaSource; // might not need this?
 	
 	// other
 	Block;
 	Typename;
 	FunctionType;
+	TemplatedType;
 	FunctionParameter;
 }

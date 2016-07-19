@@ -20,7 +20,12 @@ void Statement:parse(Source source) {
 		|| Flux::Parsing::ReturnStatement:parse( source )
 		|| Flux::Parsing::BreakStatement:parse( source )
 		|| Flux::Parsing::ContinueStatement:parse( source )
-		|| source:error "unexpected symbol";
+		|| Flux::Parsing::NamespaceStatement:parse( source )
+		|| Flux::Parsing::UsingStatement:parse( source )
+		|| Flux::Parsing::EnumDefinition:parse( source )
+		|| Flux::Parsing::ClassDefinition:parse( source )
+		|| Flux::Parsing::InterfaceDefinition:parse( source )
+		|| source:error "unexpected token";
 
 	source:push( statement );
 }

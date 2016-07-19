@@ -1,8 +1,0 @@
-
-Parsing: bhdksajd
-
-
-Type checking and optimisation:
-
-	
-	

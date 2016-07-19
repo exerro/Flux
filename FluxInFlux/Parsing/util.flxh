@@ -1,10 +1,14 @@
 
 namespace Flux::Parsing;
 
+char[] letters = [];
+
 bool parseSemicolon(Lexer lexer);
 
 string parseName(Source source);
 string parseMethodName(Source source);
+
+string intToName(int n);
 
 Block parseFunctionBody(Source source);
 

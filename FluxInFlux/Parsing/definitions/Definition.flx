@@ -7,17 +7,26 @@ bool Definition:parse(Source source) {
 	let isConst = lexer:skip( Keyword, "const" );
 
 	Type _type;
+	string name, method;
 
 	try {
 		_type = Flux::Parsing::Type:parse( source );
 	}
 	catch ParserException e {}
 
+	let _mark = lexer:mark();
+
+	if _type && _type.type == Flux::Parsing::ASTNodeType.Typename && lexer:skip( Symbol, ":" ) && lexer:skip( Identifier, _type.name:gsub( ".+::", "" ) ) {
+		name = _type.name;
+		method = name:gsub( ".+::", "" );
+		_type = new Flux::Parsing::Typename( "void", _type.position );
+	}
+	else lexer:jump( _mark );
+
 	if !_type && lexer:test(Keyword, "void")
 		_type = new Flux::Parsing::Typename("void", lexer:next().value);
 
-
-	if !_type || !lexer:test(Identifier) && !lexer:test(Keyword, "operator") {
+	if !_type || (!name && !lexer:test(Identifier) && !lexer:test(Keyword, "operator")) {
 		lexer:jump( start );
 		if isConst {
 			lexer:next();
@@ -28,39 +37,79 @@ bool Definition:parse(Source source) {
 
 	repeat {
 		Position start;
-		string name;
-		string method;
 		Expression value;
 
 		start = lexer:get().position;
-		name = Flux::Parsing::parseMethodName(source);
+		name = name || Flux::Parsing::parseMethodName(source);
 		
 		if name:find "[^%w_]" && lexer:test( Symbol, ":" )
 			source:error "unexpected ':' after operator name";
 
-		method = lexer:skip( Symbol, ":" ) && Flux::Parsing::parseMethodName(source);
+		method = method || lexer:skip( Symbol, ":" ) && Flux::Parsing::parseMethodName(source);
 
 		if lexer:skip( Symbol, "(" ) { // function definition
 			FunctionParameter[] parameters = [];
 			Type[] parameter_types = [];
 			bool[] parameter_nullables = [];
+			Expression[] defaults = [];
 			FunctionParameter parameter;
 			Type _class;
+			bool parameterNamesGiven = true;
+			bool defaults_started = false;
 
 			if !lexer:skip( Symbol, ")" ) {
-				repeat {
-					parameter = Flux::Parsing::FunctionParameter:parse(source, parameter);
-					parameters[#parameters + 1] = parameter;
-					parameter_types[#parameter_types + 1] = parameter._type;
-					parameter_nullables[#parameter_nullables + 1] = parameter.nullable;
+				let _mark = lexer:mark();
+				if !method && (lexer:skip( Keyword, "void" ) && true || true) && (lexer:skip( Keyword, "auto" ) || lexer:skip( Identifier )) && (lexer:skip( Symbol, "=" ) || lexer:skip( Symbol, "," ) || lexer:skip( Symbol, ")" )) {
+					lexer:jump( _mark );
+					parameterNamesGiven = false;
+					int n = 0;
+
+					repeat {
+						let pos = lexer:get().position;
+						let nullable = lexer:skip( Keyword, "null" ) && true || false;
+						let type = Flux::Parsing::Type:parse( source );
+						let name = Flux::Parsing::intToName( n++ );
+						let default_value = lexer:skip( Symbol, "=" ) && (Flux::Parsing::Expression:parse(source) || source:error "expected expression after '='");
+
+						if default_value {
+							defaults_started = true;
+							defaults[#defaults + 1] = default_value;
+						}
+						else if defaults_started
+							source:error "expected '=' for default value";
+
+						parameters[#parameters + 1] = new Flux::Parsing::FunctionParameter(type, name, nullable, pos);
+						parameter_types[#parameter_types + 1] = type;
+						parameter_nullables[#parameter_nullables + 1] = nullable;
+					}
+					while lexer:skip( Symbol, "," );
 				}
-				while lexer:skip( Symbol, "," );
+				else {
+					lexer:jump( _mark );
+					repeat {
+						parameter = Flux::Parsing::FunctionParameter:parse(source, parameter);
+						parameters[#parameters + 1] = parameter;
+						parameter_types[#parameter_types + 1] = parameter._type;
+						parameter_nullables[#parameter_nullables + 1] = parameter.nullable;
+
+						let default_value = lexer:skip( Symbol, "=" ) && (Flux::Parsing::Expression:parse(source) || source:error "expected expression after '='");
+
+						if default_value {
+							defaults_started = true;
+							defaults[#defaults + 1] = default_value;
+						}
+						else if defaults_started
+							source:error "expected '=' for default value";
+					}
+					while lexer:skip( Symbol, "," );
+				}
 
 				if !lexer:skip( Symbol, ")" )
 					source:error "expected ')' to close function parameters";
 			}
 
 			if method && lexer:test( Symbol, ";" ) source:error "expected function body after method";
+			if !parameterNamesGiven && !lexer:test( Symbol, ";" ) source:error "expected ';' after partial function declaration";
 
 			let body = !lexer:skip( Symbol, ";" ) && Flux::Parsing::parseFunctionBody( source );
 			let value = body && new Flux::Parsing::FunctionExpression( parameters, _type, body, start );
@@ -72,6 +121,35 @@ bool Definition:parse(Source source) {
 
 			let function_type = new Flux::Parsing::FunctionType(_type, parameter_types, parameter_nullables);
 			source:push( new Flux::Parsing::Definition( function_type, _class, name, value, isConst, start ) );
+
+			if defaults_started {
+				foreach i in 1 .. #defaults {
+					Type function_type;
+					Expression value;
+
+					Type[] partial_parameter_types = [];
+					bool[] partial_parameter_nullables = [];
+					FunctionParameter[] partial_parameters = [];
+					Expression[] call_parameters = [];
+
+					foreach n in 1 .. #parameter_types - i {
+						partial_parameter_types[n] = parameter_types[n];
+						partial_parameter_nullables[n] = parameter_nullables[n];
+						partial_parameters[n] = parameters[n];
+						call_parameters[n] = new Flux::Parsing::ReferenceExpression( parameters[n].name, parameters[n].position );
+					}
+
+					call_parameters[#call_parameters + 1] = defaults[#defaults - i + 1];
+
+					let function_ref = new Flux::Parsing::ReferenceExpression( name, start );
+					let function_call = new Flux::Parsing::FunctionCall( function_ref, call_parameters );
+					let body = new Flux::Parsing::Block( [new Flux::Parsing::ReturnStatement( function_call )], start );
+					let function_type = new Flux::Parsing::FunctionType( _type, partial_parameter_types, partial_parameter_nullables );
+					let value = new Flux::Parsing::FunctionExpression( partial_parameters, _type, body, start );
+
+					source:push( new Flux::Parsing::Definition( function_type, _class, name, value, isConst, start ) );
+				}
+			}
 
 			return true;
 		}
@@ -85,6 +163,9 @@ bool Definition:parse(Source source) {
 			value = lexer:skip(Symbol, "=") && (Flux::Parsing::Expression:parse( source ) || source:error "expected definition after '='");
 			source:push( new Flux::Parsing::Definition( _type, null, name, value, isConst, start ) );
 		}
+
+		name = null;
+		method = null;
 	}
 	while lexer:skip( Symbol, "," );
 

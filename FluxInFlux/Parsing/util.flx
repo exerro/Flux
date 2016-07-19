@@ -59,6 +59,17 @@ string parseMethodName(Source source) {
 	return lexer:skipValue(Identifier);
 }
 
+string intToName( int n ) {
+	string s = Flux::Parsing::letters[n % #Flux::Parsing::letters];
+
+	while n > #Flux::Parsing::letters {
+		n = math.floor( n / #Flux::Parsing::letters ) - 1;
+		s = Flux::Parsing::letters[n % #Flux::Parsing::letters] .. s;
+	}
+
+	return s;
+}
+
 Block parseFunctionBody( Source source ) {
 	let lexer = source.lexer;
 	let position = lexer:get().position;
@@ -116,3 +127,12 @@ string serializeExpression(Expression e)
 			 => e:serialize();
 		default => "(" `concat` e:serialize() `concat` ")";
 	};
+
+let _ = (function() {
+	int n = 0;
+	foreach i in string.byte "a" .. string.byte "z"
+		Flux::Parsing::letters[n++] = string.char( i );
+
+	foreach i in string.byte "A" .. string.byte "Z"
+		Flux::Parsing::letters[n++] = string.char( i );
+})();

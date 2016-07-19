@@ -2,22 +2,8 @@
 import flux;
 
 let source_code = '
-namespace ABC;
-
-int x = 0;
-int y = 2;
-
-using x::y;
-
-enum X {
-	a, b, c;
-	d, e, f;
-	x, y, z;
-}
-
-void f() {
-	enum T{a}
-}
+int f(int = 0, float = 1.0);
+int f(int x, float y) = x + y -> int;
 ';
 
 void main() {
@@ -36,5 +22,5 @@ void main() {
 	}
 
 	foreach expr in source.statements
-		print( expr:serialize() );
+		print( expr:serialize() `concat` "\n" );
 }

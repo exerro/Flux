@@ -80,7 +80,8 @@ bool LetStatement:parse(Source source) {
 	}
 	while lexer:skip( Symbol, "," );
 
-	if !lexer:skip( Symbol, ";" ) source:error "expected ';' after let statement";
+	if !Flux::Parsing::parseSemicolon(lexer)
+		source:error "expected ';' after let statement";
 
 	return true;
 }

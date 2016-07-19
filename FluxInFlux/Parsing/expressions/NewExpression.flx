@@ -18,14 +18,11 @@ NewExpression NewExpression:parse( Source source ) {
 
 			if !lexer:skip( Symbol, ")" ) source:error "expected ')' to close function call";
 		}
-
-		return new Flux::Parsing::NewExpression( _type, parameters, position );
 	}
-	else if lexer:test( String ) {
+	else if lexer:test( String )
 		parameters[1] = new Flux::Parsing::ConstantExpression( Flux::Parsing::ASTNodeType.StringConstant, lexer:next().value, position );
 
-		return new Flux::Parsing::NewExpression( _type, parameters, position );
-	}
+	return new Flux::Parsing::NewExpression( _type, [], position );
 }
 
 string NewExpression:serialize()

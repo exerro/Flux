@@ -10,7 +10,8 @@ ReturnStatement ReturnStatement:parse(Source source) {
 
 	let expr = Flux::Parsing::Expression:parse( source ) || new Flux::Parsing::ConstantExpression( Flux::Parsing::ASTNodeType.NullConstant, "null", position );
 
-	if !lexer:skip( Symbol, ";" ) source:error "expected ';' after return";
+	if !Flux::Parsing::parseSemicolon(lexer)
+		source:error "expected ';' after return";
 
 	return new Flux::Parsing::ReturnStatement( expr, position );
 }

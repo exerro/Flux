@@ -21,11 +21,11 @@ ASTNode ForLoop:parse(Source source) {
 		(Flux::Parsing::Expression:parse( source ) || source:error "expected expression after '='")
 		|| source:error "expected '='";
 
-	if !lexer:skip( Symbol, ";" ) && !lexer:skip( Symbol, "," ) source:error "expected ';'";
+	if !Flux::Parsing::parseSemicolon(lexer) && !lexer:skip( Symbol, "," ) source:error "expected ';'";
 	
 	condition = Flux::Parsing::Expression:parse( source ) || source:error "expected expression";
 
-	if !lexer:skip( Symbol, ";" ) && !lexer:skip( Symbol, "," ) source:error "expected ';'";
+	if !Flux::Parsing::parseSemicolon(lexer) && !lexer:skip( Symbol, "," ) source:error "expected ';'";
 
 	increment = Flux::Parsing::Expression:parse( source ) || source:error "expected expression";
 

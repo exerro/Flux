@@ -17,14 +17,15 @@ RepeatLoop RepeatLoop:parse(Source source) {
 	if lexer:skip( Keyword, "until" ) {
 		condition = Flux::Parsing::Expression:parse( source ) || source:error "expected condition after 'until'";
 		inverted = false;
-		if !lexer:skip( Symbol, ";" ) source:error "expected ';' after condition";
 	}
 
 	else if lexer:skip( Keyword, "while" ) {
 		condition = Flux::Parsing::Expression:parse( source ) || source:error "expected condition after 'while'";
 		inverted = true;
-		if !Flux::Parsing::parseSemicolon(lexer) source:error "expected ';' after condition";
 	}
+	
+	if !Flux::Parsing::parseSemicolon(lexer)
+		source:error "expected ';' after condition";
 
 	else
 		condition = new Flux::Parsing::ConstantExpression( Flux::Parsing::ASTNodeType.Boolean, "false" );

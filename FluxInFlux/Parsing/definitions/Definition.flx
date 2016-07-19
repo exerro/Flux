@@ -58,14 +58,38 @@ bool Definition:parse(Source source) {
 	repeat {
 		Position start;
 		Expression value;
+		int _mark;
+		Type _class;
 
 		start = lexer:get().position;
+		_mark = lexer:mark();
 		name = name || Flux::Parsing::parseMethodName(source);
-		
+
+		// error if there's a colon (for a method) after an operator name
 		if name:find "[^%w_:]" && lexer:test( Symbol, ":" )
 			source:error "unexpected ':' after operator name";
 
-		method = method || lexer:skip( Symbol, ":" ) && Flux::Parsing::parseMethodName(source);
+		// if we're adding a method to a template class
+		if !method && !name:find "[^%w_:]" && lexer:test( Symbol, "<" ) {
+			lexer:jump( _mark );
+			_class = Flux::Parsing::Type:parse( source );
+
+			if !lexer:skip( Symbol, ":" )
+				source:error "expected ':' after class template";
+
+			name = Flux::Parsing::parseMethodName(source);
+			method = "";
+		}
+		// otherwise
+		else {
+			// if a method is defined, swap the name and method and define the class being modified
+			method = method || lexer:skip( Symbol, ":" ) && Flux::Parsing::parseMethodName(source);
+
+			if method {
+				_class = new Flux::Parsing::Typename( name, start );
+				name = method || lexer:skip( Symbol, ":" ) && Flux::Parsing::parseMethodName(source);
+			}
+		}
 
 		if lexer:skip( Symbol, "(" ) { // function definition
 			FunctionParameter[] parameters = [];
@@ -73,7 +97,6 @@ bool Definition:parse(Source source) {
 			bool[] parameter_nullables = [];
 			Expression[] defaults = [];
 			FunctionParameter parameter;
-			Type _class;
 			bool parameterNamesGiven = true;
 			bool defaults_started = false;
 
@@ -83,11 +106,12 @@ bool Definition:parse(Source source) {
 					lexer:jump( _mark );
 					parameterNamesGiven = false;
 					int n = 0;
+					Type last_type;
 
 					repeat { // get partial parameters, generating names for each parameter
 						let pos = lexer:get().position;
 						let nullable = lexer:skip( Keyword, "null" ) && true || false;
-						let type = Flux::Parsing::Type:parse( source ); // TODO: make it test for , or = and use last type, i.e. int f(int,) == int f(int, int)
+						let type = (lexer:test( Symbol, "=" ) || lexer:test( Symbol, "," ) || lexer:test( Symbol, ")")) && last_type || Flux::Parsing::Type:parse( source ); // TODO: make it test for , or = and use last type, i.e. int f(int,) == int f(int, int)
 						let name = Flux::Parsing::intToName( n++ );
 
 						if lexer:test( Symbol, "=" ) && method
@@ -105,6 +129,7 @@ bool Definition:parse(Source source) {
 						parameters[#parameters + 1] = new Flux::Parsing::FunctionParameter(type, name, nullable, pos);
 						parameter_types[#parameter_types + 1] = type;
 						parameter_nullables[#parameter_nullables + 1] = nullable;
+						last_type = type;
 					}
 					while lexer:skip( Symbol, "," );
 				}
@@ -133,12 +158,6 @@ bool Definition:parse(Source source) {
 
 				if !lexer:skip( Symbol, ")" )
 					source:error "expected ')' to close function parameters";
-			}
-
-			// if a method is defined, swap the name and method and define the class being modified
-			if method {
-				_class = new Flux::Parsing::Typename( name, start );
-				name = method;
 			}
 
 			// if it's a method, you can't exactly predeclare it, so it expects a body
@@ -197,10 +216,10 @@ bool Definition:parse(Source source) {
 		}
 		else if name:find "[^%w_:]"
 			source:error "expected '(' for function parameters after operator name";
-		else if _type.type == Flux::Parsing::ASTNodeType.Typename && _type.name == "void"
-			source:error "expected '(' for function parameters after void return type";
 		else if method
 			source:error "expected '(' for function parameters after method name";
+		else if _type.type == Flux::Parsing::ASTNodeType.Typename && _type.name == "void"
+			source:error "expected '(' for function parameters after void return type";
 		else {
 			value = lexer:skip(Symbol, "=") && (Flux::Parsing::Expression:parse( source ) || source:error "expected definition after '='");
 			source:push( new Flux::Parsing::Definition( _type, null, Flux::Parsing::resolveDefinitionName( source, name ), value, isConst, start ) );

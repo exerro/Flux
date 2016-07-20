@@ -10,7 +10,7 @@ This has allowed a Flux parser written in Flux to be started (in development now
 ### Syntax examples
 
 ```
-float distance(Vec2 a, b) = math::sqrt(dx * dx + dy * dy)
+float distance(Vec2 a, b = new Vec2(0, 0)) = math::sqrt(dx * dx + dy * dy)
   where dx = a.x - b.x
   where dy = a.y-  b.y;
 ```
@@ -20,6 +20,7 @@ let x `!` = match x { 0, 1 => 1; default => x * (x-1)`!` };
 ```
 
 ```
+template<T>
 class 2DArray<T> {
   private T[][] elements;
   
@@ -31,7 +32,7 @@ class 2DArray<T> {
     }
   }
   
-  getter elements {
+  getter elements() {
     return table::copy(elements);
   }
   
@@ -45,4 +46,14 @@ class 2DArray<T> {
 }
 
 new 2DArray<int> myArray(5, 5);
+```
+
+```
+template<T>
+void add_one_to(T& n)
+  n++;
+
+int& x = 0;
+add_one_to(x);
+print( x ); // 1
 ```

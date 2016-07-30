@@ -15,8 +15,9 @@ class Source {
 	string include_path;
 	string[] current_include_path;
 	bool{string} imported;
+	string[] import_queue;
 	ASTNode[] statements;
-	Block[] blocks;
+	ASTNode[][] blocks;
 	Context[] contexts;
 
 	Lexer lexer;
@@ -31,15 +32,17 @@ class Source {
 		self.block = self.statements;
 		self.blocks = [self.block];
 		self.contexts = [];
+		self.import_queue = [];
 	}
 
 	Context pushContext();
 	Context popContext();
-	Context pushFunctionContext();
-	Context pushLoopContext();
+	Context pushRootContext();
+	Context pushNamespaceContext(string name);
 	Context pushClassContext(string name);
 	Context pushInterfaceContext(string name);
-	Context pushNamespaceContext(string name);
+	Context pushFunctionContext(bool isVararg);
+	Context pushLoopContext();
 
 	Block pushBlock();
 	Block popBlock();

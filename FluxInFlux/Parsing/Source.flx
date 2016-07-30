@@ -17,11 +17,11 @@ Context Source:popContext() {
 	return self.context;
 }
 
-Context Source:pushLoopContext()
-	= self:pushContext():specialiseLoop();
+Context Source:pushRootContext()
+	= self:pushContext():specialiseRoot();
 
-Context Source:pushFunctionContext()
-	= self:pushContext():specialiseFunction();
+Context Source:pushNamespaceContext(string name)
+	= self:pushContext():specialiseNamespace(name);
 
 Context Source:pushClassContext(string name)
 	= self:pushContext():specialiseClass(name);
@@ -29,8 +29,11 @@ Context Source:pushClassContext(string name)
 Context Source:pushInterfaceContext(string name)
 	= self:pushContext():specialiseInterface(name);
 
-Context Source:pushNamespaceContext(string name)
-	= self:pushContext():specialiseNamespace(name);
+Context Source:pushFunctionContext(bool isVararg)
+	= self:pushContext():specialiseFunction(isVararg);
+
+Context Source:pushLoopContext()
+	= self:pushContext():specialiseLoop();
 
 Block Source:pushBlock() {
 	ASTNode[] block = [];

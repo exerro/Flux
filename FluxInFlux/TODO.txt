@@ -1,0 +1,4 @@
+
+[ ] Change unary operator parsing to allow for different precedences.
+[ ] Add templated classes
+[ ] Make class function definitions add '<class> self' as first parameter

@@ -3,7 +3,8 @@ import flux;
 
 let source_code = '
 // template<T>
-class Reference /*<T>*/ {
+// class Reference /*<T>* /
+class Reference {
 	T value;
 
 	Reference(auto vararg);
@@ -43,3 +44,4 @@ void main() {
 	foreach expr in source.statements
 		print( expr:serialize() `concat` "\n" );
 }
+

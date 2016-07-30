@@ -22,7 +22,7 @@ NewExpression NewExpression:parse( Source source ) {
 	else if lexer:test( String )
 		parameters[1] = new Flux::Parsing::ConstantExpression( Flux::Parsing::ASTNodeType.StringConstant, lexer:next().value, position );
 
-	return new Flux::Parsing::NewExpression( _type, [], position );
+	return new Flux::Parsing::NewExpression( _type, parameters, position );
 }
 
 string NewExpression:serialize()

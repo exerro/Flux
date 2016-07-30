@@ -9,15 +9,14 @@ void Context:setPublic( bool isPublic ) {
 	self.isPublic = isPublic;
 }
 
-Context Context:specialiseLoop() {
-	self.isLoop = true;
+Context Context:specialiseRoot() {
+	self.root = true;
 	return self;
 }
 
-Context Context:specialiseFunction(null bool isVararg = false) {
-	self.isFunction = true;
-	self.isLoop = false;
-	self.isVarargFunction = isVararg;
+Context Context:specialiseNamespace(string name) {
+	self.isNamespace = true;
+	self.namespace_name = self.namespace_name && self.namespace_name `concat` "::" `concat` name || name;
 	return self;
 }
 
@@ -33,8 +32,14 @@ Context Context:specialiseInterface() {
 	return self;
 }
 
-Context Context:specialiseNamespace(string name) {
-	self.isNamespace = true;
-	self.namespace_name = self.namespace_name && self.namespace_name `concat` "::" `concat` name || name;
+Context Context:specialiseFunction(null bool isVararg = false) {
+	self.isFunction = true;
+	self.isLoop = false;
+	self.isVarargFunction = isVararg;
+	return self;
+}
+
+Context Context:specialiseLoop() {
+	self.isLoop = true;
 	return self;
 }

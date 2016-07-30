@@ -1,9 +1,19 @@
 
 namespace Flux::Parsing;
 
-ImportStatement ImportStatement:parse(Source source) {
+bool ImportStatement:parse(Source source) {
 	let lexer = source.lexer;
-	let name = Flux::Parsing::parseName(source);
+	let position = lexer:get().position;
 
-	// do importing stuff
+	if lexer:test( Keyword, "import" ) && !source.context.isRoot source:error "invalid location for import statement";
+	if !lexer:skip( Keyword, "import" ) return false;
+
+	let name = lexer:skipValue( Identifier ) || lexer:skipValue( String ) || source:error "expected name to import";
+
+	while lexer:skip( Symbol, "." )
+		name = name `concat` (lexer:skipValue( Identifier ) || lexer:skipValue( String ) || source:error "expected name to import");
+
+	source:importFile( name );
+
+	return true;
 }

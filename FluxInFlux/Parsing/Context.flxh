@@ -8,7 +8,8 @@ class Context {
 	     isInterface = false,
 	     isNamespace = false,
 	     isVarargFunction = false,
-		 isPublic = true;
+		 isPublic = true,
+		 isRoot = false;
 
 	string class_name;
 	string namespace_name;
@@ -20,6 +21,7 @@ class Context {
 			self.isClass = parent.isClass;
 			self.isInterface = parent.isInterface;
 			self.isNamespace = false;
+			self.isRoot = false;
 			self.class_name = parent.class_name;
 			self.namespace_name = parent.namespace_name;
 			self.isPublic = parent.isPublic;
@@ -29,9 +31,10 @@ class Context {
 
 	void setPublic(bool isPublic);
 
-	Context specialiseLoop();
-	Context specialiseFunction(bool isVararg);
+	Context specialiseRoot();
+	Context specialiseNamespace(string name);
 	Context specialiseClass(string name);
 	Context specialiseInterface(string name);
-	Context specialiseNamespace(string name);
+	Context specialiseFunction(bool isVararg);
+	Context specialiseLoop();
 }

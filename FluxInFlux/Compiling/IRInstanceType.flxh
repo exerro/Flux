@@ -1,0 +1,10 @@
+
+// namespace Flux::Compiling;
+
+class IRInstanceType extends IRType {
+	IRClassType parent;
+
+	IRInstanceType(IRClassType parent) {
+		self.parent = parent;
+	}
+}

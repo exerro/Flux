@@ -1,0 +1,12 @@
+
+// namespace Flux::Compiling;
+
+class IRFunctionType extends IRType {
+	IRType[] types;
+	int[] parameters;
+	int returns;
+
+	IRFunctionType(Parsing::FunctionType t) {
+		// stuff
+	}
+}

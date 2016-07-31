@@ -1,0 +1,19 @@
+
+// namespace Flux::Compiling;
+
+class IRScope {
+	IRDefinitionHeap heap;
+	IRDefinitionPointer[] definitions;
+	string[] isUsing;
+
+	IRScope(IRDefinitionHeap heap) {
+		self.definitions = [];
+		self.isUsing = [];
+		self.heap = heap;
+	}
+
+	void define(string name, bool isConst, IRType type, Position position);
+	IRDefinitionPointer[] lookup(string name);
+
+	void use(string name);
+}

@@ -1,0 +1,24 @@
+
+// namespace Flux::Compiling;
+
+import IRScope;
+
+class IRContext {
+	IRScope[] scopes;
+	IRDefinitionHeap heap;
+
+	IRContext() {
+		self.scopes = [];
+		self.heap = new IRDefinitionHeap();
+	}
+
+	void define(string name, bool isConst, IRType type, Position position);
+	IRDefinitionPointer[] lookup(string name);
+
+	void error(string err, Position position);
+
+	IRScope pushScope();
+	IRScope popScope();
+
+	void use(string name);
+}

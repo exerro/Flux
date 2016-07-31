@@ -1,0 +1,20 @@
+
+// namespace Flux::Compiling;
+
+void IRScope:define(string name, bool isConst, IRType type, Position position) {
+	self.definitions[#self.definitions + 1] = self.heap:define( new IRDefinition( name, isConst, type, position ) );
+}
+
+IRDefinitionPointer[] IRScope:lookup(string name) {
+	IRDefinitionPointer[] matches = [];
+
+	foreach p in self.definitions
+		if self.heap:lookup( p ).name == name
+			matches[#matches + 1] = p;
+
+	return matches;
+}
+
+void IRScope:use(string name) {
+	self.isUsing[#self.isUsing + 1] = name;
+}

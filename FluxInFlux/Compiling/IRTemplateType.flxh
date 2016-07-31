@@ -1,0 +1,10 @@
+
+// namespace Flux::Compiling;
+
+class IRTemplateType extends IRType {
+	IRType[] types;
+
+	IRTemplateType(IRType[] types) {
+		self.types = types;
+	}
+}

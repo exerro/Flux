@@ -1,0 +1,12 @@
+
+// namespace Flux::Compiling;
+
+IRDefinitionPointer IRDefinitionHeap:define(IRDefinition d) {
+	let p = self.pointer++;
+	self.members[p] = d;
+	return p;
+}
+
+IRDefinition IRDefinitionHeap:lookup(IRDefinitionPointer p) {
+	return self.members[p];
+}

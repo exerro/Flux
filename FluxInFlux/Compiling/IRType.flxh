@@ -1,0 +1,12 @@
+
+// namespace Flux::Compiling;
+
+/*abstract*/ class IRType {
+	bool is(IRType other);
+	bool doesExtend(IRType other);
+	bool doesCastTo(IRType other);
+
+	static IRType loadfrom(Parsing::Type t);
+
+	string tostring();
+}

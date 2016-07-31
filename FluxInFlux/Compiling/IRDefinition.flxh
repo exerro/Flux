@@ -1,0 +1,16 @@
+
+// namespace Flux::Compiling;
+
+class IRDefinition {
+	string name;
+	bool isConst;
+	IRType type;
+	Position position;
+
+	IRDefinition(string name, bool isConst, IRType type, Position position) {
+		self.name = name;
+		self.isConst = isConst;
+		self.type = type;
+		self.position = position;
+	}
+}

@@ -2,28 +2,12 @@
 import flux;
 
 let source_code = '
-// template<T>
-// class Reference /*<T>* /
-class Reference {
-	T value;
+namespace N;
+int i = 0;
 
-	Reference(auto vararg);
-	Reference(T v) value = v;
-
-	auto operator+(auto v) = value + v;
-	auto operator-(auto v) = value - v;
-	auto operator*(auto v) = value * v;
-	auto operator/(auto v) = value / v;
-
-	T operator^() = value;
+int f() {
+	int a = 0;
 }
-
-template<T>
-Reference<T>:Reference(auto vararg) {
-	self.value = new T(vararg);
-}
-
-int& i = 0;
 ';
 
 void main() {
@@ -43,5 +27,16 @@ void main() {
 
 	foreach expr in source.statements
 		print( expr:serialize() `concat` "\n" );
+
+	new IRContext c();
+
+	c:pushScope();
+	c:use "a";
+	c:define("b::c", true, new IRClassType([]), new Flux::Position("dashjk", 1, 1, 1));
+	c:define("a::b::c", true, new IRClassType([]), new Flux::Position("dashjk", 1, 1, 1));
+	// c:pushScope();
+
+	foreach v in c:lookup "b::c"
+		print( c.heap:lookup( v ).name ); // a::b::c, b::c
 }
 

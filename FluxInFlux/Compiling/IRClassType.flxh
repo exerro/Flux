@@ -1,0 +1,23 @@
+
+// namespace Flux::Compiling;
+
+class IRClassType;
+
+import IRInstanceType;
+
+class IRClassType extends IRType {
+	IRDefinitionHeap member_heap;
+	IRDefinitionPointer member_pointer;
+	int member_count;
+	IRInstanceType instance;
+
+	Position position;
+
+	IRClassType(Parsing::ClassDefintion def) {
+		self.position = def.position;
+		
+		// stuff
+		
+		self.instance = new IRInstanceType(self);
+	}
+}

@@ -1,0 +1,16 @@
+
+// namespace Flux::Compiling;
+
+import IRDefinition;
+
+class IRDefinitionHeap {
+	IRDefinition[] members;
+	IRDefinitionPointer pointer = 0;
+
+	IRDefinitionPointer define(IRDefinition d);
+	IRDefinition lookup(IRDefinitionPointer p);
+
+	IRDefinitionHeap() {
+		self.members = [];
+	}
+}

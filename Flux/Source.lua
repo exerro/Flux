@@ -20,8 +20,10 @@ local function readfile( path )
 	end
 end
 
-isfile = love.filesystem.isFile
-readfile = love.filesystem.read
+if love then
+	isfile = love.filesystem.isFile
+	readfile = love.filesystem.read
+end
 
 class "Source" {
 	path = "";

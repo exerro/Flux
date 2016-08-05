@@ -13,7 +13,7 @@ for i = 1, 5 do
 	end
 end
 
-local ok, err = pcall( function()
+local ok, err = pcall( function(...)
 	if source.hasMainFile then
 		source:import "main"
 	else
@@ -26,10 +26,13 @@ local ok, err = pcall( function()
 		emitter:pushLineBreak()
 	end
 	
+	if ... then
+		io.write( emitter.output )
+	end
 	assert( loadstring( emitter.output ) )()
 
 	main()
-end )
+end, ... )
 
 if not ok then
 	error( err, 0 )

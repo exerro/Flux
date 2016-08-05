@@ -285,7 +285,10 @@ function parseDefinition( source, expectFunction )
 
 			table.insert( parameters, 1, { class = wrapTypename( classname ), name = "self", nullable = false, default = nil } )
 			table.insert( defaults, 1, false )
-			table.insert( body, wrapReturnStatement( wrapStringAsReference( "self", position ) ) )
+
+			if body then
+				table.insert( body, wrapReturnStatement( wrapStringAsReference( "self", position ) ) )
+			end
 		
 			for i = 1, #parameters do
 				parameter_types[i] = parameters[i].class

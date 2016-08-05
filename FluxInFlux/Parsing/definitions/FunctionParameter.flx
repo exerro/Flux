@@ -1,29 +1,30 @@
 
 namespace Flux::Parsing;
 
-string FunctionParameter:parse(Source source, null FunctionParameter prev) {
+FunctionParameter FunctionParameter:parse(Source source, bool parameterNamesGiven, null FunctionParameter prev) {
 	let lexer = source.lexer;
-	let thisnull = lexer:skip( Keyword, "null" ) && true || false;
-	
-	Type _type;
+
+	Type type;
 
 	try {
-		_type = Flux::Parsing::Type:parse(source);
+		type = Flux::Parsing::Type:parse(source);
 	}
 	catch ParserException e {
-		if e != "expected typename"
+		if parameterNamesGiven && e != "expected typename"
 			throw new ParserException(e);
 	}
 
-	let name = lexer:skipValue( Identifier );
+	let name = parameterNamesGiven && lexer:skipValue( Identifier );
 
-	if name == null || _type == null {
-		if _type != null && !thisnull && prev != null && _type.type == Flux::Parsing::ASTNodeType.Typename {
-			name = _type.name;
-			_type = prev._type;
-			thisnull = prev.nullable;
+	if name == null || type == null {
+		if type != null && prev != null && #type.classes == 0 {
+			name = type.name;
+			type = prev._type;
 		}
-		else if _type != null {
+		else if !parameterNamesGiven {
+			type = type || prev._type;
+		}
+		else if type != null {
 			source:error "expected name after type";
 		}
 		else {
@@ -31,8 +32,8 @@ string FunctionParameter:parse(Source source, null FunctionParameter prev) {
 		}
 	}
 
-	return new Flux::Parsing::FunctionParameter( _type, name, thisnull );
+	return new Flux::Parsing::FunctionParameter( type, name || "" );
 }
 
 string FunctionParameter:serialize()
-	= (self.nullable && "null " || "") `concat` self._type:serialize() `concat` " " `concat` self.name;
+	= self._type:serialize() `concat` " " `concat` self.name;

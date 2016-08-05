@@ -5,22 +5,12 @@ namespace Flux::Parsing;
 
 class TemplateDefinition extends ASTNode {
 	ASTNodeType type = Flux::Parsing::ASTNodeType.TemplateDefinition;
-	Type _type;
-	Type _class;
-	string name;
-	Expression value;
-	bool isConst, isPublic, isStatic;
-	TemplateList _template;
+	TemplateList template_list;
+	Definition definition;
 	
-	TemplateDefinition(Type _type, null Type _class, string name, null Expression value, bool isConst, isPublic, isStatic, TemplateList _template, Position position) {
-		self._type = _type;
-		self._class = _class;
-		self.name = name;
-		self.value = value;
-		self.isConst = isConst;
-		self.isPublic = isPublic;
-		self.isStatic = isStatic;
-		self._template = _template;
+	TemplateDefinition(Definition definition, TemplateList template_list, Position position) {
+		self.definition = definition;
+		self.template_list = template_list;
 		self.position = position;
 	}
 }

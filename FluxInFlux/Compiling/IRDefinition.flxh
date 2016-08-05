@@ -1,6 +1,8 @@
 
 // namespace Flux::Compiling;
 
+import IRType;
+
 class IRDefinition {
 	string name;
 	bool isConst;

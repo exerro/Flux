@@ -111,6 +111,7 @@ let _ = (function() {
 	...
 	::
 	@
+	?
 
 	";
 
@@ -167,6 +168,7 @@ let _ = (function() {
 	Flux::Parsing::language::operators[">>"] = true;
 	Flux::Parsing::language::operators[">="] = true;
 	Flux::Parsing::language::operators[">>="] = true;
+	Flux::Parsing::language::operators["->"] = true;
 
 	// define '-' and '^' as an unary operator as well as binary
 	Flux::Parsing::language::unary_operators["-"] = true;

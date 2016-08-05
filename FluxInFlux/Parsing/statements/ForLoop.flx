@@ -9,13 +9,13 @@ ASTNode ForLoop:parse(Source source) {
 
 	let openbracket = lexer:skip( Symbol, "(" ) && true || false;
 
-	Type _type;
+	Type type;
 	string name;
 	Expression value;
 	Expression condition;
 	Expression increment;
 	
-	_type = Flux::Parsing::Type:parse( source );
+	type = Flux::Parsing::Type:parse( source );
 	name = lexer:skipValue( Identifier ) || source:error "expected name after type";
 	value = lexer:skip( Symbol, "=" ) &&
 		(Flux::Parsing::Expression:parse( source ) || source:error "expected expression after '='")
@@ -38,7 +38,7 @@ ASTNode ForLoop:parse(Source source) {
 	block[#block + 1] = increment;
 
 	let doblock = new Flux::Parsing::Block( [
-		new Flux::Parsing::Definition( _type, null, name, value, false, false, false ),
+		new Flux::Parsing::Definition( type, null, name, value, false, false, false ),
 		new Flux::Parsing::WhileLoop( condition, block )
 	], position );
 

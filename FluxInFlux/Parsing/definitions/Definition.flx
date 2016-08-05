@@ -5,34 +5,46 @@ bool Definition:parse(Source source) {
 	let lexer = source.lexer;
 	let start = lexer:mark();
 	let isClassDef = source.context.isInterface || source.context.isClass;
-	let classname = source.context.isClass && source.context.class_name:gsub( ".+::", "" );
+	let classname = isClassDef && source.context.class_name:gsub( ".+::", "" );
+	let position = lexer:get().position;
 
 	TemplateList _template;
 
+	// read a template
 	if lexer:skip( Keyword, "template" ) {
 		if !lexer:skip( Symbol, "<" ) source:error "expected '<' after 'template'";
 		_template = Flux::Parsing::TemplateList:parse( source );
 		if !lexer:skip( Symbol, ">" ) source:error "expected '>' after template list";
 	}
 
-	bool isPublic = (source.context.isInterface || source.context.isClass) && source.context.isPublic;
+	// inherit public state from class context (public: private: can change it)
+	bool isPublic = (source.context.isInterface || source.context.isClass) && source.context.isPublic || DEFAULT_PUBLIC;
 
-	if isClassDef && lexer:skip( Keyword, "public" )
+	// modify public state if respective keyword found
+	if lexer:skip( Keyword, "public" )
 		isPublic = true;
-	else if isClassDef && lexer:skip( Keyword, "private" )
+	else if lexer:skip( Keyword, "private" )
 		isPublic = false;
 
-	bool isStatic = source.context.isClass && lexer:skip( Keyword, "static" ) && true || false;
+	// determine if static and/or constant
+	bool isStatic = isClassDef && lexer:skip( Keyword, "static" ) && true || false;
 	bool isConst = lexer:skip( Keyword, "const" ) && true || false;
+
+	// '_type' is the return type/value type
 	Type _type;
-	string method, name;
-	int _mark = lexer:mark();
+	// 'name' is the name of the function/variable
+	string name;
+	// '_class' is the container class the function/variable is being added to, if any
 	Type _class;
 
-	if source.context.isClass && lexer:skip( Identifier, classname ) && lexer:test( Symbol, "(" ) {
-		_type = new Flux::Parsing::Typename( "void", position );
-		name = source.context.class_name:gsub( ".+::", "" );
+	int _mark = lexer:mark();
+
+	// if inside a class definition and constructor name given followed by '('
+	if isClassDef && lexer:skip( Identifier, classname ) && lexer:test( Symbol, "(" ) {
+		_type = Flux::Parsing::Type:voidType( position );
+		name = classname;
 	}
+	// otherwise, read the type like usual
 	else {
 		lexer:jump( _mark );
 		try {
@@ -44,175 +56,141 @@ bool Definition:parse(Source source) {
 	let _mark = lexer:mark();
 
 	// allow for Button:Button(int x, y) {} rather than void Button:Button(int x, y) {}
-	// if the type is a typename, and a : and correct method name is found after, it's probably a constructor definition
-	// note, this'll break any static Button:Button() calls, might need to fix in the future
+	// if a ':' and method name matching the already parsed type is found after, it's probably a constructor definition
+	// note, this'll break any static Button:Button() calls: might need to fix in the future
 	// then again, can it be fixed? it might just need to be a syntax flaw
-	if !isClassDef && _type && _type.type == Flux::Parsing::ASTNodeType.Typename && lexer:skip( Symbol, ":" ) && lexer:skip( Identifier, _type.name:gsub( ".+::", "" ) ) {
+	if !isClassDef && _type && lexer:skip( Symbol, ":" ) && lexer:skip( Identifier, _type.name:gsub( ".+::", "" ) ) {
+		// the method name can't contain the namespace the class is it, hence the gsub()
+		name = _type.name:gsub( ".+::", "" );
+		// set the 'containing class' to the type given
 		_class = _type;
-		name = _type.name:gsub( ".+::", "" ); // the method name can't contain the namespace the class is it, hence the gsub()
-		_type = new Flux::Parsing::Typename( "void", _type.position ); // constructors return void... or self? maybe self... maybe change this, it'll make object creation more inline when compiled, and do stuff with the returns in constructor...?
-	}
-	else if !isClassDef && _type && _type.type == Flux::Parsing::ASTNodeType.TemplatedType && lexer:skip( Symbol, ":" ) && lexer:skip( Identifier, _type.name:gsub( ".+::", "" ) ) {
-		_class = _type;
-		name = _type.name:gsub( ".+::", "" ); // the method name can't contain the namespace the class is it, hence the gsub()
-		_type = new Flux::Parsing::Typename( "void", _type.position ); // constructors return void... or self? maybe self... maybe change this, it'll make object creation more inline when compiled, and do stuff with the returns in constructor...?
+		// constructors return void
+		_type = Flux::Parsing::Type:voidType( _type.position );
 	}
 	else lexer:jump( _mark );
 
 	// allow for 'void' return type
 	if !_type && lexer:test(Keyword, "void")
-		_type = new Flux::Parsing::Typename("void", lexer:next().value);
-	// no need to put this above the constructor test as you can't have a class called 'void' anyway
+		_type = Flux::Parsing::Type:voidType( lexer:next().value );
+
+	name = _type && (name || Flux::Parsing::parseMethodName( source ));
 
 	// if a type wasn't given or there isn't a name next, it's not a definition
-	if !_type || (!name && !lexer:test(Identifier) && !lexer:test(Keyword, "operator") && (!isClassDef || !lexer:test( Keyword, "setter" ) && !lexer:test( Keyword, "getter" ))) {
+	if !_type || !name {
+		print( _type && _type:serialize(), name, lexer:get().value );
 		lexer:jump( start );
 		if _template {
-			lexer:next();
+			Flux::Parsing::TemplateList:parse( source );
 			source:error "expected definition after 'template'";
 		}
 		else if isConst {
 			lexer:next();
 			source:error "expected definition after 'const'";
 		}
+		// same for public/private/static
 		return false;
 	}
 
 	repeat {
-		Position start;
 		Expression value;
-		int _mark;
+		Position start = lexer:get().position;
+		int _mark = lexer:mark();
 
-		start = lexer:get().position;
-		_mark = lexer:mark();
-
-		if !_class {
-			name = name || Flux::Parsing::parseMethodName(source);
+		if _class {
+			// if a method is defined in the class, error
+			if isClassDef && lexer:test( Symbol, ":" )
+				if source.context.isClass
+					source:error "unexpected ':' for method name in class member definition";
+				else
+					source:error "unexpected ':' for method name in interface member definition";
+		}
+		else {
+			name = name || Flux::Parsing::parseMethodName(source) || source:error "expected definition name";
 
 			// error if there's a colon (for a method) after an operator name
 			if name:find "[^%w_:]" && lexer:test( Symbol, ":" )
 				source:error "unexpected ':' after operator name";
 
 			// if we're adding a method to a template class
-			if !method && !name:find "[^%w_:]" && lexer:test( Symbol, "<" ) {
+			if !name:find "[^%w_:]" && lexer:test( Symbol, "<" ) {
 				if source.context.isClass
 					source:error "unexpected '<' in class member definition";
 				if source.context.isInterface
 					source:error "unexpected '<' in interface member definition";
 
+				// jump back and re-read the name as a type
 				lexer:jump( _mark );
 				_class = Flux::Parsing::Type:parse( source );
 
+				// expect a ':' as `void f<T>();` is invalid
 				if !lexer:skip( Symbol, ":" )
 					source:error "expected ':' after class template";
 
-				name = Flux::Parsing::parseMethodName(source);
-				method = "";
-			}
-		}
-		// otherwise
-		else {
-			// if a method is defined, swap the name and method and define the class being modified
-			if !method && isClassDef && lexer:test( Symbol, ":" )
-				if source.context.isClass
-					source:error "unexpected ':' for method name in class member definition";
-				else
-					source:error "unexpected ':' for method name in interface member definition";
-
-			method = method || lexer:skip( Symbol, ":" ) && Flux::Parsing::parseMethodName(source);
-
-			if method {
-				_class = new Flux::Parsing::Typename( name, start );
-				name = method || lexer:skip( Symbol, ":" ) && Flux::Parsing::parseMethodName(source);
+				name = Flux::Parsing::parseMethodName(source) || source:error "expected method name after ':'";
 			}
 		}
 
 		if lexer:skip( Symbol, "(" ) { // function definition
 			FunctionParameter[] parameters = [];
 			Type[] parameter_types = [];
-			bool[] parameter_nullables = [];
 			Expression[] defaults = [];
 			FunctionParameter parameter;
 			bool parameterNamesGiven = true;
 			bool defaults_started = false;
 
-			if name == classname && (_type.type != Flux::Parsing::ASTNodeType.Typename || _type.name != "void")
+			if (name == classname || _class && name == _class.name) && _type.name != "void"
 				source:error( "expected return type of void for constructor", _type.position );
 
 			if !lexer:skip( Symbol, ")" ) { // if it takes arguments
-				let _mark = lexer:mark(); // below: test for a partial definition i.e. int f(int)
-				if !method && (lexer:skip( Keyword, "void" ) && true || true) && (lexer:skip( Keyword, "auto" ) || lexer:skip( Identifier )) && (lexer:skip( Symbol, "=" ) || lexer:skip( Symbol, "," ) || lexer:skip( Symbol, ")" )) {
-					lexer:jump( _mark );
-					parameterNamesGiven = false;
-					int n = 0;
-					Type last_type;
+				let _mark = lexer:mark();
+				// test for a partial definition i.e. int f(int)
+				try
+					if (lexer:skip( Keyword, "auto" ) || Flux::Parsing::Type:parse( source )) && (lexer:skip( Symbol, "=" ) || lexer:skip( Symbol, "," ) || lexer:skip( Symbol, ")" ))
+						parameterNamesGiven = false;
+				catch ParserException e {}
 
-					repeat { // get partial parameters, generating names for each parameter
-						let pos = lexer:get().position;
-						let nullable = lexer:skip( Keyword, "null" ) && true || false;
-						let type = (lexer:test( Symbol, "=" ) || lexer:test( Symbol, "," ) || lexer:test( Symbol, ")")) && last_type || Flux::Parsing::Type:parse( source );
-						let name = Flux::Parsing::intToName( n++ );
+				lexer:jump( _mark );
+				int n = 0;
+				Type last_type;
 
-						if lexer:test( Symbol, "=" ) && method
-							source:error "defaults aren't allowed when defining methods";
+				repeat { // parse parameters
+					parameter = Flux::Parsing::FunctionParameter:parse(source, parameterNamesGiven, parameter);
+					parameters[#parameters + 1] = parameter;
+					parameter_types[#parameter_types + 1] = parameter._type;
 
-						let default_value = lexer:skip( Symbol, "=" ) && (Flux::Parsing::Expression:parse(source) || source:error "expected expression after '='");
+					if lexer:test( Symbol, "=" ) && _class
+						source:error "defaults aren't allowed when defining methods";
 
-						if default_value {
-							defaults_started = true;
-							defaults[#defaults + 1] = default_value;
-						}
-						else if defaults_started // defaults must be consecutively at the end of definition parameters
-							source:error "expected '=' for default value";
+					let default_value = lexer:skip( Symbol, "=" ) && (Flux::Parsing::Expression:parse(source) || source:error "expected expression after '='");
 
-						parameters[#parameters + 1] = new Flux::Parsing::FunctionParameter(type, name, nullable, pos);
-						parameter_types[#parameter_types + 1] = type;
-						parameter_nullables[#parameter_nullables + 1] = nullable;
-						last_type = type;
+					if default_value {
+						defaults_started = true;
+						defaults[#defaults + 1] = default_value;
 					}
-					while lexer:skip( Symbol, "," );
+					else if defaults_started // defaults must be consecutively at the end of definition parameters
+						source:error "expected '=' for default value";
 				}
-				else { // otherwise, a full definition, i.e. int f(int x)
-					lexer:jump( _mark );
-					repeat { // parse parameters
-						parameter = Flux::Parsing::FunctionParameter:parse(source, parameter);
-						parameters[#parameters + 1] = parameter;
-						parameter_types[#parameter_types + 1] = parameter._type;
-						parameter_nullables[#parameter_nullables + 1] = parameter.nullable;
-
-						if lexer:test( Symbol, "=" ) && method
-							source:error "defaults aren't allowed when defining methods";
-
-						let default_value = lexer:skip( Symbol, "=" ) && (Flux::Parsing::Expression:parse(source) || source:error "expected expression after '='");
-
-						if default_value {
-							defaults_started = true;
-							defaults[#defaults + 1] = default_value;
-						}
-						else if defaults_started // defaults must be consecutively at the end of definition parameters
-							source:error "expected '=' for default value";
-					}
-					while lexer:skip( Symbol, "," );
-				}
+				while lexer:skip( Symbol, "," );
 
 				if !lexer:skip( Symbol, ")" )
 					source:error "expected ')' to close function parameters";
 			}
 
 			// if it's a method, you can't exactly predeclare it, so it expects a body
-			if method && lexer:test( Symbol, ";" ) source:error "expected function body after method";
+			if _class && lexer:test( Symbol, ";" ) source:error "expected function body after method";
 			// if the parameter names weren't given, you can't use them, so it won't let you define a body
 			if !parameterNamesGiven && !lexer:test( Symbol, ";" ) source:error "expected ';' after partial function declaration";
 
 			let body = !lexer:skip( Symbol, ";" ) && Flux::Parsing::parseFunctionBody( source );
 			let value = body && new Flux::Parsing::FunctionExpression( parameters, _type, body, start );
-			let function_type = new Flux::Parsing::FunctionType( _type, parameter_types, parameter_nullables );
-			let def_name = method && name || Flux::Parsing::resolveDefinitionName( source, name );
+			let function_type = new Flux::Parsing::Type:functionType( start, _type, parameter_types );
+			let def_name = _class && name || Flux::Parsing::resolveDefinitionName( source, name );
+			let definition = new Flux::Parsing::Definition( function_type, _class, def_name, value, isConst, isPublic, isStatic, start );
 
 			if _template
-				source:push( new Flux::Parsing::TemplateDefinition( function_type, _class, def_name, value, isConst, isPublic, isStatic, _template, start ) );
+				source:push( new Flux::Parsing::TemplateDefinition( definition, _template, position ) );
 			else
-				source:push( new Flux::Parsing::Definition( function_type, _class, def_name, value, isConst, isPublic, isStatic, start ) );
+				source:push( definition );
 
 			// create the overloads for the default parameters, each one calling the 'parent' function
 			if defaults_started {
@@ -221,30 +199,30 @@ bool Definition:parse(Source source) {
 					Expression value;
 
 					Type[] partial_parameter_types = [];
-					bool[] partial_parameter_nullables = [];
 					FunctionParameter[] partial_parameters = [];
 					Expression[] call_parameters = [];
 
 					foreach n in 1 .. #parameter_types - i { // add parameters up to the default for the overload currently being created
 						partial_parameter_types[n] = parameter_types[n];
-						partial_parameter_nullables[n] = parameter_nullables[n];
 						partial_parameters[n] = parameters[n];
 						call_parameters[n] = new Flux::Parsing::ReferenceExpression( parameters[n].name, parameters[n].position );
 					}
 
 					// loop this to include *all* the default parameters past #defaults-i+1?
-					call_parameters[#call_parameters + 1] = defaults[#defaults - i + 1];
+					foreach n in #defaults - i + 1 .. #defaults
+						call_parameters[#call_parameters + 1] = defaults[n];
 
 					let function_ref = new Flux::Parsing::ReferenceExpression( def_name, start ); // reference to main function
 					let function_call = new Flux::Parsing::FunctionCall( function_ref, call_parameters ); // calling the main function
 					let body = new Flux::Parsing::Block( [new Flux::Parsing::ReturnStatement( function_call )], start ); // block containing return of above
-					let function_type = new Flux::Parsing::FunctionType( _type, partial_parameter_types, partial_parameter_nullables ); // type of overload
+					let function_type = new Flux::Parsing::Type:functionType( start, _type, partial_parameter_types ); // type of overload
 					let value = new Flux::Parsing::FunctionExpression( partial_parameters, _type, body, start ); // the function value containing the call to main function
+					let definition = new Flux::Parsing::Definition( function_type, _class, def_name, value, isConst, isPublic, isStatic, start );
 
 					if _template
-						source:push( new Flux::Parsing::TemplateDefinition( function_type, _class, def_name, value, isConst, isPublic, isStatic, _template, start ) ); // push the overload
+						source:push( new Flux::Parsing::TemplateDefinition( definition, _template, position ) ); // push the overload
 					else
-						source:push( new Flux::Parsing::Definition( function_type, _class, def_name, value, isConst, isPublic, isStatic, start ) ); // push the overload
+						source:push( definition ); // push the overload
 				}
 			}
 
@@ -256,11 +234,11 @@ bool Definition:parse(Source source) {
 			source:error( "expected '(' for function parameters after " `concat` name:sub( 1, 1 ) `concat` "etter name" );
 		else if name:find "[^%w_:]"
 			source:error "expected '(' for function parameters after operator name";
-		else if source.context.isClass && name == classname
+		else if isClassDef && name == classname
 			source:error "expected '(' for function parameters after constructor name";
-		else if method
+		else if _class
 			source:error "expected '(' for function parameters after method name";
-		else if _type.type == Flux::Parsing::ASTNodeType.Typename && _type.name == "void"
+		else if _type.name == "void"
 			source:error "expected '(' for function parameters after void return type";
 		else {
 			value = lexer:skip(Symbol, "=") && (Flux::Parsing::Expression:parse( source ) || source:error "expected definition after '='");
@@ -268,8 +246,6 @@ bool Definition:parse(Source source) {
 		}
 
 		name = null;
-		_class = null;
-		method = null;
 	}
 	while lexer:skip( Symbol, "," );
 

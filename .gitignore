@@ -7,3 +7,4 @@ common/vector.lua
 Flux-backup-templates/*
 Flux-old/*
 main-old.lua
+log.txt

@@ -14,6 +14,20 @@ namespace Flux::Parsing;
 bool parseSemicolon(Lexer lexer)
 	= ((lexer:skip(Symbol, ";") || lexer:test(Symbol, ";", -1)) || lexer:test(Symbol, "}")) && true || false;
 
+void expectSemicolon(Source souorce, null string location)
+	if !parseSemicolon( source.lexer )
+		source:error( "expected semicolon" `concat` (location && " at " `concat` location || "") );
+
+bool tokenFollowsLast(Lexer lexer)
+	= a.line == b.line && a.source == b.source && a.character + #a.value == b.character
+	where a = lexer:peek( -1 )
+	where b = lexer:get();
+
+bool tokenSameLineAsLast(Lexer lexer)
+	= a.line == b.line && a.source == b.source
+	where a = lexer:peek( -1 )
+	where b = lexer:get();
+
 string parseName(Source source) {
 	let name = source.lexer:skipValue(Identifier);
 
@@ -37,14 +51,11 @@ string parseMethodName(Source source) {
 		else {
 			let symbol = lexer:skip( Symbol );
 			let op = symbol && symbol.value;
-			let ol = symbol && symbol.position.line, oc = symbol && symbol.position.character;
 			
-			if op == ">" && lexer:get().position.line == ol && lexer:get().position.character == oc + 1 && lexer:skip( Symbol, ">" ) {
+			if op == ">" && Flux::Parsing::tokenFollowsLast(lexer) && lexer:skip( Symbol, ">" )
 				op = ">>";
-				oc++;
-			}
 
-			if (op == ">" || op == ">>") && lexer:get().position.line == ol && lexer:get().position.character == oc + 1 && lexer:skip( Symbol, "=" )
+			if (op == ">" || op == ">>") && Flux::Parsing::tokenFollowsLast(lexer) && lexer:skip( Symbol, "=" )
 				op = op `concat` "=";
 
 			if Flux::Parsing::language::operators[op] {
@@ -61,7 +72,7 @@ string parseMethodName(Source source) {
 		else if lexer:skip( Keyword, "getter" )
 			return "getter " `concat` (lexer:skipValue( Identifier ) || source:error "expected name after 'getter'");
 
-	return lexer:skipValue( Identifier ) || source:error "expected name";
+	return lexer:skipValue( Identifier );
 }
 
 string resolveDefinitionName(Source source, string name)
@@ -93,7 +104,7 @@ Block parseFunctionBody( Source source ) {
 			Position position = lexer:next().position;
 			string name = lexer:skipValue( Identifier ) || source:error "expected name after 'where'";
 			Expression value;
-			Typename _type = new Flux::Parsing::Typename( "auto", position );
+			Typename _type = Flux::Parsing::Type:autoType( position );
 			
 			if lexer:skip( Symbol, "=" ) 
 				value = Flux::Parsing::Expression:parse( source ) || source:error "expected expression after '='";

@@ -3,12 +3,5 @@ namespace Flux::Parsing;
 
 // no parse() required as Definition parses templates
 
-string TemplateDefinition:serialize() {
-	return "template <" `concat` self._template:serialize() `concat` ">\n"
-		`concat` (self.isConst && "const " || "")
-		`concat` self._type:serialize() `concat` " " 
-		`concat` (self._class && self._class:serialize() `concat` ":" || "")
-		`concat` self.name
-		`concat` (self.value && " = " `concat` self.value:serialize() || "")
-		`concat` ";";
-}
+string TemplateDefinition:serialize()
+	= "template <" `concat` self.template_list:serialize() `concat` ">\n" `concat` self.definition:serialize();

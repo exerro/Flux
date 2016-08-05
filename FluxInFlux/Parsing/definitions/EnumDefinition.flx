@@ -20,12 +20,13 @@ bool EnumDefinition:parse(Source source) {
 
 	source:push( new Flux::Parsing::EnumDefinition( name, members, position ) );
 
-	let enum_type = new Flux::Parsing::Typename( name, position );
+	let enum_type = new Flux::Parsing::Type( name, [], position );
 	let enum_ref = new Flux::Parsing::ReferenceExpression( name, position );
 
 	foreach member in members {
 		let name = Flux::Parsing::resolveDefinitionName( source, member );
-		source:push( new Flux::Parsing::Definition( enum_type, null, name, new Flux::Parsing::DotIndex( enum_ref, member ), true, position ) );
+		let member_index = new Flux::Parsing::DotIndex( enum_ref, member );
+		source:push( new Flux::Parsing::Definition( enum_type, null, name, member_index, true, position ) );
 	}
 
 	return true;

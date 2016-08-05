@@ -1,6 +1,4 @@
 
-import TemplateList;
-
 namespace Flux::Parsing;
 
 class TemplateList extends ASTNode {

@@ -2,8 +2,10 @@
 import flux;
 
 let source_code = '
-void cls<T>:something() {
-	return 5;
+void main() {
+	if x > 1 1;
+	else if y > 1 2;
+	else 3;
 }
 ';
 
@@ -27,10 +29,10 @@ void main() {
 
 	new IRContext c();
 
-	new IRClassType t1([]);
-	new IRClassType t2([]);
-	new IRClassType t3([]);
-	new IRClassType t4([]);
+	new IRType t1(c.heap, new IRTypeSignature("t1", []));
+	new IRType t2(c.heap, new IRTypeSignature("t2", []));
+	new IRType t3(c.heap, new IRTypeSignature("t3", []));
+	new IRType t4(c.heap, new IRTypeSignature("t4", []));
 
 	c:pushScope();
 	c:use "a";
@@ -41,11 +43,5 @@ void main() {
 	c:define("a::f", true, t4, new Flux::Position("dashjk", 1, 1, 1));
 
 	foreach v in c:lookup "f"
-		print( match c.heap:lookup( v ).type {
-			t1 => "t1";
-			t2 => "t2";
-			t3 => "t3";
-			t4 => "t4";
-			default => "none";
-		} );
+		print( c.heap:lookup( v ).type.signature.name );
 }

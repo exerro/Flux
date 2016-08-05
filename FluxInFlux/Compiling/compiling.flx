@@ -1,14 +1,7 @@
 
-class IRType;
 class IRDefinitionHeap;
 class IRContext;
 
 import IRType;
 import IRDefinitionHeap;
-
-import IRClassType;
-import IRTemplateType;
-import IRFunctionType;
-import IRInstanceType;
-
 import IRContext;

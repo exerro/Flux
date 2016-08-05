@@ -1,12 +1,25 @@
 
 // namespace Flux::Compiling;
 
-/*abstract*/ class IRType {
-	bool is(IRType other);
-	bool doesExtend(IRType other);
-	bool doesCastTo(IRType other);
+// container class for members
 
-	static IRType loadfrom(Parsing::Type t);
+import IRTypeSignature;
 
-	string tostring();
+class IRType {
+	IRTypeSignature signature;
+	IRDefinitionHeap heap;
+	IRDefinitionPointer ptr = null;
+	int member_count = 0;
+	IRType instance = null;
+	IRType super;
+	IRType[] container;
+
+	IRType(IRDefinitionHeap heap, IRTypeSignature sig) {
+		self.heap = heap;
+		self.signature = sig;
+	}
+
+	void define(IRType super, IRType[] container, Parsing::ClassMember[] members);
+
+	IRDefinitionPointer[] lookup(string name);
 }

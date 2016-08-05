@@ -1,8 +1,0 @@
-
-namespace Flux::Parsing;
-
-TemplatedType ArrayType:parse( Source source, Type t )
-	= isArray && (lexer:skip( Symbol, "]" ) && new Flux::Parsing::TemplatedType( "Array", [t], position ) || source:error "expected ']'")
-	where lexer = source.lexer
-	where position = lexer:get().position
-	where isArray = lexer:skip( Symbol, "[" );

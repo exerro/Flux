@@ -5,12 +5,12 @@ class FunctionParameter extends ASTNode {
 	ASTNodeType type = Flux::Parsing::ASTNodeType.FunctionParameter;
 	Type _type;
 	string name;
-	bool nullable;
 
-	FunctionParameter(Type _type, string name, bool nullable, null Position position = _type.position) {
+	FunctionParameter(Type _type, string name, null Position position = _type.position) {
 		self._type = _type;
 		self.name = name;
-		self.nullable = nullable;
 		self.position = position;
 	}
+
+	FunctionParameter parse(Source source, bool parameterNamesGiven, null FunctionParameter prev);
 }

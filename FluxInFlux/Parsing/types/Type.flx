@@ -1,25 +1,96 @@
 
 namespace Flux::Parsing;
 
-Type Type:parse( Source source ) {
-	let name
-		 = Flux::Parsing::TemplatedType:parse( source )
-		|| Flux::Parsing::Typename:parse( source )
-		|| Flux::Parsing::FunctionType:parse( source )
-		|| source:error "expected typename";
+string Type:serialize()
+	= self.name `concat` (#self.classes == 0 && "" || "<" `concat` (self.classes `concattenate` ", ") `concat` ">");
+
+ASTNode Type:parse( Source source ) {
+	let lexer = source.lexer;
+	let start = lexer:mark();
+	let position = lexer:get().position;
+
+	string name = Flux::Parsing::parseName( source ) || lexer:skipValue( Keyword, "auto" );
+	Type[] classes = [];
+	Type type;
+
+	if name && lexer:skip( Symbol, "<" ) {
+		repeat
+			classes[#classes + 1] = Flux::Parsing::Type:parse( source );
+		while lexer:skip( Symbol, "," );
+
+		if !lexer:skip( Symbol, ">" ) source:error "expected '>' after template";
+
+		type = new Flux::Parsing::Type( name, classes, position );
+	}
+	else if lexer:skip( Keyword, "function" ) {
+		Type[] parameters = [Flux::Parsing::Type:parse( source )];
+
+		if !lexer:skip( Symbol, "(" )
+			source:error "expected '(' for function type parameters";
+
+		if !lexer:skip( Symbol, ")" ) {
+			repeat
+				parameters[#parameters + 1] = Flux::Parsing::Type:parse( source );
+			while lexer:skip( Symbol, "," );
+			
+			if !lexer:skip( Symbol, ")" )
+				source:error "expected ')' after function type parameters";
+		}
+
+		type = new Flux::Parsing::Type( "function", parameters, position );
+	}
+	// add function type parsing...?
+	else if !name
+		source:error "expected typename";
+	else
+		type = new Flux::Parsing::Type( name, [], position );
 
 	while true {
-		let change
-			 = Flux::Parsing::TableType:parse( source, name )
-			|| Flux::Parsing::ArrayType:parse( source, name )
-			|| Flux::Parsing::ReferenceType:parse( source, name );
-		
-		if change name = change;
+		let pos = lexer:get().position;
+
+		if lexer:skip( Symbol, "[" ) {
+			if !lexer:skip( Symbol, "]" ) source:error "expected ']' to close list type modifier";
+			type = Flux::Parsing::Type:listType( pos, type );
+		}
+		else if lexer:skip( Symbol, "{" ) {
+			if lexer:skip( Symbol, "}" )
+				type = Flux::Parsing::Type:tableType( pos, new Flux::Parsing::Type( pos, "string", [] ), type );
+			else {
+				let index = Flux::Parsing::Type:parse( source );
+				if !lexer:skip( Symbol, "}" ) source:error "expected '}' to close array type modifier";
+
+				type = Flux::Parsing::Type:tableType( pos, index, type );
+			}
+		}
+		else if lexer:skip( Symbol, "&" ) {
+			type = Flux::Parsing::Type:referenceType( pos, type );
+		}
+		else if lexer:skip( Symbol, "?" ) {
+			type = Flux::Parsing::Type:optionType( pos, type );
+		}
 		else break;
 	}
 
-	return name;
+	return type;
 }
 
 Type Type:autoType( Position position )
-	= new Flux::Parsing::Typename( "auto", position );
+	= new Flux::Parsing::Type( "auto", [], position );
+
+Type Type:voidType( Position position )
+	= new Flux::Parsing::Type( "void", [], position );
+
+Type Type:functionType( Position position, Type returns, Type[] parameters )
+	= new Flux::Parsing::Type( "function", [returns, unpack( parameters )], position );
+
+Type Type:listType( Position position, Type value )
+	= new Flux::Parsing::Type( "List", [value], position );
+
+Type Type:tableType( Position position, Type index, value )
+	= new Flux::Parsing::Type( "Table", [index, value], position );
+
+Type Type:referenceType( Position position, Type value )
+	= new Flux::Parsing::Type( "Reference", [value], position );
+
+Type Type:optionType( Position position, Type value )
+	= new Flux::Parsing::Type( "Option", [value], position );

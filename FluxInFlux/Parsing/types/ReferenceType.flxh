@@ -1,6 +1,0 @@
-
-namespace Flux::Parsing;
-
-class ReferenceType extends Flux::Parsing::Type {
-	
-}

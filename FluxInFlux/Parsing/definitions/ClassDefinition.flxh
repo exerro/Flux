@@ -1,4 +1,6 @@
 
+// this probably needs to be updated to the new type/definition system
+
 import ClassMember;
 
 namespace Flux::Parsing;
@@ -10,6 +12,7 @@ class ClassDefinition extends ASTNode { // add something about templates pls
 	Type[] container;
 	ClassMember[] members;
 	string[] _implements;
+	bool isFinal, isAbstract, isVoid;
 
 	ClassDefinition(string name, string _extends, Type[] container, ClassMember[] members, string[] _implements, Position position) {
 		self.name = name;

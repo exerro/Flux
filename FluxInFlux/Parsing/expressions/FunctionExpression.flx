@@ -6,7 +6,7 @@ FunctionExpression FunctionExpression:parse( Source source ) {
 	let position = lexer:get().position;
 
 	if lexer:skip( Keyword, "function" ) {
-		Type returns = lexer:skip( Symbol, "->" ) && Flux::Parsing::Type:parse( source ) || Flux::Parsing::Type.autoType( position );
+		Type returns = lexer:skip( Symbol, "->" ) && Flux::Parsing::Type:parse( source ) || Flux::Parsing::Type:autoType( position );
 		FunctionParameter[] parameters = [];
 
 		if !lexer:skip( Symbol, "(" ) source:error "expected '(' for function parameters";
@@ -35,7 +35,7 @@ FunctionExpression FunctionExpression:parse( Source source ) {
 		while !lexer:skip( Symbol, "=>" ) {
 			let pos = lexer:get().position;
 			let name = lexer:skipValue( Identifier ) || source:error "expected parameter name";
-			let ptype = lexer:skip( Symbol, "->" ) && Flux::Parsing::Type:parse( source ) || Flux::Parsing::Type.autoType( pos );
+			let ptype = lexer:skip( Symbol, "->" ) && Flux::Parsing::Type:parse( source ) || Flux::Parsing::Type:autoType( pos );
 
 			parameters[#parameters + 1] = new Flux::Parsing::FunctionParameter(ptype, name, false, pos);
 			position = lexer:get().position;

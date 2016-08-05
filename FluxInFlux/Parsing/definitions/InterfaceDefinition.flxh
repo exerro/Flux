@@ -1,4 +1,6 @@
 
+// this probably needs to be updated to the new type/definition system
+
 import ClassMember;
 
 namespace Flux::Parsing;

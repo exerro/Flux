@@ -7,6 +7,8 @@ import TemplateDefinition;
 
 namespace Flux::Parsing;
 
+const bool DEFAULT_PUBLIC = true;
+
 class Definition extends ASTNode {
 	ASTNodeType type = Flux::Parsing::ASTNodeType.Definition;
 	Type _type;

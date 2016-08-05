@@ -10,6 +10,7 @@ class ASTNode {
 	ASTNodeType type;
 	Position position;
 
-	static string serialize();
+	string serialize();
+
 	static ASTNode parse( Source source );
 }

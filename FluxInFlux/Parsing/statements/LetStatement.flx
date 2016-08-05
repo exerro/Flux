@@ -12,11 +12,11 @@ bool LetStatement:parse(Source source) {
 	repeat {
 		Position position = lexer:get().position;
 		string name1 = Flux::Parsing::parseName( source );
-		Type cast1 = name1 && (lexer:skip( Symbol, "->" ) && Flux::Parsing::Type:parse( source ) || new Flux::Parsing::Typename( "auto", position ));
+		Type cast1 = name1 && (lexer:skip( Symbol, "->" ) && Flux::Parsing::Type:parse( source ) || Flux::Parsing::Type:autoType( position ));
 		Position backtick_pos = lexer:get().position;	
 		string backtick = lexer:skipValue( Backtick );
 		string name2 = backtick && Flux::Parsing::parseName( source ) || !name1 && source:error "expected name";
-		Type cast2 = name2 && (lexer:skip( Symbol, "->" ) && Flux::Parsing::Type:parse( source ) || new Flux::Parsing::Typename( "auto", lexer:peek(-1).position ));
+		Type cast2 = name2 && (lexer:skip( Symbol, "->" ) && Flux::Parsing::Type:parse( source ) || Flux::Parsing::Type:autoType( lexer:peek(-1).position ));
 		FunctionParameter[] parameters;
 		Expression expr;
 
@@ -43,7 +43,7 @@ bool LetStatement:parse(Source source) {
 				repeat {
 					let position = lexer:get().position;
 					let name = lexer:skipValue( Identifier ) || source:error "expected parameter name";
-					let _type = lexer:skip( Symbol, "->" ) && Flux::Parsing::Type:parse( source ) || new Flux::Parsing::Typename( "auto", position );
+					let _type = lexer:skip( Symbol, "->" ) && Flux::Parsing::Type:parse( source ) || Flux::Parsing::Type:autoType( position );
 
 					parameters[#parameters + 1] = new Flux::Parsing::FunctionParameter( _type, name, false );
 				}
@@ -61,14 +61,14 @@ bool LetStatement:parse(Source source) {
 		if parameters {
 			expr = new Flux::Parsing::FunctionExpression(
 				parameters,
-				new Flux::Parsing::Typename( "auto", position ),
+				Flux::Parsing::Type:autoType( position ),
 				new Flux::Parsing::Block( [new Flux::Parsing::ReturnStatement( expr )], position ),
 				position
 			);
 		}
 
 		source:push( new Flux::Parsing::Definition(
-			new Flux::Parsing::Typename( "auto", position ),
+			Flux::Parsing::Type:autoType( position ),
 			null,
 			Flux::Parsing::resolveDefinitionName( source, name1 ),
 			expr,

@@ -1,0 +1,15 @@
+
+// namespace Flux::Compiling;
+
+import IRTypeSignature;
+
+class IRTypeSignatureTemplate extends IRTypeSignature {
+	string name = null;
+	IRTypeSignature[] classes;
+
+	IRTypeSignatureTemplate(IRTypeSignature[] classes);
+
+	IRTypeComparison compare(IRTypeSignature sig);
+
+	string tostring();
+}

@@ -148,7 +148,7 @@ Token Lexer:consumeSymbol() {
 		self.position += 1;
 		then return new Flux::Parsing::Token( Flux::Parsing::TokenType.Symbol, s1, self:getPosition( 1 ) );
 	else
-		return self:error( "unexpected symbol '" .. s1 .. "'" );
+		return self:error( table.concat({ "unexpected symbol '", s1, "'" }) );
 }
 
 void Lexer:skipWhitespace() {

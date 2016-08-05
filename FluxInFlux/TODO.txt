@@ -4,3 +4,4 @@
 [ ] Make class function definitions add '<class> self' as first parameter
 [ ] Add `A if C else B` syntax
 [ ] Add @flagdef, @flagcdef and preprocessor instructions
+[ ] List comprehensions

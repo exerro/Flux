@@ -1,0 +1,13 @@
+
+namespace Flux::Parsing;
+
+class OperatorExpression extends Expression {
+	string op;
+	Expression[] operands;
+
+	OperatorExpression(string op, Expression[] operands, Position position) {
+		self.op = op;
+		self.operands = operands;
+		self.position = position;
+	}
+}

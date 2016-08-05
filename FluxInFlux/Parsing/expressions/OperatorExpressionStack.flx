@@ -1,0 +1,41 @@
+
+namespace Flux::Parsing;
+
+bool OperatorExpressionStack:wasLastBinaryOperator() = last == BINARY_OPERATOR;
+bool OperatorExpressionStack:wasLastLeftUnaryOperator() = last == LEFT_UNARY_OPERATOR;
+bool OperatorExpressionStack:wasLastRightUnaryOperator() = last == RIGHT_UNARY_OPERATOR;
+bool OperatorExpressionStack:wasLastExpression() = last == EXPRESSION;
+
+void OperatorExpressionStack:popOperator() {
+	self.operators[#self.operators] = null;
+	self.operator_precedences[#self.operator_precedences] = null;
+	self.operator_types[#self.operator_types] = null;
+}
+
+Expression OperatorExpressionStack:popOperand() {
+
+}
+
+void OperatorExpressionStack:pushOperand(Expression e) {
+	self.operands[#self.operands + 1] = e;
+	self.last = EXPRESSION;
+}
+void OperatorExpressionStack:pushBinaryOperator(string e, int precedence, Position p) {
+
+}
+
+void OperatorExpressionStack:pushLeftUnaryOperator(string e, int precedence, Position p) {
+
+}
+
+void OperatorExpressionStack:pushRightUnaryOperator(string e, int precedence, Position p) {
+
+}
+
+void OperatorExpressionStack:collapse() {
+
+}
+
+Expression OperatorExpressionStack:result() {
+
+}

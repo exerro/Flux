@@ -2,11 +2,8 @@
 import flux;
 
 let source_code = '
-namespace N;
-int i = 0;
-
-int f() {
-	int a = 0;
+void cls<T>:something() {
+	return 5;
 }
 ';
 
@@ -30,13 +27,25 @@ void main() {
 
 	new IRContext c();
 
+	new IRClassType t1([]);
+	new IRClassType t2([]);
+	new IRClassType t3([]);
+	new IRClassType t4([]);
+
 	c:pushScope();
 	c:use "a";
-	c:define("b::c", true, new IRClassType([]), new Flux::Position("dashjk", 1, 1, 1));
-	c:define("a::b::c", true, new IRClassType([]), new Flux::Position("dashjk", 1, 1, 1));
-	// c:pushScope();
+	c:use "b";
+	c:define("a::f", true, t1, new Flux::Position("dashjk", 1, 1, 1));
+	c:define("f", true, t2, new Flux::Position("dashjk", 1, 1, 1));
+	c:define("b::f", true, t3, new Flux::Position("dashjk", 1, 1, 1));
+	c:define("a::f", true, t4, new Flux::Position("dashjk", 1, 1, 1));
 
-	foreach v in c:lookup "b::c"
-		print( c.heap:lookup( v ).name ); // a::b::c, b::c
+	foreach v in c:lookup "f"
+		print( match c.heap:lookup( v ).type {
+			t1 => "t1";
+			t2 => "t2";
+			t3 => "t3";
+			t4 => "t4";
+			default => "none";
+		} );
 }
-

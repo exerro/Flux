@@ -5,8 +5,6 @@ void IRContext:define(string name, bool isConst, IRType type, Position position)
 	self.scopes[#self.scopes]:define( name, isConst, type, position );
 }
 IRDefinitionPointer[] IRContext:lookup(string name) {
-	string[] isUsing = [];
-
 	for (int i = #self.scopes, i > 1, i--) {
 		let found = self.scopes[i]:lookup( name );
 		if #found > 0 return found;
@@ -17,18 +15,15 @@ IRDefinitionPointer[] IRContext:lookup(string name) {
 
 	IRScope global = self.scopes[1];
 	IRDefinitionPointer[] found = [];
-
-	foreach u in global.isUsing
-		table.insert( isUsing, 1, u );
-
-	foreach u in isUsing {
-		foreach v in global:lookup( table.concat( [u, name], "::" ) )
-			found[#found + 1] = v;
-	}
+	string[] isUsing = [];
 
 	foreach v in global:lookup( name )
 		found[#found + 1] = v;
-	
+
+	foreach u in global.isUsing
+		foreach v in global:lookup( table.concat( [u, name], "::" ) )
+			found[#found + 1] = v;
+
 	return found;
 }
 

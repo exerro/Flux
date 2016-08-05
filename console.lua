@@ -1,16 +1,23 @@
 
 package.path = package.path .. ";/home/ben/Code/Flux/?/init.lua"
+package.path = package.path .. ";/home/ben/Code/Flux/?.lua"
 
 local Flux = require "Flux"
 
 local source = Source "FluxInFlux"
 local emitter = Emitter()
 
+for i = 1, 5 do
+	if not source.hasMainFile then
+		source = Source( ("../"):rep( i ) .. "FluxInFlux" )
+	end
+end
+
 local ok, err = pcall( function()
 	if source.hasMainFile then
 		source:import "main"
 	else
-		print( "path has no main file", 0 )
+		error( "path 'FluxInFlux' has no main file", 0 )
 	end
 
 	for i = 1, #source.statements do
@@ -25,5 +32,5 @@ local ok, err = pcall( function()
 end )
 
 if not ok then
-	print( err )
+	error( err, 0 )
 end

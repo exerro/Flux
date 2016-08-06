@@ -77,7 +77,6 @@ bool Definition:parse(Source source) {
 
 	// if a type wasn't given or there isn't a name next, it's not a definition
 	if !_type || !name {
-		print( _type && _type:serialize(), name, lexer:get().value );
 		lexer:jump( start );
 		if _template {
 			Flux::Parsing::TemplateList:parse( source );

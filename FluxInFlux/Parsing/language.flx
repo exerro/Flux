@@ -42,6 +42,7 @@ let _ = (function() {
 	class extends implements
 	interface implements
 	enum
+	struct
 
 	final abstract
 	public private static

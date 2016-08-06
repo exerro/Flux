@@ -21,6 +21,9 @@ bool ClassDefinition:parse(Source source) {
 			source:error( "expected definition after template" );
 		else return false;
 
+	if !_template
+		_template = new Flux::Parsing::TemplateList([], []);
+
 	// probably remove this? why limit classes to the main body of a file?
 	if !source.context.isNamespace
 		source:error "invalid section to define class";
@@ -45,7 +48,9 @@ bool ClassDefinition:parse(Source source) {
 		if !lexer:skip( Symbol, ")" ) source:error "expected ')' to close container";
 	}
 
+	source:pushClassnameContext();
 	_extends = lexer:skip( Keyword, "extends" ) && Flux::Parsing::Type:parse( source );
+	source:popContext();
 	
 	if lexer:skip( Keyword, "implements" )
 		repeat {
@@ -82,12 +87,12 @@ bool ClassDefinition:parse(Source source) {
 		Definition raw_def;
 
 		// if the definition is a normal definition, it needs a template added to it
-		if definition.type == Flux::Parsing::ASTNodeType.Definition && _template {
+		if definition.type == Flux::Parsing::ASTNodeType.Definition && #_template.names > 0 {
 			definition = new Flux::Parsing::TemplateDefinition(definition, _template, template_position);
 			raw_def = definition.definition;
 		}
 		// if the definition is a templated definition, add the class template params to it
-		else if _template {
+		else if #_template.names > 0 {
 			for (int i = #_template.names, i > 0, i--) {
 				table.insert( definition.template_list.names, 1, _template.names[i] );
 				table.insert( definition.template_list.classes, 1, _template.classes[i] );
@@ -110,7 +115,7 @@ bool ClassDefinition:parse(Source source) {
 }
 
 string ClassDefinition:serialize()
-	= (self._template && "template <" `concat` self._template:serialize() `concat` ">\n" || "")
+	= "template <" `concat` self._template:serialize() `concat` ">\n"
 		`concat` "class " `concat` self.name:serialize()
 		`concat` (self.container && " (" `concat` self.container[1]:serialize() `concat` ", " `concat` self.container[2]:serialize() `concat` ")" || "")
 		`concat` (self._extends && " extends " `concat` self._extends:serialize() || "")

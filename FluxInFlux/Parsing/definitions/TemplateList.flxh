@@ -1,14 +1,12 @@
 
 namespace Flux::Parsing;
 
-class TemplateList extends ASTNode {
-	ASTNodeType type = Flux::Parsing::ASTNodeType.TemplateList;
+class TemplateList {
 	string[] names;
 	Type[][] classes;
 	
 	TemplateList(string[] names, Type[][] classes) {
 		self.names = names;
 		self.classes = classes;
-		self.position = null;
 	}
 }

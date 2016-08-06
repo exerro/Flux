@@ -2,16 +2,59 @@
 import flux;
 
 let source_code = '
-template<T>
-class C<T> {
-	template<V> V f(T v) = 1;
-	void f() = 2;
-	static void ff() = 1;
+
+// an N dimensional vector, meant to be extended
+template<T [float, int]>
+class Vector<T> {
+	T[] objects;
+
+	Vector<T> operator+(Vector<T> value);
+	Vector<T> operator-(Vector<T> value);
+	Vector<T> operator*(float value);
+	Vector<T> operator/(float value);
+
+	float dot(Vector<T> value);
+	Vector<T> cross(Vector<T> value);
 }
 
-class A {
-	void f();
+template<T>
+class Vector2D<T> extends Vector<T> {
+	Vector2D(T x, y);
+
+	T getter x() = objects[0];
+	T getter y() = objects[1];
+
+	T setter x(T x) objects[0] = x;
+	T setter y(T y) objects[1] = y;
 }
+
+template<T>
+Vector2D<T>:Vector2D(T x, y) {
+	objects[0] = x;
+	objects[1] = y;
+}
+
+// class Vec2 = Vector2D<float>;
+
+class Something {
+	float x, y, z;
+	string something = "blah";
+
+	Something(float x, y, z);
+}
+
+Something:Something(float _x, _y, _z) {
+	x = _x; y = _y; z = _z;
+}
+
+void f(struct {float x, y} v) {
+	print( v.x, v.y );
+}
+
+f( new Vector2D<float>(1.0, 2.0) ); // 1.0, 2.0
+f( new Something(5.0, 7.0, 9.0) ); // 5.0, 7.0
+f( new Vec2(3.0, 4.0) ); // 3.0, 4.0
+
 ';
 
 void main() {

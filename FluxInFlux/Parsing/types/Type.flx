@@ -23,7 +23,8 @@ ASTNode Type:parse( Source source ) {
 		type = new Flux::Parsing::Type( name, classes, position );
 	}
 	else if !source.context.isClassname && lexer:skip( Keyword, "function" ) {
-		Type[] parameters = [Flux::Parsing::Type:parse( source )];
+		Type returns = Flux::Parsing::Type:parse( source );
+		Type[] parameters = [];
 
 		if !lexer:skip( Symbol, "(" )
 			source:error "expected '(' for function type parameters";
@@ -37,7 +38,31 @@ ASTNode Type:parse( Source source ) {
 				source:error "expected ')' after function type parameters";
 		}
 
-		type = new Flux::Parsing::Type( "function", parameters, position );
+		type = new Flux::Parsing::Type:functionType( position, returns, parameters );
+	}
+	else if !source.context.isClassname && lexer:skip( Keyword, "struct" ) {
+		if !lexer:skip( Symbol, "{" )
+			source:error "expected '{' for struct body";
+
+		string[] names = [];
+		Type[] classes = [];
+
+		repeat {
+			if #classes > 0 && lexer:test( Identifier ) && (lexer:test( Symbol, ",", 1 ) || lexer:test( Symbol, "}", 1 )) {
+				classes[#classes + 1] = classes[#classes];
+				names[#names + 1] = lexer:next().value;
+			}
+			else {
+				classes[#classes + 1] = Flux::Parsing::Type:parse( source );
+				names[#names + 1] = lexer:skipValue( Identifier ) || source:error "expected struct member name";
+			}
+		}
+		while lexer:skip( Symbol, "," );
+		
+		if !lexer:skip( Symbol, "}" )
+			source:error "expected '}' after struct body";
+
+		type = new Flux::Parsing::Type:structType( position, names, classes );
 	}
 	// add function type parsing...?
 	else if !name
@@ -94,3 +119,12 @@ Type Type:referenceType( Position position, Type value )
 
 Type Type:nullableType( Position position, Type value )
 	= new Flux::Parsing::Type( "null", [value], position );
+
+Type Type:structType( Position position, string[] names, Type[] types ) {
+	Type[] classes = [];
+	foreach i, v in names {
+		classes[i] = new Flux::Parsing::Type( v, [types[i]], types[i].position );
+	}
+	table.sort( classes, lambda a b => a.name > b.name );
+	return new Flux::Parsing::Type( "struct", classes, position );
+}

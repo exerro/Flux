@@ -38,6 +38,7 @@ class Source {
 	Context pushContext();
 	Context popContext();
 	Context pushRootContext();
+	Context pushClassnameContext();
 	Context pushNamespaceContext(string name);
 	Context pushClassContext(string name);
 	Context pushInterfaceContext(string name);

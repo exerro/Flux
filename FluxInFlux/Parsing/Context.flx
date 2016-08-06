@@ -20,13 +20,18 @@ Context Context:specialiseNamespace(string name) {
 	return self;
 }
 
-Context Context:specialiseClass(string name) {
+Context Context:specialiseClass(Type name) {
 	self.isClass = true;
 	self.class_name = name;
 	return self;
 }
 
-Context Context:specialiseInterface() {
+Context Context:specialiseClassname() {
+	self.isClassname = true;
+	return self;
+}
+
+Context Context:specialiseInterface(Type name) {
 	self.isInterface = true;
 	self.class_name = name;
 	return self;

@@ -26,6 +26,9 @@ Context Source:pushNamespaceContext(string name)
 Context Source:pushClassContext(string name)
 	= self:pushContext():specialiseClass(name);
 
+Context Source:pushClassnameContext()
+	= self:pushContext():specialiseClassname();
+
 Context Source:pushInterfaceContext(string name)
 	= self:pushContext():specialiseInterface(name);
 

@@ -2,7 +2,8 @@
 namespace Flux::Parsing;
 
 string ClassMember:serialize()
-	= (self.isPublic && "public " || "private ")
+	= (self.template_list && "template <" `concat` self.template_list:serialize() `concat` "> " || "")
+		`concat` (self.isPublic && "public " || "private ")
 		`concat` (self.isStatic && "static " || "")
 		`concat` (self.isConst && "const " || "")
 		`concat` self.type:serialize()

@@ -5,7 +5,7 @@ bool Definition:parse(Source source) {
 	let lexer = source.lexer;
 	let start = lexer:mark();
 	let isClassDef = source.context.isInterface || source.context.isClass;
-	let classname = isClassDef && source.context.class_name:gsub( ".+::", "" );
+	let classname = isClassDef && source.context.class_name.name:gsub( ".+::", "" );
 	let position = lexer:get().position;
 
 	TemplateList _template;
@@ -137,6 +137,11 @@ bool Definition:parse(Source source) {
 			bool parameterNamesGiven = true;
 			bool defaults_started = false;
 
+			if source.context.isClass && !isStatic {
+				parameters[1] = new Flux::Parsing::FunctionParameter(source.context.class_name, "self");
+				parameter_types[1] = source.context.class_name;
+			}
+
 			if (name == classname || _class && name == _class.name) && _type.name != "void"
 				source:error( "expected return type of void for constructor", _type.position );
 
@@ -149,8 +154,11 @@ bool Definition:parse(Source source) {
 				catch ParserException e {}
 
 				lexer:jump( _mark );
-				int n = 0;
+				int n = source.context.isClass && 1 || 0;
 				Type last_type;
+
+				if !parameterNamesGiven && source.context.isClass && !isStatic
+					parameters[1].name = "a";
 
 				repeat { // parse parameters
 					parameter = Flux::Parsing::FunctionParameter:parse(source, parameterNamesGiven, parameter);

@@ -3,8 +3,14 @@ import flux;
 
 let source_code = '
 template<T>
-class C<T> (string, float) extends Vector<T> implements IA, IB, IC {
+class C<T> {
+	template<V> V f(T v) = 1;
+	void f() = 2;
+	static void ff() = 1;
+}
 
+class A {
+	void f();
 }
 ';
 

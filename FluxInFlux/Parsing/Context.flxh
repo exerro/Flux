@@ -9,9 +9,10 @@ class Context {
 	     isNamespace = false,
 	     isVarargFunction = false,
 		 isPublic = true,
-		 isRoot = false;
+		 isRoot = false,
+		 isClassname = false;
 
-	string class_name;
+	Type class_name;
 	string namespace_name;
 
 	Context(null Context parent)
@@ -22,6 +23,7 @@ class Context {
 			self.isInterface = parent.isInterface;
 			self.isNamespace = false;
 			self.isRoot = false;
+			self.isClassname = false;
 			self.class_name = parent.class_name;
 			self.namespace_name = parent.namespace_name;
 			self.isPublic = parent.isPublic;
@@ -32,9 +34,10 @@ class Context {
 	void setPublic(bool isPublic);
 
 	Context specialiseRoot();
+	Context specialiseClassname();
 	Context specialiseNamespace(string name);
-	Context specialiseClass(string name);
-	Context specialiseInterface(string name);
+	Context specialiseClass(Type name);
+	Context specialiseInterface(Type name);
 	Context specialiseFunction(bool isVararg);
 	Context specialiseLoop();
 }

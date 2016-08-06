@@ -2,19 +2,27 @@
 namespace Flux::Parsing;
 
 class ClassMember {
-	string[] name;
+	string name;
 	Type type;
+	TemplateList template_list;
 	bool isConst;
-	Position position;
 	bool isStatic, isPublic;
+	Position position;
 	
-	ClassMember(Definition d) {
+	ClassMember(ASTNode d) {
+		TemplateList[] template_list;
+		if d.type == Flux::Parsing::ASTNodeType.TemplateDefinition {
+			template_list = d.template_list;
+			d = d.definition;
+		}
+
 		self.name = d.name;
 		self.type = d._type;
+		self.template_list = template_list;
 		self.isConst = d.isConst;
-		self.position = d.position;
 		self.isPublic = d.isPublic;
 		self.isStatic = d.isStatic;
+		self.position = d.position;
 	}
 
 	string serialize();

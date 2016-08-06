@@ -5,21 +5,23 @@ import ClassMember;
 
 namespace Flux::Parsing;
 
-class ClassDefinition extends ASTNode { // add something about templates pls
+class ClassDefinition extends Flux::Parsing::ASTNode {
 	ASTNodeType type = Flux::Parsing::ASTNodeType.ClassDefinition;
-	string name;
-	string _extends;
+	Type name;
 	Type[] container;
-	ClassMember[] members;
+	Type _extends;
 	string[] _implements;
+	TemplateList _template;
+	ClassMember[] members;
 	bool isFinal, isAbstract, isVoid;
 
-	ClassDefinition(string name, string _extends, Type[] container, ClassMember[] members, string[] _implements, Position position) {
+	ClassDefinition(Type name, Type[] container, Type _extends, string[] _implements, TemplateList _template, ClassMember[] members, Position position) {
 		self.name = name;
-		self._extends = _extends;
 		self.container = container;
-		self.members = members;
+		self._extends = _extends;
 		self._implements = _implements;
+		self._template = _template;
+		self.members = members;
 		self.position = position;
 	}
 }

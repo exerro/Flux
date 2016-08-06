@@ -5,21 +5,41 @@ bool ClassDefinition:parse(Source source) {
 	let lexer = source.lexer;
 	let position = lexer:get().position;
 
-	if !source.context.isNamespace || !lexer:skip( Keyword, "class" ) return false;
+	TemplateList _template;
+
+	// read a template
+	if lexer:skip( Keyword, "template" ) {
+		if !lexer:skip( Symbol, "<" ) source:error "expected '<' after 'template'";
+		_template = Flux::Parsing::TemplateList:parse( source );
+		if !lexer:skip( Symbol, ">" ) source:error "expected '>' after template list";
+	}
+
+	if !lexer:skip( Keyword, "class" )
+		if _template
+			source:error( "expected definition after template" );
+		else return false;
+
+	// probably remove this? why limit classes to the main body of a file?
+	if !source.context.isNamespace
+		source:error "invalid section to define class";
 	
-	string name = Flux::Parsing::resolveDefinitionName( source, Flux::Parsing::parseName( source ) || source:error "expected name after 'class'" );
-	Type _extends = lexer:skip( Keyword, "extends" ) && Flux::Parsing::Type:parse( source );
+	Type name = Flux::Parsing::Type:parse( source );
+	Type _extends;
 	Type[] container;
 	string[] _implements = [];
+
+	name.name = Flux::Parsing::resolveDefinitionName( source, name.name );
 
 	if lexer:skip( Symbol, "(" ) {
 		let t1 = Flux::Parsing::Type:parse( source );
 		if lexer:skip( Symbol, "," )
 			container = [t1, Flux::Parsing::Type:parse( source )];
 		else
-			container = [new Flux::Parsing::Typename( "int", t1.position ), t1];
+			container = [t1];
 		if !lexer:skip( Symbol, ")" ) source:error "expected ')' to close container";
 	}
+
+	_extends = lexer:skip( Keyword, "extends" ) && Flux::Parsing::Type:parse( source );
 	
 	if lexer:skip( Keyword, "implements" )
 		repeat {
@@ -47,8 +67,6 @@ bool ClassDefinition:parse(Source source) {
 	source:popContext();
 
 	let definitions = source:popBlock();
-	let selftype = new Flux::Parsing::Typename( name, position );
-	let selfref = new Flux::Parsing::ReferenceExpression( name, position );
 
 	ClassMember[] members = [];
 
@@ -56,26 +74,27 @@ bool ClassDefinition:parse(Source source) {
 		members[#members + 1] = new Flux::Parsing::ClassMember( definition );
 	}
 
-	source:push( new Flux::Parsing::ClassDefinition( name, _extends, container, members, _implements, position ) );
-
-	foreach definition in definitions {
+	source:push( new Flux::Parsing::ClassDefinition( name, container, _extends, _implements, _template, members, position ) );
+	
+	/*foreach definition in definitions {
 		if definition.type == Flux::Parsing::ASTNodeType.TemplateDefinition {
 			if definition.value
 				source:push( new Flux::Parsing::TemplateDefinition(
-					definition._type, selftype, definition.name, definition.value, false, false, false, definition._template, definition.position ) );
+					definition._type, name, definition.name, definition.value, false, false, false, definition._template, definition.position ) );
 		}
 		else
 			if definition.value
 				source:push( new Flux::Parsing::Definition(
 					definition._type, selftype, definition.name, definition.value, false, false, false, definition.position ) );
-	}
+	}*/
 
 	return true;
 }
 
 string ClassDefinition:serialize()
-	= "class " `concat` self.name
-		`concat` (self._extends && " extends " `concat` self._extends || "")
+	= (self._template && "template <" `concat` self._template:serialize() `concat` ">\n" || "")
+		`concat` "class " `concat` self.name:serialize()
 		`concat` (self.container && " (" `concat` self.container[1]:serialize() `concat` ", " `concat` self.container[2]:serialize() `concat` ")" || "")
+		`concat` (self._extends && " extends " `concat` self._extends:serialize() || "")
 		`concat` (#self._implements > 0 && " implements " `concat` table.concat(self._implements, ", ") || "")
 		`concat` " {\n\t" `concat` (self.members `concattenate` "\n\t") `concat` "\n}";

@@ -30,6 +30,8 @@ bool Definition:parse(Source source) {
 	bool isStatic = isClassDef && lexer:skip( Keyword, "static" ) && true || false;
 	bool isConst = lexer:skip( Keyword, "const" ) && true || false;
 
+	int pretype_marker = lexer:mark();
+
 	// '_type' is the return type/value type
 	Type _type;
 	// 'name' is the name of the function/variable
@@ -77,15 +79,13 @@ bool Definition:parse(Source source) {
 
 	// if a type wasn't given or there isn't a name next, it's not a definition
 	if !_type || !name {
-		lexer:jump( start );
-		if _template {
-			Flux::Parsing::TemplateList:parse( source );
+		bool testClass = lexer:test( Keyword, "class" );
+		lexer:jump( pretype_marker );
+		if _template && !testClass
 			source:error "expected definition after 'template'";
-		}
-		else if isConst {
-			lexer:next();
+		else if isConst
 			source:error "expected definition after 'const'";
-		}
+		lexer:jump( start );
 		// same for public/private/static
 		return false;
 	}

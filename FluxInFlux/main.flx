@@ -2,8 +2,9 @@
 import flux;
 
 let source_code = '
-void f(int x = 0, y = x) {
-	print( x, y );
+template<T>
+class C<T> (string, float) extends Vector<T> implements IA, IB, IC {
+
 }
 ';
 

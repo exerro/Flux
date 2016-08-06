@@ -15,7 +15,7 @@ class Type extends Flux::Parsing::ASTNode {
 	static Type voidType( Position position );
 	static Type functionType( Position position, Type returns, Type[] parameters );
 	static Type listType( Position position, Type value );
-	static Type tableType( Position position, Type index, value );
+	static Type tableType( Position position, Type value, index );
 	static Type referenceType( Position position, Type value );
-	static Type optionType( Position position, Type value );
+	static Type nullableType( Position position, Type value );
 }

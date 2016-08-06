@@ -54,19 +54,19 @@ ASTNode Type:parse( Source source ) {
 		}
 		else if lexer:skip( Symbol, "{" ) {
 			if lexer:skip( Symbol, "}" )
-				type = Flux::Parsing::Type:tableType( pos, new Flux::Parsing::Type( pos, "string", [] ), type );
+				type = Flux::Parsing::Type:tableType( pos, type );
 			else {
 				let index = Flux::Parsing::Type:parse( source );
 				if !lexer:skip( Symbol, "}" ) source:error "expected '}' to close array type modifier";
 
-				type = Flux::Parsing::Type:tableType( pos, index, type );
+				type = Flux::Parsing::Type:tableType( pos, type, index );
 			}
 		}
 		else if lexer:skip( Symbol, "&" ) {
 			type = Flux::Parsing::Type:referenceType( pos, type );
 		}
 		else if lexer:skip( Symbol, "?" ) {
-			type = Flux::Parsing::Type:optionType( pos, type );
+			type = Flux::Parsing::Type:nullableType( pos, type );
 		}
 		else break;
 	}
@@ -86,11 +86,11 @@ Type Type:functionType( Position position, Type returns, Type[] parameters )
 Type Type:listType( Position position, Type value )
 	= new Flux::Parsing::Type( "List", [value], position );
 
-Type Type:tableType( Position position, Type index, value )
-	= new Flux::Parsing::Type( "Table", [index, value], position );
+Type Type:tableType( Position position, Type value, index )
+	= new Flux::Parsing::Type( "Table", [value, index], position );
 
 Type Type:referenceType( Position position, Type value )
 	= new Flux::Parsing::Type( "Reference", [value], position );
 
-Type Type:optionType( Position position, Type value )
-	= new Flux::Parsing::Type( "Option", [value], position );
+Type Type:nullableType( Position position, Type value )
+	= new Flux::Parsing::Type( "null", [value], position );

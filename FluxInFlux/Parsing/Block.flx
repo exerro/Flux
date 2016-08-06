@@ -27,8 +27,4 @@ string Block:parse(Source source) {
 }
 
 string Block:serialize()
-	= match #self {
-		0 => "{}";
-		1 => "\n\t" `concat` self[1]:serialize():gsub( "\n", "\n\t" );
-		default => "{\n\t" `concat` (self `concattenate` "\n"):gsub( "\n", "\n\t" ) `concat` "\n}";
-	};
+	= #self == 0 && "{}" || "{\n\t" `concat` (self `concattenate` "\n"):gsub( "\n", "\n\t" ) `concat` "\n}";

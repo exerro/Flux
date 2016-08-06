@@ -2,10 +2,8 @@
 import flux;
 
 let source_code = '
-void main() {
-	if x > 1 1;
-	else if y > 1 2;
-	else 3;
+void f(int x = 0, y = x) {
+	print( x, y );
 }
 ';
 

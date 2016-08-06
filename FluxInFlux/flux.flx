@@ -16,4 +16,4 @@ let string__match = string["match"];
 
 import Position;
 import Parsing.parsing;
-import Compiling.compiling;
+import IR.IR;

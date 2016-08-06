@@ -8,9 +8,9 @@ bool ClassDefinition:parse(Source source) {
 	if !source.context.isNamespace || !lexer:skip( Keyword, "class" ) return false;
 	
 	string name = Flux::Parsing::resolveDefinitionName( source, Flux::Parsing::parseName( source ) || source:error "expected name after 'class'" );
-	string _extends = lexer:skip( Keyword, "extends" ) && (Flux::Parsing::parseName( source ) || source:error "expected name after 'extends'");
-	string[] _implements = [];
+	Type _extends = lexer:skip( Keyword, "extends" ) && Flux::Parsing::Type:parse( source );
 	Type[] container;
+	string[] _implements = [];
 
 	if lexer:skip( Symbol, "(" ) {
 		let t1 = Flux::Parsing::Type:parse( source );

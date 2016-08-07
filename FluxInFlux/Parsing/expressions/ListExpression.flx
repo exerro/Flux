@@ -49,7 +49,7 @@ string ListExpression:serialize() {
 		foreach i, name in self.source_names
 			sources[#sources + 1] = self.source_values[i]:serialize() `concat` " => " `concat` name;
 
-	if hasSources
+	if hasComprehensions
 		foreach i, v in self.comprehensions
 			comprehensions[#comprehensions + 1] = v:serialize();
 

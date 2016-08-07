@@ -88,11 +88,13 @@ bool Definition:parse(Source source) {
 
 	// if a type wasn't given or there isn't a name next, it's not a definition
 	if !_type || !name {
-		bool testClass = lexer:test( Keyword, "class" ) || lexer:test( Keyword, "interface" );
+		bool testClass = lexer:test( Keyword, "class" )
+		              || lexer:test( Keyword, "interface" )
+		              || lexer:test( Keyword, "final" )
+		              || lexer:test( Keyword, "abstract" );
 		lexer:jump( pretype_marker );
-		if isConst
-			source:error "expected definition after 'const'";
-		else if _template && !testClass
+
+		if _template && !testClass
 			source:error "expected definition after 'template'";
 		else if #flags > 0
 			source:error "expected definition after definition flags given";

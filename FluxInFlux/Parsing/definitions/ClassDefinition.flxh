@@ -2,7 +2,8 @@
 // this probably needs to be updated to the new type/definition system
 
 import ClassMember;
-import ListClassDefinition;
+import AliasClassDefinition;
+import ClassDeclaration;
 
 namespace Flux::Parsing;
 

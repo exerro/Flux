@@ -52,6 +52,22 @@ bool ClassDefinition:parse(Source source) {
 
 	name.name = Flux::Parsing::resolveDefinitionName( source, name.name );
 
+	if lexer:test( Symbol, ";" ) {
+		if #flags > 0
+			source:error "expected class body: cannot give flags to class declarations";
+		else if isConst
+			source:error "expected class body: cannot declare class declaration const";
+		else if isFinal
+			source:error "expected class body: cannot declare class declaration final";
+		else if isAbstract
+			source:error "expected class body: cannot declare class declaration abstract";
+
+		lexer:next();
+		source:push( new Flux::Parsing::ClassDeclaration( name, _template, position ) );
+
+		return true;
+	}
+
 	// for `class intlist = int[];`
 	if lexer:skip( Symbol, "=" ) {
 		let type = Flux::Parsing::Type:parse( source );

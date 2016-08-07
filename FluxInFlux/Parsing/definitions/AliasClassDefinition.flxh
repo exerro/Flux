@@ -1,0 +1,18 @@
+
+import ClassMember;
+
+namespace Flux::Parsing;
+
+class AliasClassDefinition extends Flux::Parsing::ASTNode {
+	ASTNodeType type = Flux::Parsing::ASTNodeType.AliasClassDefinition;
+	Type name;
+	TemplateList _template;
+	Type[] types;
+
+	AliasClassDefinition(Type name, TemplateList _template, Type[] types, Position position) {
+		self.name = name;
+		self._template = _template;
+		self.types = types;
+		self.position = position;
+	}
+}

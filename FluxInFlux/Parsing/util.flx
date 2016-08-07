@@ -16,7 +16,7 @@ bool parseSemicolon(Lexer lexer)
 
 void expectSemicolon(Source source, null string location)
 	if !Flux::Parsing::parseSemicolon( source.lexer )
-		source:error( "expected semicolon" `concat` (location && " at " `concat` location || "") );
+		source:error( "expected ';'" `concat` (location && " at " `concat` location || "") );
 
 bool tokenFollowsLast(Lexer lexer)
 	= a.position.line == b.position.line && a.position.source == b.position.source && a.position.character + #a.value == b.position.character

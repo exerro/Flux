@@ -1,0 +1,6 @@
+
+namespace Flux::Parsing;
+
+string ClassDeclaration:serialize()
+	= "template <" `concat` self._template:serialize() `concat` ">\n"
+		`concat` "class " `concat` self.name:serialize() `concat` ";";

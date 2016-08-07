@@ -5,5 +5,5 @@
 [x] Make class function definitions add '<class> self' as first parameter
 [x] Add @flagdef, @flagcdef
 [ ] Add preprocessor instructions
-[ ] List comprehensions
+[x] List comprehensions
 [ ] Add import functionality

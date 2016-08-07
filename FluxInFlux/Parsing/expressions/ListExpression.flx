@@ -1,0 +1,62 @@
+
+namespace Flux::Parsing;
+
+ListExpression ListExpression:parse(Source source)
+	let position = source.lexer:get().position;
+	then if source.lexer:skip(Symbol, "[") {
+		Lexer lexer = source.lexer;
+		Expression[] values = [];
+		Expression[] comprehensions = [];
+		string[] source_names = [];
+		Expression[] source_values = [];
+
+		if !lexer:skip(Symbol, "]") {
+			repeat
+				values[#values + 1] = Flux::Parsing::Expression:parse(source) || source:error "expected expression";
+			while lexer:skip(Symbol, ",");
+
+			if lexer:skip( Keyword, "where" )
+				repeat {
+					let expr = Flux::Parsing::Expression:parse( source )
+						       || source:error "expected expression for comprehension";
+
+					if lexer:skip( Symbol, "=>" ) {
+						source_values[#source_values + 1] = expr;
+						source_names[#source_names + 1] = lexer:skipValue( Identifier )
+						                               || source:error "expected name after '=>'";
+					}
+					else {
+						comprehensions[#comprehensions + 1] = expr;
+					}
+				}
+				while lexer:skip( Symbol, "," );
+
+			if !lexer:skip(Symbol, "]") source:error "expected ']' to close array";
+		}
+
+		return new Flux::Parsing::ListExpression(values, comprehensions, source_names, source_values, position);
+	}
+	else return null;
+
+string ListExpression:serialize() {
+	let hasComprehensions = #self.comprehensions > 0,
+	    hasSources = #self.source_names > 0;
+
+	string[] sources = [];
+	string[] comprehensions = [];
+
+	if hasSources
+		foreach i, name in self.source_names
+			sources[#sources + 1] = self.source_values[i]:serialize() `concat` " => " `concat` name;
+
+	if hasSources
+		foreach i, v in self.comprehensions
+			comprehensions[#comprehensions + 1] = v:serialize();
+
+	return "[" `concat` (self.values `concattenate` ", ")
+		`concat` ((hasComprehensions || hasSources) && " where " || "")
+		`concat` (hasSources && table.concat( sources, ", " ) || "")
+		`concat` (hasSources && hasComprehensions && ", " || "")
+		`concat` (hasComprehensions && table.concat( comprehensions, ", " ) || "")
+		`concat` "]";
+}

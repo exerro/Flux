@@ -12,7 +12,7 @@ enum ASTNodeType {
 	Reference;
 	ThrowExpression;
 	FunctionExpression;
-	ArrayExpression, TableExpression;
+	ListExpression, TableExpression;
 	MatchExpression;
 	NewExpression;
 

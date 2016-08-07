@@ -5,6 +5,8 @@ int math::floor(float n)
 
 @flagdef foreign-math.ceil
 const int ceil(float) void;
+
+print([x where 1 .. 50 => x, x > 10, x < 42, x % 2 == 1]);
 ';
 
 import flux;

@@ -39,7 +39,7 @@ Vector2D<T>:Vector2D(T x, y) {
 	objects[1] = y;
 }
 
-// class Vec2 = Vector2D<float>;
+class Vec2 = Vector2D<float>;
 
 class Something {
 	float x, y, z;

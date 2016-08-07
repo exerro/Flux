@@ -5,6 +5,7 @@ bool ClassDefinition:parse(Source source) {
 	let lexer = source.lexer;
 
 	int start = lexer:mark();
+	bool isFinal, isAbstract, isVoid;
 	TemplateList _template;
 	Position template_position = lexer:get().position;
 
@@ -41,6 +42,33 @@ bool ClassDefinition:parse(Source source) {
 
 	name.name = Flux::Parsing::resolveDefinitionName( source, name.name );
 
+	// for `class intlist = int[];`
+	if lexer:skip( Symbol, "=" ) {
+		let type = Flux::Parsing::Type:parse( source );
+
+		Flux::Parsing::expectSemicolon( source, "end of class type" );
+
+		source:push( new Flux::Parsing::ListClassDefinition( name, _template, [type], position ) );
+
+		return true;
+	}
+	// for `class number [float, int]`
+	else if lexer:skip( Symbol, "[" ) {
+		Type[] types = [];
+
+		repeat {
+			types[#types + 1] = Flux::Parsing::Type:parse( source );
+		}
+		while lexer:skip( Symbol, "," );
+
+		if !lexer:skip( Symbol, "]" )
+			source:error "expected ']' after type list";
+
+		source:push( new Flux::Parsing::ListClassDefinition( name, _template, types, position ) );
+
+		return true;
+	}
+
 	if lexer:skip( Symbol, "(" ) {
 		let t1 = Flux::Parsing::Type:parse( source );
 		if lexer:skip( Symbol, "," )
@@ -56,7 +84,8 @@ bool ClassDefinition:parse(Source source) {
 	
 	if lexer:skip( Keyword, "implements" )
 		repeat {
-			_implements[#_implements + 1] = Flux::Parsing::parseName( source ) || source:error "expected interface name";
+			_implements[#_implements + 1] = Flux::Parsing::parseName( source )
+			    || source:error "expected interface name";
 		}
 		while lexer:skip( Symbol, "," );
 
@@ -69,8 +98,10 @@ bool ClassDefinition:parse(Source source) {
 	while !lexer:skip( Symbol, "}" ) {
 		if lexer:isEOF() source:error "expected '}' to close class body";
 
-		if (lexer:test( Keyword, "public" ) || lexer:test( Keyword, "private" )) && lexer:test( Symbol, ":", 1 ) {
-			source.context:setPublic( lexer:skip( Keyword, "public" ) && true || lexer:skip( Keyword, "private" ) && false );
+		if (lexer:test( Keyword, "public" ) || lexer:test( Keyword, "private" ))
+			&& lexer:test( Symbol, ":", 1 ) {
+			source.context:setPublic( lexer:skip( Keyword, "public" )
+			                          && true || lexer:skip( Keyword, "private" ) && false );
 			lexer:next();
 		}
 		else
@@ -83,7 +114,9 @@ bool ClassDefinition:parse(Source source) {
 
 	ClassMember[] members = [];
 
-	source:push( new Flux::Parsing::ClassDefinition( name, container, _extends, _implements, _template, members, position ) );
+	source:push( new Flux::Parsing::ClassDefinition(
+		name, container, _extends, _implements, _template, members, isFinal, isAbstract, isVoid, position
+	) );
 	
 	foreach definition in definitions {
 		Definition raw_def;
@@ -119,7 +152,8 @@ bool ClassDefinition:parse(Source source) {
 string ClassDefinition:serialize()
 	= "template <" `concat` self._template:serialize() `concat` ">\n"
 		`concat` "class " `concat` self.name:serialize()
-		`concat` (self.container && " (" `concat` self.container[1]:serialize() `concat` ", " `concat` self.container[2]:serialize() `concat` ")" || "")
+		`concat` (self.container && " (" `concat` self.container[1]:serialize() `concat` ", "
+		`concat` self.container[2]:serialize() `concat` ")" || "")
 		`concat` (self._extends && " extends " `concat` self._extends:serialize() || "")
 		`concat` (#self._implements > 0 && " implements " `concat` table.concat(self._implements, ", ") || "")
 		`concat` " {\n\t" `concat` (self.members `concattenate` "\n\t") `concat` "\n}";

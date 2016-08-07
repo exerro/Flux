@@ -14,8 +14,8 @@ namespace Flux::Parsing;
 bool parseSemicolon(Lexer lexer)
 	= ((lexer:skip(Symbol, ";") || lexer:test(Symbol, ";", -1)) || lexer:test(Symbol, "}")) && true || false;
 
-void expectSemicolon(Source souorce, null string location)
-	if !parseSemicolon( source.lexer )
+void expectSemicolon(Source source, null string location)
+	if !Flux::Parsing::parseSemicolon( source.lexer )
 		source:error( "expected semicolon" `concat` (location && " at " `concat` location || "") );
 
 bool tokenFollowsLast(Lexer lexer)

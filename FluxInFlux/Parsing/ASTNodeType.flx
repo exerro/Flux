@@ -40,7 +40,7 @@ enum ASTNodeType {
 	// definitions
 	Definition;
 	TemplateDefinition, TemplateList;
-	ClassDefinition;
+	ClassDefinition, EqClassDefinition, ListClassDefinition;
 	InterfaceDefinition;
 	EnumDefinition;
 

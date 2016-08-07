@@ -4,7 +4,7 @@ namespace Flux::Parsing;
 char[] letters = [];
 
 bool parseSemicolon(Lexer lexer);
-void expectSemicolon();
+void expectSemicolon(Source source, null string location);
 
 bool tokenFollowsLast(Lexer lexer);
 bool tokenSameLineAsLast(Lexer lexer);

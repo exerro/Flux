@@ -8,7 +8,16 @@ bool Definition:parse(Source source) {
 	let classname = isClassDef && source.context.class_name.name:gsub( ".+::", "" );
 	let position = lexer:get().position;
 
+	string[] flags = [];
+	bool hasForeignFunction = false;
 	TemplateList _template;
+
+	while lexer:skip(Instruction, "flagdef")
+		flags[#flags + 1] = Flux::Parsing::parseInstructionOperand( lexer );
+
+	foreach flag in flags
+		if flag:find "^foreign%-"
+			hasForeignFunction = true;
 
 	// read a template
 	if lexer:skip( Keyword, "template" ) {
@@ -75,16 +84,19 @@ bool Definition:parse(Source source) {
 	if !_type && lexer:test(Keyword, "void")
 		_type = Flux::Parsing::Type:voidType( lexer:next().value );
 
-	name = _type && (name || Flux::Parsing::parseMethodName( source ));
+	name = _type && (name || isClassDef && Flux::Parsing::parseMethodName( source ) || Flux::Parsing::parseName( source ));
 
 	// if a type wasn't given or there isn't a name next, it's not a definition
 	if !_type || !name {
 		bool testClass = lexer:test( Keyword, "class" ) || lexer:test( Keyword, "interface" );
 		lexer:jump( pretype_marker );
-		if _template && !testClass
-			source:error "expected definition after 'template'";
-		else if isConst
+		if isConst
 			source:error "expected definition after 'const'";
+		else if _template && !testClass
+			source:error "expected definition after 'template'";
+		else if #flags > 0
+			source:error "expected definition after definition flags given";
+
 		lexer:jump( start );
 		// same for public/private/static
 		return false;
@@ -186,13 +198,27 @@ bool Definition:parse(Source source) {
 			// if it's a method, you can't exactly predeclare it, so it expects a body
 			if _class && lexer:test( Symbol, ";" ) source:error "expected function body after method";
 			// if the parameter names weren't given, you can't use them, so it won't let you define a body
-			if !parameterNamesGiven && !lexer:test( Symbol, ";" ) source:error "expected ';' after partial function declaration";
+			if !parameterNamesGiven && !lexer:test( Symbol, ";" ) && !lexer:test( Keyword, "void" )
+				source:error "expected ';' after partial function declaration";
+			
+			Block body;
 
-			let body = !lexer:skip( Symbol, ";" ) && Flux::Parsing::parseFunctionBody( source );
+			if lexer:skip( Keyword, "void" )
+				if !hasForeignFunction
+					source:error "unexpected keyword 'void' after non-foreign function";
+				else {
+					body = new Flux::Parsing::Block([], lexer:peek(-1).position, true);
+					if !lexer:skip( Symbol, ";" )
+						source:error "expected ';' after void body";
+				}
+			else {
+				body = !lexer:skip( Symbol, ";" ) && Flux::Parsing::parseFunctionBody( source );
+			}
+
 			let value = body && new Flux::Parsing::FunctionExpression( parameters, _type, body, start );
 			let function_type = new Flux::Parsing::Type:functionType( start, _type, parameter_types );
 			let def_name = _class && name || Flux::Parsing::resolveDefinitionName( source, name );
-			let definition = new Flux::Parsing::Definition( function_type, _class, def_name, value, isConst, isPublic, isStatic, start );
+			let definition = new Flux::Parsing::Definition( function_type, _class, def_name, value, isConst, isPublic, isStatic, flags, start );
 
 			if _template
 				source:push( new Flux::Parsing::TemplateDefinition( definition, _template, position ) );
@@ -227,7 +253,7 @@ bool Definition:parse(Source source) {
 					let body = new Flux::Parsing::Block( [new Flux::Parsing::ReturnStatement( function_call )], start ); // block containing return of above
 					let function_type = new Flux::Parsing::Type:functionType( start, _type, partial_parameter_types ); // type of overload
 					let value = new Flux::Parsing::FunctionExpression( partial_parameters, _type, body, start ); // the function value containing the call to main function
-					let definition = new Flux::Parsing::Definition( function_type, _class, def_name, value, true, isPublic, isStatic, start );
+					let definition = new Flux::Parsing::Definition( function_type, _class, def_name, value, true, isPublic, isStatic, [], start );
 
 					if _template
 						source:push( new Flux::Parsing::TemplateDefinition( definition, _template, position ) ); // push the overload
@@ -252,7 +278,7 @@ bool Definition:parse(Source source) {
 			source:error "expected '(' for function parameters after void return type";
 		else {
 			value = lexer:skip(Symbol, "=") && (Flux::Parsing::Expression:parse( source ) || source:error "expected definition after '='");
-			source:push( new Flux::Parsing::Definition( _type, null, Flux::Parsing::resolveDefinitionName( source, name ), value, isConst, isPublic, isStatic, start ) );
+			source:push( new Flux::Parsing::Definition( _type, null, Flux::Parsing::resolveDefinitionName( source, name ), value, isConst, isPublic, isStatic, flags, start ) );
 		}
 
 		name = null;
@@ -265,11 +291,10 @@ bool Definition:parse(Source source) {
 	return true;
 }
 
-string Definition:serialize() {
-	return (self.isConst && "const " || "")
-		`concat` self._type:serialize() `concat` " " 
+string Definition:serialize()
+	= (#self.flags > 0 && "@flagdef " `concat` table.concat( self.flags, "\n@flagdef " ) `concat` "\n" || "")
+		`concat` (self.isConst && "const " || "")
+		`concat` (self._type:serialize() `concat` " ")
 		`concat` (self._class && self._class:serialize() `concat` ":" || "")
-		`concat` self.name
-		`concat` (self.value && " = " `concat` self.value:serialize() || "")
-		`concat` ";";
-}
+		`concat` (self.name)
+		`concat` (self.value && " = " `concat` self.value:serialize() || "") `concat` ";";

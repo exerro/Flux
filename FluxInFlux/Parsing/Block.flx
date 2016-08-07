@@ -27,4 +27,4 @@ string Block:parse(Source source) {
 }
 
 string Block:serialize()
-	= #self == 0 && "{}" || "{\n\t" `concat` (self `concattenate` "\n"):gsub( "\n", "\n\t" ) `concat` "\n}";
+	= self.isVoid && "void" || (#self == 0 && "{}" || "{\n\t" `concat` (self `concattenate` "\n"):gsub( "\n", "\n\t" ) `concat` "\n}");

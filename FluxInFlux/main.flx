@@ -1,18 +1,10 @@
 let source_code = '
-@flagcdef native-IntConstant
-const final class int implements IAddable, ISubtractable, IProductable, IDivisable, IModdable, IExponentable {
-	int operator+(int);
-	int operator-(int);
-	int operator*(int);
-	int operator/(int);
-	int operator%(int);
-	int operator**(int);
-}
+@flagdef foreign-math.floor
+int math::floor(float n)
+	= n - n % 1;
 
-@flagcdef native-FloatConstant
-const final class float {
-
-}
+@flagdef foreign-math.ceil
+const int ceil(float) void;
 ';
 
 import flux;

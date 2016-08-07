@@ -16,8 +16,9 @@ class Definition extends ASTNode {
 	string name;
 	Expression value;
 	bool isConst, isPublic, isStatic;
+	string[] flags;
 	
-	Definition(Type _type, null Type _class, string name, null Expression value, bool isConst, isPublic, isStatic, Position position) {
+	Definition(Type _type, null Type _class, string name, null Expression value, bool isConst, isPublic, isStatic, string[] flags, Position position) {
 		self._type = _type;
 		self._class = _class;
 		self.name = name;
@@ -25,6 +26,7 @@ class Definition extends ASTNode {
 		self.isConst = isConst;
 		self.isPublic = isPublic;
 		self.isStatic = isStatic;
+		self.flags = flags;
 		self.position = position;
 	}
 

@@ -4,6 +4,7 @@ namespace Flux::Parsing;
 bool ClassDefinition:parse(Source source) {
 	let lexer = source.lexer;
 
+	int start = lexer:mark();
 	TemplateList _template;
 	Position template_position = lexer:get().position;
 
@@ -16,10 +17,11 @@ bool ClassDefinition:parse(Source source) {
 
 	Position position = lexer:get().position;
 
-	if !lexer:skip( Keyword, "class" )
+	if !lexer:skip( Keyword, "class" ) {
 		if _template
-			source:error( "expected definition after template" );
-		else return false;
+			lexer:jump( start );
+		return false;
+	}
 
 	if !_template
 		_template = new Flux::Parsing::TemplateList([], []);
@@ -72,7 +74,7 @@ bool ClassDefinition:parse(Source source) {
 			lexer:next();
 		}
 		else
-			Flux::Parsing::Definition:parse( source ) || source:error "expected definition";
+			Flux::Parsing::Definition:parse( source ) || source:error "expected definition in class body";
 	}
 
 	source:popContext();

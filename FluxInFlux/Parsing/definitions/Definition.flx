@@ -79,7 +79,7 @@ bool Definition:parse(Source source) {
 
 	// if a type wasn't given or there isn't a name next, it's not a definition
 	if !_type || !name {
-		bool testClass = lexer:test( Keyword, "class" );
+		bool testClass = lexer:test( Keyword, "class" ) || lexer:test( Keyword, "interface" );
 		lexer:jump( pretype_marker );
 		if _template && !testClass
 			source:error "expected definition after 'template'";

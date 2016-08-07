@@ -31,7 +31,16 @@ Token Lexer:consumePattern(TokenType type, string pattern) {
 	if !value return null;
 
 	self.position += #value;
+
 	return new Flux::Parsing::Token( type, value, self:getPosition( #value ) );
+}
+
+Token Lexer:consumeInstruction() {
+	let value = string__match( self.text, "^@([%w_%-]+)", self.position );
+
+	self.position += #value + 1;
+
+	return new Flux::Parsing::Token( Flux::Parsing::TokenType.Instruction, value, self:getPosition( #value + 1 ) );
 }
 
 Token Lexer:consumeString() {
@@ -205,6 +214,9 @@ void Lexer:consume() {
 
 	if self.position > #self.text
 		token = Token.EOF( self:getPosition() );
+
+	else if self.text:find( "^@[%w_%-]", self.position )
+		token = self:consumeInstruction();
 
 	else if self.text:find( "^[\"']", self.position )
 		token = self:consumeString();

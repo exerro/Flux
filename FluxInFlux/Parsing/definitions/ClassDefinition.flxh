@@ -14,15 +14,20 @@ class ClassDefinition extends Flux::Parsing::ASTNode {
 	string[] _implements;
 	TemplateList _template;
 	ClassMember[] members;
-	bool isFinal, isAbstract, isVoid;
+	bool isConst, isFinal, isAbstract;
+	string[] flags;
 
-	ClassDefinition(Type name, Type[] container, Type _extends, string[] _implements, TemplateList _template, ClassMember[] members, Position position) {
+	ClassDefinition(Type name, Type[] container, Type _extends, string[] _implements, TemplateList _template, ClassMember[] members, bool isConst, isFinal, isAbstract, string[] flags, Position position) {
 		self.name = name;
 		self.container = container;
 		self._extends = _extends;
 		self._implements = _implements;
 		self._template = _template;
 		self.members = members;
+		self.isConst = isConst;
+		self.isFinal = isFinal;
+		self.isAbstract = isAbstract;
+		self.flags = flags;
 		self.position = position;
 	}
 }

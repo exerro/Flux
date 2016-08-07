@@ -1,8 +1,13 @@
 
-import language;
 import TokenType;
+import language;
 
-let String = Flux::Parsing::TokenType.String,
+class Source;
+class Lexer;
+class Expression;
+
+let Instruction = Flux::Parsing::TokenType.Instruction,
+    String = Flux::Parsing::TokenType.String,
     Character = Flux::Parsing::TokenType.Character,
     Backtick = Flux::Parsing::TokenType.Backtick,
     Float = Flux::Parsing::TokenType.Float,
@@ -17,5 +22,10 @@ let String = Flux::Parsing::TokenType.String,
     Keyword = Flux::Parsing::TokenType.Keyword,
     EOF = Flux::Parsing::TokenType.EOF;
 
-import Source;
 import util;
+import Source;
+import Block;
+import statements.Statement;
+import expressions.Expression;
+import definitions.Definition;
+import types.Type;

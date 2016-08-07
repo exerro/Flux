@@ -5,9 +5,13 @@ bool ClassDefinition:parse(Source source) {
 	let lexer = source.lexer;
 
 	int start = lexer:mark();
-	bool isFinal, isAbstract, isVoid;
+	bool isConst, isFinal, isAbstract;
+	string[] flags = [];
 	TemplateList _template;
 	Position template_position = lexer:get().position;
+
+	while lexer:skip( Instruction, "flagcdef" )
+		flags[#flags + 1] = Flux::Parsing::parseInstructionOperand( lexer );
 
 	// read a template
 	if lexer:skip( Keyword, "template" ) {
@@ -16,10 +20,16 @@ bool ClassDefinition:parse(Source source) {
 		if !lexer:skip( Symbol, ">" ) source:error "expected '>' after template list";
 	}
 
+	isConst = lexer:skip( Keyword, "const" ) && true || false;
+	isFinal = lexer:skip( Keyword, "final" ) && true || false;
+	isAbstract = lexer:skip( Keyword, "abstract" ) && true || false;
+
 	Position position = lexer:get().position;
 
 	if !lexer:skip( Keyword, "class" ) {
-		if _template
+		if #flags > 0
+			source:error "expected class definition";
+		else if _template
 			lexer:jump( start );
 		return false;
 	}
@@ -115,7 +125,7 @@ bool ClassDefinition:parse(Source source) {
 	ClassMember[] members = [];
 
 	source:push( new Flux::Parsing::ClassDefinition(
-		name, container, _extends, _implements, _template, members, isFinal, isAbstract, isVoid, position
+		name, container, _extends, _implements, _template, members, isConst, isFinal, isAbstract, flags, position
 	) );
 	
 	foreach definition in definitions {
@@ -150,7 +160,11 @@ bool ClassDefinition:parse(Source source) {
 }
 
 string ClassDefinition:serialize()
-	= "template <" `concat` self._template:serialize() `concat` ">\n"
+	= (#self.flags > 0 && "@flagcdef " `concat` table.concat( self.flags, "\n@flagcdef " ) `concat` "\n" || "")
+		`concat` "template <" `concat` self._template:serialize() `concat` ">\n"
+		`concat` (self.isConst && "const " || "")
+		`concat` (self.isFinal && "final " || "")
+		`concat` (self.isAbstract && "abstract " || "")
 		`concat` "class " `concat` self.name:serialize()
 		`concat` (self.container && " (" `concat` self.container[1]:serialize() `concat` ", "
 		`concat` self.container[2]:serialize() `concat` ")" || "")

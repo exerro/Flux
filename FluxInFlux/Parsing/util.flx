@@ -19,12 +19,12 @@ void expectSemicolon(Source source, null string location)
 		source:error( "expected semicolon" `concat` (location && " at " `concat` location || "") );
 
 bool tokenFollowsLast(Lexer lexer)
-	= a.line == b.line && a.source == b.source && a.character + #a.value == b.character
+	= a.position.line == b.position.line && a.position.source == b.position.source && a.position.character + #a.value == b.position.character
 	where a = lexer:peek( -1 )
 	where b = lexer:get();
 
 bool tokenSameLineAsLast(Lexer lexer)
-	= a.line == b.line && a.source == b.source
+	= a.position.line == b.position.line && a.position.source == b.position.source
 	where a = lexer:peek( -1 )
 	where b = lexer:get();
 
@@ -75,7 +75,21 @@ string parseMethodName(Source source) {
 	return lexer:skipValue( Identifier );
 }
 
-string resolveDefinitionName(Source source, string name)
+string parseInstructionOperand( Lexer lexer ) {
+	string s = lexer:skipValue( String ) || lexer:skipValue( Character ) || lexer:skipValue( Float ) || lexer:skipValue( Integer ) || lexer:skipValue( Byte ) || lexer:skipValue( Hexadecimal ) || lexer:skipValue( Binary ) || lexer:skipValue( Boolean ) || lexer:skipValue( Null );
+	if s return s;
+	s = lexer:skipValue( Identifier );
+	if s {
+		while (lexer:test( Symbol, "-" ) || lexer:test( Symbol, "." ))
+		   && (Flux::Parsing::tokenFollowsLast( lexer ))
+		   && (lexer:test( Identifier, null, 1 ))
+		   && (lexer:peek(1).position.character == lexer:get().position.character + 1)
+			s = s `concat` lexer:next().value `concat` lexer:next().value;
+		return s;
+	}
+}
+
+string resolveDefinitionName( Source source, string name )
 	= source.context.isNamespace && source.context.namespace_name && source.context.namespace_name `concat` "::" `concat` name || name;
 
 string intToName( int n ) {

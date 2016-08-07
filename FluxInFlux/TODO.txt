@@ -1,7 +1,8 @@
 
 [ ] Change unary operator parsing to allow for different precedences.
-[ ] Add templated classes
-[ ] Make class function definitions add '<class> self' as first parameter
+[x] Add templated classes
+[x] Make class function definitions add '<class> self' as first parameter
 [ ] Add `A if C else B` syntax
 [ ] Add @flagdef, @flagcdef and preprocessor instructions
 [ ] List comprehensions
+[ ] Add import functionality

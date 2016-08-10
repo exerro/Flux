@@ -1,7 +1,7 @@
 
 namespace Flux::Parsing;
 
-TableExpression TableExpression:parse(Source source)
+ASTNode TableExpression:parse(Source source)
 	let position = source.lexer:get().position;
 	then if source.lexer:skip(Symbol, "{") {
 		Lexer lexer = source.lexer;

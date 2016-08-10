@@ -1,29 +1,34 @@
 
 namespace Flux::Parsing;
 
-ForeachLoop ForeachLoop:parse( Source source ) {
+bool ForeachLoop:parse( Source source ) {
 	let lexer = source.lexer;
 	let position = lexer:get().position;
 	
-	if !lexer:skip( Keyword, "foreach" ) return;
+	if !lexer:skip( Keyword, "foreach" )
+		return false;
 
 	let openbracket = lexer:skip( Symbol, "(" ) && true || false;
 	let name1 = lexer:skipValue( Identifier ) || source:error "expected name after 'foreach'";
 	let name2 = lexer:skip( Symbol, "," ) && (lexer:skipValue( Identifier ) || source:error "expected name after ','");
 	let expr = lexer:skip( Keyword, "in" ) && (Flux::Parsing::Expression:parse( source ) || source:error "expected expression after 'in'") || source:error "expected 'in' after name";
 	
-	if openbracket && !lexer:skip( Symbol, ")" ) source:error "expected ')'";
+	if openbracket && !lexer:skip( Symbol, ")" )
+		source:error "expected ')'";
 
 	source:pushLoopContext();
 	let block = Flux::Parsing::Block:parse( source );
 	source:popContext();
 
-	if !name2
+	if !name2 {
 		let temp = name1;
-		then name1 = name2;
-		then name2 = temp;
+		name1 = name2;
+		name2 = temp;
+	}
 
-	return new Flux::Parsing::ForeachLoop(name1, name2, expr, block, position);
+	source:push( new Flux::Parsing::ForeachLoop(name1, name2, expr, block, position) );
+
+	return true;
 }
 
 string ForeachLoop:serialize()

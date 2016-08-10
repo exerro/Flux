@@ -1,7 +1,7 @@
 
 namespace Flux::Parsing;
 
-OperatorExtends OperatorExtends:parse( Source source, Expression value )
+ASTNode OperatorExtends:parse( Source source, Expression value )
 	= type && new Flux::Parsing::OperatorExtends( value, type, position )
 	where lexer = source.lexer
 	where position = lexer:get().position

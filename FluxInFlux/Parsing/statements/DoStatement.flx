@@ -1,17 +1,20 @@
 
 namespace Flux::Parsing;
 
-DoStatement DoStatement:parse(Source source) {
+bool DoStatement:parse(Source source) {
 	let lexer = source.lexer;
 	let position = lexer:get().position;
 
-	if !lexer:skip( Keyword, "do" ) return;
+	if !lexer:skip( Keyword, "do" )
+		return false;
 
 	source:pushContext();
 	let block = Flux::Parsing::Block:parse( source );
 	source:popContext();
 
-	return new Flux::Parsing::DoStatement(block, position);
+	source:push( Flux::Parsing::DoStatement(block, position) );
+
+	return true;
 }
 
 string DoStatement:serialize()

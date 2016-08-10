@@ -1,7 +1,7 @@
 
 namespace Flux::Parsing;
 
-ThrowExpression ThrowExpression:parse(Source source)
+ASTNode ThrowExpression:parse(Source source)
 	= source.lexer:skip(Keyword, "throw")
 		&& new Flux::Parsing::ThrowExpression(Flux::Parsing::Expression:parse(source), position)
 		|| null

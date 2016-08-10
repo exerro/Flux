@@ -1,7 +1,7 @@
 
 namespace Flux::Parsing;
 
-Cast Cast:parse( Source source, Expression value )
+ASTNode Cast:parse( Source source, Expression value )
 	= type && new Flux::Parsing::Cast( value, type, position )
 	where lexer = source.lexer
 	where position = lexer:get().position

@@ -1,7 +1,7 @@
 
 namespace Flux::Parsing;
 
-ConstantExpression ConstantExpression:parse(Source source) {
+ASTNode ConstantExpression:parse(Source source) {
 	let token = source.lexer:get();
 
 	if source.lexer:skip(Keyword, "null")

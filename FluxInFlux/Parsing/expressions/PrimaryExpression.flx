@@ -1,7 +1,7 @@
 
 namespace Flux::Parsing;
 
-PrimaryExpression PrimaryExpression:parse( Source source )
+ASTNode PrimaryExpression:parse( Source source )
 	 = expr && (lexer:skip(Symbol, ")") || source:error "expected ')' after expression") && expr
 	|| Flux::Parsing::ConstantExpression:parse( source )
 	|| Flux::Parsing::ReferenceExpression:parse( source )

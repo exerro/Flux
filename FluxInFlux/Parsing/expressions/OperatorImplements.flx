@@ -1,7 +1,7 @@
 
 namespace Flux::Parsing;
 
-OperatorImplements OperatorImplements:parse( Source source, Expression value )
+ASTNode OperatorImplements:parse( Source source, Expression value )
 	= type && new Flux::Parsing::OperatorImplements( value, type, position )
 	where lexer = source.lexer
 	where position = lexer:get().position

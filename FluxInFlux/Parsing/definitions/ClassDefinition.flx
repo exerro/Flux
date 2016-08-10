@@ -74,7 +74,7 @@ bool ClassDefinition:parse(Source source) {
 
 		Flux::Parsing::expectSemicolon( source, "end of class type" );
 
-		source:push( new Flux::Parsing::ListClassDefinition( name, _template, [type], position ) );
+		source:push( new Flux::Parsing::AliasClassDefinition( name, _template, [type], position ) );
 
 		return true;
 	}
@@ -90,7 +90,7 @@ bool ClassDefinition:parse(Source source) {
 		if !lexer:skip( Symbol, "]" )
 			source:error "expected ']' after type list";
 
-		source:push( new Flux::Parsing::ListClassDefinition( name, _template, types, position ) );
+		source:push( new Flux::Parsing::AliasClassDefinition( name, _template, types, position ) );
 
 		return true;
 	}
@@ -126,8 +126,9 @@ bool ClassDefinition:parse(Source source) {
 
 		if (lexer:test( Keyword, "public" ) || lexer:test( Keyword, "private" ))
 			&& lexer:test( Symbol, ":", 1 ) {
-			source.context:setPublic( lexer:skip( Keyword, "public" )
-			                          && true || lexer:skip( Keyword, "private" ) && false );
+			source.context:setPublic(
+				   lexer:skip( Keyword, "public" ) && true
+				|| lexer:skip( Keyword, "private" ) && false );
 			lexer:next();
 		}
 		else

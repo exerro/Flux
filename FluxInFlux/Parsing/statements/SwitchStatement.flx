@@ -1,11 +1,12 @@
 
 namespace Flux::Parsing;
 
-SwitchStatement SwitchStatement:parse(Source source) {
+bool SwitchStatement:parse(Source source) {
 	let lexer = source.lexer;
 	let position = lexer:get().position;
 
-	if !lexer:skip( Keyword, "switch" ) return;
+	if !lexer:skip( Keyword, "switch" )
+		return false;
 
 	let expr = Flux::Parsing::Expression:parse( source ) || source:error "expected expression to switch";
 
@@ -13,8 +14,7 @@ SwitchStatement SwitchStatement:parse(Source source) {
 	Block[] blocks = [];
 	Block _default;
 
-	if !Flux::Parsing::parseSemicolon( lexer )
-		source:error "expected ';' after switch expression";
+	Flux::Parsing::expectSemicolon( source, "switch statement expression" );
 
 	while lexer:skip( Keyword, "case" ) {
 		Expression[] this_cases = [];
@@ -38,7 +38,9 @@ SwitchStatement SwitchStatement:parse(Source source) {
 		source:popContext();
 	}
 
-	return new Flux::Parsing::SwitchStatement(expr, cases, blocks, _default, position);
+	source:push( new Flux::Parsing::SwitchStatement(expr, cases, blocks, _default, position) );
+
+	return true;
 }
 
 string SwitchStatement:serialize() {

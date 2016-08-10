@@ -1,7 +1,7 @@
 
 namespace Flux::Parsing;
 
-ListExpression ListExpression:parse(Source source)
+ASTNode ListExpression:parse(Source source)
 	let position = source.lexer:get().position;
 	then if source.lexer:skip(Symbol, "[") {
 		Lexer lexer = source.lexer;

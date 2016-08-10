@@ -1,7 +1,7 @@
 
 namespace Flux::Parsing;
 
-BacktickExpression BacktickExpression:parse( Source source ) {
+ASTNode BacktickExpression:parse( Source source ) {
 	let lexer = source.lexer;
 
 	// for the left unary operators before an expression

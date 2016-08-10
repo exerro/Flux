@@ -69,8 +69,6 @@ let _ = (function() {
 	lambda
 	match
 
-	then
-
 	null
 	";
 

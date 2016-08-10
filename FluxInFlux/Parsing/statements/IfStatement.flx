@@ -1,11 +1,12 @@
 
 namespace Flux::Parsing;
 
-IfStatement IfStatement:parse(Source source) {
+bool IfStatement:parse(Source source) {
 	let lexer = source.lexer;
 	let position = lexer:get().position;
 
-	if !lexer:skip( Keyword, "if" ) return;
+	if !lexer:skip( Keyword, "if" )
+		return false;
 
 	let condition = Flux::Parsing::Expression:parse( source ) || source:error "expected condition after 'if'";
 	source:pushContext();
@@ -13,7 +14,9 @@ IfStatement IfStatement:parse(Source source) {
 	source:popContext();
 	let elseblock = lexer:skip( Keyword, "else" ) && Flux::Parsing::Block:parse( source );
 
-	return new Flux::Parsing::IfStatement(condition, block, elseblock, position);
+	source:push( new Flux::Parsing::IfStatement(condition, block, elseblock, position) );
+
+	return true;
 }
 
 string IfStatement:serialize()

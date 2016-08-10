@@ -4,7 +4,7 @@ namespace Flux::Parsing;
 bool isAssignmentOperator( string op )
 	= Flux::Parsing::language::binary_operators[op] == 1;
 
-BinaryExpression BinaryExpression:parse( Source source ) {
+ASTNode BinaryExpression:parse( Source source ) {
 	let lexer = source.lexer;
 	void collapse();
 

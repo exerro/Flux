@@ -5,29 +5,32 @@ void Statement:parse(Source source) {
 	let lexer = source.lexer;
 
 	if Flux::Parsing::Definition:parse(source)
-	|| Flux::Parsing::LetStatement:parse( source )
-	|| Flux::Parsing::NewStatement:parse(source)
 	|| Flux::Parsing::EnumDefinition:parse( source )
 	|| Flux::Parsing::ClassDefinition:parse(source)
 	|| Flux::Parsing::InterfaceDefinition:parse( source )
+	|| Flux::Parsing::NamespaceStatement:parse( source )
+	|| Flux::Parsing::UsingStatement:parse( source )
+	|| Flux::Parsing::IfStatement:parse( source )
+	|| Flux::Parsing::WhileLoop:parse( source )
+	|| Flux::Parsing::RepeatLoop:parse( source )
+	|| Flux::Parsing::DoStatement:parse( source )
+	|| Flux::Parsing::ForLoop:parse( source )
+	|| Flux::Parsing::ForeachLoop:parse( source )
+	|| Flux::Parsing::SwitchStatement:parse( source )
+	|| Flux::Parsing::TryStatement:parse( source )
+	|| Flux::Parsing::NewStatement:parse(source)
+	|| Flux::Parsing::ReturnStatement:parse( source )
+	|| Flux::Parsing::BreakStatement:parse( source )
+	|| Flux::Parsing::ContinueStatement:parse( source )
+	|| Flux::Parsing::LetStatement:parse( source )
 		return;
 
 	let expr = Flux::Parsing::Expression:parse(source);
-	let statement = expr && (Flux::Parsing::parseSemicolon(lexer) && expr || source:error "expected ';' after expression")
-		|| Flux::Parsing::IfStatement:parse( source )
-		|| Flux::Parsing::WhileLoop:parse( source )
-		|| Flux::Parsing::RepeatLoop:parse( source )
-		|| Flux::Parsing::DoStatement:parse( source )
-		|| Flux::Parsing::ForLoop:parse( source )
-		|| Flux::Parsing::ForeachLoop:parse( source )
-		|| Flux::Parsing::SwitchStatement:parse( source )
-		|| Flux::Parsing::TryStatement:parse( source )
-		|| Flux::Parsing::ReturnStatement:parse( source )
-		|| Flux::Parsing::BreakStatement:parse( source )
-		|| Flux::Parsing::ContinueStatement:parse( source )
-		|| Flux::Parsing::NamespaceStatement:parse( source )
-		|| Flux::Parsing::UsingStatement:parse( source )
-		|| source:error "unexpected token";
 
-	source:push( statement );
+	if expr {
+		Flux::Parsing::expectSemicolon( source, "expression" );
+		source:push( expr );
+	}
+	else
+		source:error "unexpected token: expected statement or expression";
 }

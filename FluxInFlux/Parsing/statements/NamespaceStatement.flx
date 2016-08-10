@@ -1,11 +1,15 @@
 
 namespace Flux::Parsing;
 
-NamespaceStatement NamespaceStatement:parse(Source source) {
+bool NamespaceStatement:parse(Source source) {
 	let lexer = source.lexer;
 	let position = lexer:get().position;
 
-	if !source.context.isNamespace || !lexer:skip( Keyword, "namespace" ) return;
+	if lexer:test( Keyword, "namespace" ) && !source.context.isNamespace
+		source:error "invalid location for 'namespace'";
+
+	if !lexer:skip( Keyword, "namespace" )
+		return false;
 
 	string name = Flux::Parsing::parseName( source ) || source:error "expected name after 'namespace'";
 	
@@ -27,7 +31,9 @@ NamespaceStatement NamespaceStatement:parse(Source source) {
 
 	let statements = source:popBlock();
 
-	return new Flux::Parsing::NamespaceStatement( name, new Flux::Parsing::Block( statements, position ), position );
+	source:push( new Flux::Parsing::NamespaceStatement( name, new Flux::Parsing::Block( statements, position ), position ) );
+
+	return true;
 }
 
 string NamespaceStatement:serialize()

@@ -1,7 +1,7 @@
 
 namespace Flux::Parsing;
 
-MatchExpression MatchExpression:parse(Source source) {
+ASTNode MatchExpression:parse(Source source) {
 	let lexer = source.lexer;
 	let position = lexer:get().position;
 

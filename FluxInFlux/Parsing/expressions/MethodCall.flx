@@ -1,7 +1,7 @@
 
 namespace Flux::Parsing;
 
-MethodCall MethodCall:parse( Source source, Expression value ) {
+ASTNode MethodCall:parse( Source source, Expression value ) {
 	let lexer = source.lexer;
 	let parameters -> Expression[] = [];
 	let position = lexer:get().position;

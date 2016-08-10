@@ -1,18 +1,21 @@
 
 namespace Flux::Parsing;
 
-WhileLoop WhileLoop:parse(Source source) {
+bool WhileLoop:parse(Source source) {
 	let lexer = source.lexer;
 	let position = lexer:get().position;
 
-	if !lexer:skip( Keyword, "while" ) return;
+	if !lexer:skip( Keyword, "while" )
+		return false;
 
 	let condition = Flux::Parsing::Expression:parse( source ) || source:error "expected condition after 'while'";
 	source:pushLoopContext();
 	let block = Flux::Parsing::Block:parse( source );
 	source:popContext();
 
-	return new Flux::Parsing::WhileLoop(condition, block, position);
+	source:push( new Flux::Parsing::WhileLoop(condition, block, position) );
+
+	return true;
 }
 
 string WhileLoop:serialize()

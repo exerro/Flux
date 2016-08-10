@@ -1,11 +1,12 @@
 
 namespace Flux::Parsing;
 
-TryStatement TryStatement:parse(Source source) {
+bool TryStatement:parse(Source source) {
 	let lexer = source.lexer;
 	let position = lexer:get().position;
 
-	if !lexer:skip( Keyword, "try" ) return;
+	if !lexer:skip( Keyword, "try" )
+		return false;
 
 	source:pushContext();
 	Block block = Flux::Parsing::Block:parse( source );
@@ -36,7 +37,9 @@ TryStatement TryStatement:parse(Source source) {
 		source:popContext();
 	}
 
-	return new Flux::Parsing::TryStatement(block, catch_types, catch_names, catch_blocks, _default, position);
+	source:push( new Flux::Parsing::TryStatement(block, catch_types, catch_names, catch_blocks, _default, position) );
+
+	return true;
 }
 
 string TryStatement:serialize() {

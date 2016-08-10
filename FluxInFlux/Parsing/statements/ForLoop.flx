@@ -1,11 +1,12 @@
 
 namespace Flux::Parsing;
 
-ASTNode ForLoop:parse(Source source) {
+bool ForLoop:parse(Source source) {
 	let lexer = source.lexer;
 	let position = lexer:get().position;
 
-	if !lexer:skip( Keyword, "for" ) return;
+	if !lexer:skip( Keyword, "for" )
+		return false;
 
 	let openbracket = lexer:skip( Symbol, "(" ) && true || false;
 
@@ -17,19 +18,17 @@ ASTNode ForLoop:parse(Source source) {
 	
 	type = Flux::Parsing::Type:parse( source );
 	name = lexer:skipValue( Identifier ) || source:error "expected name after type";
-	value = lexer:skip( Symbol, "=" ) &&
-		(Flux::Parsing::Expression:parse( source ) || source:error "expected expression after '='")
+	value = lexer:skip( Symbol, "=" )
+		&& (Flux::Parsing::Expression:parse( source ) || source:error "expected expression after '='")
 		|| source:error "expected '='";
 
-	if !Flux::Parsing::parseSemicolon(lexer) && !lexer:skip( Symbol, "," ) source:error "expected ';'";
-	
+	Flux::Parsing::expectSemicolon( source, "for loop initial value" );
 	condition = Flux::Parsing::Expression:parse( source ) || source:error "expected expression";
-
-	if !Flux::Parsing::parseSemicolon(lexer) && !lexer:skip( Symbol, "," ) source:error "expected ';'";
-
+	Flux::Parsing::expectSemicolon( source, "for loop test expression" );
 	increment = Flux::Parsing::Expression:parse( source ) || source:error "expected expression";
 
-	if openbracket && !lexer:skip( Symbol, ")" ) source:error "expected ')'";
+	if openbracket && !lexer:skip( Symbol, ")" )
+		source:error "expected ')'";
 
 	source:pushLoopContext();
 	let block = Flux::Parsing::Block:parse( source );
@@ -42,7 +41,9 @@ ASTNode ForLoop:parse(Source source) {
 		new Flux::Parsing::WhileLoop( condition, block )
 	], position );
 
-	return new Flux::Parsing::DoStatement( doblock, position );
+	source:push( Flux::Parsing::DoStatement( doblock, position ) );
+
+	return true;
 }
 
 // no need for serialize() as it's never added to the AST

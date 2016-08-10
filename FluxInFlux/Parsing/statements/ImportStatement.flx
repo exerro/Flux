@@ -15,5 +15,10 @@ bool ImportStatement:parse(Source source) {
 
 	source:importFile( name );
 
+	// add this at some point+
+	// it'll allow per-file dependencies rather than per-project
+	// i.e. when looking up a name in this file, it'll look in all its imports
+	// source:push( new Flux::Parsing::ImportStatement( filename ) );
+
 	return true;
 }

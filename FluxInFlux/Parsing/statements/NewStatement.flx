@@ -6,7 +6,8 @@ bool NewStatement:parse(Source source) {
 	let position = lexer:get().position;
 	let start = lexer:mark();
 
-	if !lexer:skip( Keyword, "new" ) return false;
+	if !lexer:skip( Keyword, "new" )
+		return false;
 
 	let isConst = lexer:skip( Keyword, "const" ) && true || false;
 
@@ -24,6 +25,7 @@ bool NewStatement:parse(Source source) {
 
 	name = lexer:skipValue( Identifier );
 
+	// allowing for `new Button();` as an expression statement
 	if !name {
 		lexer:jump( start ); 
 		return false;

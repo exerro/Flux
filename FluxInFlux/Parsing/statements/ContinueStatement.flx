@@ -1,11 +1,22 @@
 
 namespace Flux::Parsing;
 
-ContinueStatement ContinueStatement:parse(Source source)
-	= lexer:skip( Keyword, "continue" ) && (lexer:skip( Symbol, ";" ) && new Flux::Parsing::ContinueStatement( position ) || source:error "expected ';' after 'continue'")
-	where lexer = source.lexer
-	where position = lexer:get().position
-	where _ = !source.context.isLoop && lexer:test( Keyword, "continue" ) && source:error "no loop to continue";
+bool ContinueStatement:parse(Source source) {
+	let lexer = source.lexer;
+	let position = lexer:get().position;
+
+	if !source.context.isLoop && lexer:test( Keyword, "continue" )
+		source:error "no loop to continue";
+
+	if lexer:skip( Keyword, "continue" ) {
+		Flux::Parsing::expectSemicolon( source, "continue statement" );
+		source:push( new Flux::Parsing::BreakStatement( position ) );
+		
+		return true;
+	}
+
+	return false;
+}
 
 string ContinueStatement:serialize()
 	= "continue;";

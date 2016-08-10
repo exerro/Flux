@@ -1,7 +1,7 @@
 
 namespace Flux::Parsing;
 
-NewExpression NewExpression:parse( Source source ) {
+ASTNode NewExpression:parse( Source source ) {
 	let lexer = source.lexer;
 	let parameters -> Expression[] = [];
 	let position = lexer:get().position;

@@ -1,7 +1,7 @@
 
 namespace Flux::Parsing;
 
-Expression Expression:parse(Source source) {
+ASTNode Expression:parse(Source source) {
 	// parse binary expression
 	let term = Flux::Parsing::BinaryExpression:parse(source);
 	return term;

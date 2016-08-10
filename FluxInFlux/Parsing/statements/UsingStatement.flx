@@ -5,14 +5,20 @@ UsingStatement UsingStatement:parse(Source source) {
 	let lexer = source.lexer;
 	let position = lexer:get().position;
 
-	if !source.context.isNamespace || !lexer:skip( Keyword, "using" ) return;
+	if !source.context.isNamespace && lexer:skip( Keyword, "using" )
+		source:error "invalid location for 'using'";
+
+	if !lexer:skip( Keyword, "using" )
+		return false;
 
 	string name = Flux::Parsing::parseName( source ) || source:error "expected name after 'namespace'";
 	
 	if !lexer:skip( Symbol, ";" )
 		source:error "expected ';' after namespace name";
 
-	return new Flux::Parsing::UsingStatement( name, position );
+	source:push( new Flux::Parsing::UsingStatement( name, position ) );
+
+	return true;
 }
 
 string UsingStatement:serialize()

@@ -1,9 +1,20 @@
 
-[ ] Change unary operator parsing to allow for different precedences.
-[ ] Add `A if C else B` syntax
-[x] Add templated classes
-[x] Make class function definitions add '<class> self' as first parameter
-[x] Add @flagdef, @flagcdef
-[ ] Add preprocessor instructions
-[x] List comprehensions
-[ ] Add import functionality
+Parsing
+	[ ] Change unary operator parsing to allow for different precedences.
+	[ ] Add `A if C else B` syntax
+	[x] Add templated classes
+	[x] Make class function definitions add '<class> self' as first parameter
+	[x] Add @flagdef, @flagcdef
+	[ ] Add preprocessor instructions
+	[x] List comprehensions
+	[ ] Add import functionality
+	[ ] Vararg functions
+
+Type checking
+	Everything :/
+
+Optimisation
+	Everything :/
+
+Compilation
+	Everything :/

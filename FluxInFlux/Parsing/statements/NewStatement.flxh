@@ -2,5 +2,5 @@
 namespace Flux::Parsing;
 
 class NewStatement extends Flux::Parsing::Statement {
-	bool parse( Source source );
+	
 }

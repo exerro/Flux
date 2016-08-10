@@ -1,7 +1,7 @@
 
 namespace Flux::Parsing;
 
-OperatorTypeof OperatorTypeof:parse( Source source, null Expression value )
+ASTNode OperatorTypeof:parse( Source source, null Expression value )
 	= isCalled && new Flux::Parsing::OperatorTypeof( value, type, position )
 	where lexer = source.lexer
 	where position = lexer:get().position

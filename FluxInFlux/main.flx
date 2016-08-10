@@ -123,6 +123,16 @@ f( new Vector2D<float>(1.0, 2.0) ); // 1.0, 2.0
 f( new Something(5.0, 7.0, 9.0) ); // 5.0, 7.0
 f( new Vec2(3.0, 4.0) ); // 3.0, 4.0
 
+int main() {
+	print "Hi";
+
+	let x = 5;
+
+	while 1 > 2 {
+		if a > 2
+			print "yah";
+	}
+}
 ';
 
 import flux;

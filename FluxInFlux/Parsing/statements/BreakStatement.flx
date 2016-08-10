@@ -1,11 +1,22 @@
 
 namespace Flux::Parsing;
 
-BreakStatement BreakStatement:parse(Source source)
-	= lexer:skip( Keyword, "break" ) && (lexer:skip( Symbol, ";" ) && new Flux::Parsing::BreakStatement( position ) || source:error "expected ';' after 'break'")
-	where lexer = source.lexer
-	where position = lexer:get().position
-	where _ = !source.context.isLoop && lexer:test( Keyword, "break" ) && source:error "no loop to break";
+bool BreakStatement:parse(Source source) {
+	let lexer = source.lexer;
+	let position = lexer:get().position;
+
+	if !source.context.isLoop && lexer:test( Keyword, "break" )
+		source:error "no loop to break";
+
+	if lexer:skip( Keyword, "break" ) {
+		Flux::Parsing::expectSemicolon( source, "break statement" );
+		source:push( new Flux::Parsing::BreakStatement( position ) );
+		
+		return true;
+	}
+
+	return false;
+}
 
 string BreakStatement:serialize()
 	= "break;";

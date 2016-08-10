@@ -1,11 +1,12 @@
 
 namespace Flux::Parsing;
 
-RepeatLoop RepeatLoop:parse(Source source) {
+bool RepeatLoop:parse(Source source) {
 	let lexer = source.lexer;
 	let position = lexer:get().position;
 
-	if !lexer:skip( Keyword, "repeat" ) return;
+	if !lexer:skip( Keyword, "repeat" )
+		return false;
 
 	source:pushLoopContext();
 	let block = Flux::Parsing::Block:parse( source );
@@ -31,7 +32,9 @@ RepeatLoop RepeatLoop:parse(Source source) {
 		condition = new Flux::Parsing::ConstantExpression( Flux::Parsing::ASTNodeType.Boolean, "false" );
 		then inverted = false;
 
-	return new Flux::Parsing::RepeatLoop(condition, block, inverted, position);
+	source:push( new Flux::Parsing::RepeatLoop(condition, block, inverted, position) );
+
+	return true;
 }
 
 string RepeatLoop:serialize()

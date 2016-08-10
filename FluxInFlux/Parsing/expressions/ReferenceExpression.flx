@@ -1,7 +1,7 @@
 
 namespace Flux::Parsing;
 
-ReferenceExpression ReferenceExpression:parse(Source source)
+ASTNode ReferenceExpression:parse(Source source)
 	= name && new Flux::Parsing::ReferenceExpression(name, position) || null
 	where position = source.lexer:get().position
 	where name = Flux::Parsing::parseName(source);

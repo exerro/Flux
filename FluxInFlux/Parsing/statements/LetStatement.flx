@@ -5,7 +5,8 @@ bool LetStatement:parse(Source source) {
 	let lexer = source.lexer;
 	let position = lexer:get().position;
 
-	if !lexer:skip( Keyword, "let" ) return false;
+	if !lexer:skip( Keyword, "let" )
+		return false;
 
 	bool isConst = lexer:skip( Keyword, "const" ) && true || false;
 
@@ -73,6 +74,7 @@ bool LetStatement:parse(Source source) {
 			Flux::Parsing::resolveDefinitionName( source, name1 ),
 			expr,
 			isConst, false, false,
+			[],
 			position
 		) );
 
@@ -80,8 +82,7 @@ bool LetStatement:parse(Source source) {
 	}
 	while lexer:skip( Symbol, "," );
 
-	if !Flux::Parsing::parseSemicolon(lexer)
-		source:error "expected ';' after let statement";
+	Flux::Parsing::expectSemicolon( source, "let statement" );
 
 	return true;
 }

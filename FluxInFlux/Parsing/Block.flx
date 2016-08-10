@@ -16,9 +16,7 @@ string Block:parse(Source source) {
 	}
 
 	else {
-		repeat
-			Flux::Parsing::Statement:parse(source);
-		while lexer:skip( Keyword, "then" );
+		Flux::Parsing::Statement:parse(source);
 	}
 
 	let statements = source:popBlock();

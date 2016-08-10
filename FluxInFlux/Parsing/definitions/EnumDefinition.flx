@@ -26,7 +26,7 @@ bool EnumDefinition:parse(Source source) {
 	foreach member in members {
 		let name = Flux::Parsing::resolveDefinitionName( source, member );
 		let member_index = new Flux::Parsing::DotIndex( enum_ref, member );
-		source:push( new Flux::Parsing::Definition( enum_type, null, name, member_index, true, position ) );
+		source:push( new Flux::Parsing::Definition( enum_type, null, name, member_index, true, true, false, [], position ) );
 	}
 
 	return true;

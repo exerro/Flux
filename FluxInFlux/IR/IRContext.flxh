@@ -5,15 +5,20 @@ import IRScope;
 
 class IRContext {
 	IRScope[] scopes;
-	IRDefinitionHeap heap;
+	IRDefinitionHeap{string} files;
+	string filenames;
 
 	IRContext() {
 		self.scopes = [];
-		self.heap = new IRDefinitionHeap();
+		self.files = [];
+		self.filenames = [];
 	}
 
-	void define(string name, bool isConst, IRType type, Position position);
-	IRDefinitionPointer[] lookup(string name);
+	void define(IRDefinition def);
+	IRDefinitionPointer[] lookup(string name, bool hasPrivate);
+
+	void loadfile(string name);
+	void donefile();
 
 	void error(string err, Position position);
 

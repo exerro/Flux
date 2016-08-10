@@ -4,12 +4,7 @@
 import IRTypeSignature;
 
 class IRTypeSignatureTemplate extends IRTypeSignature {
-	string name = null;
-	IRTypeSignature[] classes;
+	IRDefinitionPointer name = null;
 
 	IRTypeSignatureTemplate(IRTypeSignature[] classes);
-
-	IRTypeComparison compare(IRTypeSignature sig);
-
-	string tostring();
 }

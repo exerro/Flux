@@ -4,9 +4,19 @@
 IRDefinitionPointer IRDefinitionHeap:define(IRDefinition d) {
 	let p = self.pointer++;
 	self.members[p] = d;
-	return p;
+	return new IRDefinitionPointer( self, p );
 }
 
-IRDefinition IRDefinitionHeap:lookup(IRDefinitionPointer p) {
+IRDefinitionPointer[] IRDefinitionHeap:lookup(string name, bool hasPrivate) {
+	IRDefinitionPointer[] found = [];
+
+	foreach i, m in self.members
+		if m.name == name && (hasPrivate || self.members[i].isPublic)
+			found[#found + 1] = new IRDefinitionPointer( self, i );
+
+	return found;
+}
+
+IRDefinition IRDefinitionHeap:get(int p) {
 	return self.members[p];
 }

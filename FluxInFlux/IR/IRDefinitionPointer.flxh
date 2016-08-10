@@ -1,0 +1,12 @@
+
+class IRDefinitionPointer {
+	int index;
+	IRDefinitionHeap heap;
+
+	IRDefinitionPointer(IRDefinitionHeap heap, int index) {
+		self.heap = heap;
+		self.index = index;
+	}
+
+	IRDefinition definition();
+}

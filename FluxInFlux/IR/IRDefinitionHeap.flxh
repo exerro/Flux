@@ -8,7 +8,8 @@ class IRDefinitionHeap {
 	IRDefinitionPointer pointer = 0;
 
 	IRDefinitionPointer define(IRDefinition d);
-	IRDefinition lookup(IRDefinitionPointer p);
+	IRDefinitionPointer[] lookup(string name, bool hasPrivate);
+	IRDefinition get(int p);
 
 	IRDefinitionHeap() {
 		self.members = [];

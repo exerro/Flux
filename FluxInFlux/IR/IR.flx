@@ -2,6 +2,7 @@
 class IRDefinitionHeap;
 class IRContext;
 
-import IRType;
 import IRDefinitionHeap;
 import IRContext;
+import IRClassDefinition;
+import IRObjectDefinition;

@@ -153,23 +153,44 @@ void main() {
 	}
 
 	foreach expr in source.statements
-		print( expr:serialize() `concat` "\n" );
+		_; // print( expr:serialize() `concat` "\n" );
 
 	new IRContext c();
 
-	new IRType t1(c.heap, new IRTypeSignature("t1", []));
-	new IRType t2(c.heap, new IRTypeSignature("t2", []));
-	new IRType t3(c.heap, new IRTypeSignature("t3", []));
-	new IRType t4(c.heap, new IRTypeSignature("t4", []));
-
+	c:loadfile "main";
 	c:pushScope();
+
+	new IRClassDefinition t1();
+	new IRClassDefinition t2();
+	new IRClassDefinition t3();
+	new IRClassDefinition t4();
+
+	t1.name = "1";
+	t2.name = "2";
+	t3.name = "3";
+	t4.name = "4";
+
+	c:define( t1 );
+	c:define( t2 );
+	c:define( t3 );
+	c:define( t4 );
+
+	let t1p = c:lookup( "1", true ) [1];
+	let t2p = c:lookup( "2", true ) [1];
+	let t3p = c:lookup( "3", true ) [1];
+	let t4p = c:lookup( "4", true ) [1];
+
 	c:use "a";
 	c:use "b";
-	c:define("a::f", true, t1, new Flux::Position("dashjk", 1, 1, 1));
-	c:define("f", true, t2, new Flux::Position("dashjk", 1, 1, 1));
-	c:define("b::f", true, t3, new Flux::Position("dashjk", 1, 1, 1));
-	c:define("a::f", true, t4, new Flux::Position("dashjk", 1, 1, 1));
 
-	foreach v in c:lookup "f"
-		print( c.heap:lookup( v ).type.signature.name );
+	c:define(new IRObjectDefinition("a::f", true, true, t2p, [], new Flux::Position("dashjk", 1, 1, 1)));
+	c:define(new IRObjectDefinition("f", true, false, t1p, [], new Flux::Position("dashjk", 1, 1, 1)));
+	c:define(new IRObjectDefinition("b::f", true, false, t4p, [], new Flux::Position("dashjk", 1, 1, 1)));
+	c:define(new IRObjectDefinition("a::f", true, true, t3p, [], new Flux::Position("dashjk", 1, 1, 1)));
+
+	foreach v in c:lookup( "f", true )
+		print( v:definition().type:definition().name );
+
+	foreach f in c.files[c.filenames[#c.filenames]]:lookup( "a::f", true )
+		print( f:definition().type:definition().name );
 }

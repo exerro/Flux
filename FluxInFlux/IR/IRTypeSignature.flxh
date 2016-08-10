@@ -7,10 +7,10 @@
 import IRTypeComparison;
 
 class IRTypeSignature {
-	string name;
+	IRDefinitionPointer name;
 	IRTypeSignature[] classes;
 
-	IRTypeSignature(string name, IRTypeSignature[] classes) {
+	IRTypeSignature(IRDefinitionPointer name, IRTypeSignature[] classes) {
 		self.name = name;
 		self.classes = classes;
 	}

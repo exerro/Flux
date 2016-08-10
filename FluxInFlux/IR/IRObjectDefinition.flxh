@@ -1,0 +1,22 @@
+
+import IRDefinition;
+import IRTypeSignature;
+import Position;
+
+class IRObjectDefinition extends IRDefinition {
+	bool isConst;
+	IRDefinitionPointer type;
+	IRTypeSignature signature;
+	Position position;
+	string[] flags;
+
+	IRObjectDefinition(string name, bool isConst, isPublic, IRDefinitionPointer type, string[] flags, Position position) {
+		self.name = name;
+		self.isConst = isConst;
+		self.isPublic = isPublic;
+		self.type = type;
+		self.signature = type.signature;
+		self.flags = flags;
+		self.position = position;
+	}
+}

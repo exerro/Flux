@@ -1,0 +1,25 @@
+
+import IRTypeSignature;
+import IRDefinition;
+import IRDefinitionHeap;
+import IRDefinitionPointer;
+import Position;
+
+class IRClassDefinition extends IRDefinition {
+	IRDefinitionHeap members;
+	IRDefinitionHeap static_members;
+
+	bool isAbstract, isConst, isFinal;
+	string[] flags;
+
+	IRDefinitionPointer container1, container2;
+
+	IRDefinitionPointer super;
+	IRDefinitionPointer[] interfaces;
+
+	IRTypeSignature signature;
+
+	Position position;
+
+	IRClassDefinition() {}
+}

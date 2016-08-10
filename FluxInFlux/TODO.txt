@@ -11,6 +11,7 @@ Parsing
 	[ ] Vararg functions
 
 Type checking
+	[ ] Automagically sort out classes referring to eachother in multiple files
 	Everything :/
 
 Optimisation

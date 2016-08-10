@@ -4,4 +4,6 @@
 class IRDefinition {
 	string name;
 	bool isPublic;
+
+	IRDefinition() {}
 }

@@ -4,6 +4,9 @@
 // class for holding a type signature, i.e. function<void, int> or List<string> or MyNamespace::MyClass<>
 // used for comparing
 
+int{IRTypeComparison} weights;
+IRTypeComparison{int} compare_lookup;
+
 import IRTypeComparison;
 
 class IRTypeSignature {

@@ -277,10 +277,18 @@ function serializeInterfaceDefinition( t )
 end
 
 function compileClassDefinition( emitter, t )
+	local classname = " " .. t.name .. " "
+	local obj = t
+
+	while obj.extends do
+		classname = " " .. obj.extends .. classname
+		obj = obj.extends
+	end
+
 	emitter:define( t.name )
 	emitter:pushWord( t.name )
 	emitter:pushOperator "="
-	emitter:pushBlockText( t.extends and "setmetatable( {}, { __index = " .. t.extends .. " } )" or "{}" )
+	emitter:pushBlockText( t.extends and "setmetatable( { class = '" .. classname .. "' }, { __index = " .. t.extends .. " } )" or "{ class = '" .. classname .. "' }" )
 	emitter:pushLineBreak()
 
 	for i = 1, #t.implements do

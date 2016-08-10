@@ -1245,6 +1245,15 @@ function compileExpression( emitter, t )
 	elseif t.type == "OperatorExtends" then
 
 	elseif t.type == "OperatorTypeOf" then
+		emitter:pushSymbol "("
+
+		compileExpression( emitter, t.value )
+
+		emitter:pushSymbol ").class:find("
+		emitter:pushString( " " .. t.class.name .. " " )
+		emitter:pushSymbol ")"
+
+		return
 
 	elseif t.type == "OperatorImplements" then
 
@@ -1364,6 +1373,9 @@ function compileExpressionStatement( emitter, t )
 		compileExpression( emitter, t )
 
 		return emitter:pushSymbol ";"
+
+	elseif t.type == "OperatorTypeOf" then
+
 
 	elseif (t.type == "RightUnaryExpression" or t.type == "LeftUnaryExpression") and (t.operator == "++" or t.operator == "--") then
 		local operator = t.operator == "++" and "+" or "-"

@@ -1,3 +1,4 @@
+
 let source_code = '
 
 class byte;
@@ -180,6 +181,15 @@ void main() {
 	let t3p = c:lookup( "3", true ) [1];
 	let t4p = c:lookup( "4", true ) [1];
 
+	new IRTypeSignature s1(t1p, []);
+	new IRTypeSignature s2(t2p, []);
+	new IRTypeSignature s3(t3p, []);
+
+	t1.super = t2p;
+
+	print( new IRTypeSignature(IRDefinitionPointer.null_type, [s1]):compare( new IRTypeSignature(IRDefinitionPointer.null_type, [s3]) ) );
+
+	/*
 	c:use "a";
 	c:use "b";
 
@@ -193,4 +203,6 @@ void main() {
 
 	foreach f in c.files[c.filenames[#c.filenames]]:lookup( "a::f", true )
 		print( f:definition().type:definition().name );
+	*/
 }
+// */

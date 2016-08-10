@@ -1,4 +1,7 @@
 
+import IRDefinition;
+import IRDefinitionHeap;
+
 class IRDefinitionPointer {
 	int index;
 	IRDefinitionHeap heap;
@@ -9,4 +12,8 @@ class IRDefinitionPointer {
 	}
 
 	IRDefinition definition();
+
+	bool eq(IRDefinitionPointer ptr); // bool operator ==();
+
+	const static IRDefinition function_type, struct_type, auto_type, void_type, null_type;
 }

@@ -1,3 +1,27 @@
 
 IRDefinition IRDefinitionPointer:definition()
 	= self.heap:get( self.index );
+
+bool IRDefinitionPointer:eq(IRDefinitionPointer ptr) {
+	return self.index == ptr.index && self.heap == ptr.heap;
+}
+
+let _ = (function() {
+	IRDefinitionPointer.function_type = new IRDefinitionPointer(new IRDefinitionHeap(), 0);
+	IRDefinitionPointer.struct_type   = new IRDefinitionPointer(new IRDefinitionHeap(), 0);
+	IRDefinitionPointer.auto_type     = new IRDefinitionPointer(new IRDefinitionHeap(), 0);
+	IRDefinitionPointer.void_type     = new IRDefinitionPointer(new IRDefinitionHeap(), 0);
+	IRDefinitionPointer.null_type     = new IRDefinitionPointer(new IRDefinitionHeap(), 0);
+
+	IRDefinitionPointer.function_type.heap:define(new IRDefinition());
+	IRDefinitionPointer.struct_type  .heap:define(new IRDefinition());
+	IRDefinitionPointer.auto_type    .heap:define(new IRDefinition());
+	IRDefinitionPointer.void_type    .heap:define(new IRDefinition());
+	IRDefinitionPointer.null_type    .heap:define(new IRDefinition());
+
+	IRDefinitionPointer.function_type:definition().name = "function";
+	IRDefinitionPointer.struct_type:definition().name = "struct";
+	IRDefinitionPointer.auto_type:definition().name = "auto";
+	IRDefinitionPointer.void_type:definition().name = "void";
+	IRDefinitionPointer.null_type:definition().name = "null";
+})();

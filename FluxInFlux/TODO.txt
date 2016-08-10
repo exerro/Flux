@@ -9,10 +9,17 @@ Parsing
 	[x] List comprehensions
 	[ ] Add import functionality
 	[ ] Vararg functions
+	[ ] Allow `static int MyClass:method() {}` to select just the static method?
+	[ ] Sort out file importing
 
 Type checking
 	[ ] Automagically sort out classes referring to eachother in multiple files
-	Everything :/
+	[ ] Add type lookups and template creation
+	[ ] Add function lookups and template creation
+	[ ] Add classes declarations with native type designation
+	[ ] Add function calls
+	[ ] Add operator calls
+	[ ] Add indexing and stuff
 
 Optimisation
 	Everything :/

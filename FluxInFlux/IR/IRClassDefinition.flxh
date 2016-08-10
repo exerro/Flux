@@ -21,5 +21,10 @@ class IRClassDefinition extends IRDefinition {
 
 	Position position;
 
-	IRClassDefinition() {}
+	IRClassDefinition() {
+		
+	}
+
+	bool doesExtend(IRDefinitionPointer d);
+	bool doesCastTo(IRDefinitionPointer d) { return false; }
 }

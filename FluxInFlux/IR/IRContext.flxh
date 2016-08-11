@@ -16,6 +16,7 @@ class IRContext {
 
 	void define(IRDefinition def);
 	IRDefinitionPointer[] lookup(string name, bool hasPrivate);
+	IRDefinitionPointer lookupType(string name, bool hasPrivate);
 
 	void loadfile(string name);
 	void donefile();

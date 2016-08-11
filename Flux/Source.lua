@@ -110,44 +110,50 @@ end
 
 function Source:import( name, position )
 	for path in self.path:gmatch "[^;]+" do
-		local ip = self.current_include_path
-		local p = path .. "/" .. (ip[1] and #ip[#ip] > 0 and ip[#ip] .. "/" or "") .. name:gsub( "%.", "/" )
-		local found = isfile( p .. ".flxh" ) or isfile( p .. ".flxc" ) or isfile( p .. ".flx" )
+		local ip = self.current_include_path[#self.current_include_path] or ""
+		local s = 0
 
-		if not found and ip[1] then
-			p = path .. "/" .. name:gsub( "%.", "/" )
-			found = isfile( p .. ".flxh" ) or isfile( p .. ".flxc" ) or isfile( p .. ".flx" )
-		end
+		repeat
+			s = ip:find( "/", s + 1 )
 
-		if self.imported[p] then
-			return
+			local ips = ip:sub( 1, s )
+			local p = path .. "/" .. ips .. "/" .. name:gsub( "%.", "/" )
+			local found = isfile( p .. ".flxh" ) or isfile( p .. ".flxc" ) or isfile( p .. ".flx" )
 
-		elseif found then
-			self.imported[p] = true
-			self.current_include_path[#self.current_include_path + 1] = p:sub( #path + 2 ):match "^(.+)/" or ""
-
-			if isfile( p .. ".flxh" ) then
-				self:parseContent( readfile( p .. ".flxh" ), name .. " header", p )
-
+			if not found then
+				p = path .. "/" .. name:gsub( "%.", "/" )
+				found = isfile( p .. ".flxh" ) or isfile( p .. ".flxc" ) or isfile( p .. ".flx" )
 			end
 
-			if isfile( p .. ".flxc" ) then
-				self:push {
-					type = "LuaScript";
-					value = readfile( p .. ".flxc" );
-					position = position;
-				}
+			if self.imported[p] then
+				return
 
-			elseif isfile( p .. ".flx" ) then
-				self:parseContent( readfile( p .. ".flx" ), name, p )
+			elseif found then
+				self.imported[p] = true
+				self.current_include_path[#self.current_include_path + 1] = p:sub( #path + 2 ):match "^(.+)/" or ""
 
+				if isfile( p .. ".flxh" ) then
+					self:parseContent( readfile( p .. ".flxh" ), name .. " header", p )
+
+				end
+
+				if isfile( p .. ".flxc" ) then
+					self:push {
+						type = "LuaScript";
+						value = readfile( p .. ".flxc" );
+						position = position;
+					}
+
+				elseif isfile( p .. ".flx" ) then
+					self:parseContent( readfile( p .. ".flx" ), name, p )
+
+				end
+
+				self.current_include_path[#self.current_include_path] = nil
+
+				return
 			end
-
-			self.current_include_path[#self.current_include_path] = nil
-
-			return
-
-		end
+		until not s
 	end
 
 	throw( self.lexer, "attempt to import file '" .. name .. "': file not found", position )

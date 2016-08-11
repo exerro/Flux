@@ -176,10 +176,10 @@ void main() {
 	c:define( t3 );
 	c:define( t4 );
 
-	let t1p = c:lookup( "1", true ) [1];
-	let t2p = c:lookup( "2", true ) [1];
-	let t3p = c:lookup( "3", true ) [1];
-	let t4p = c:lookup( "4", true ) [1];
+	let t1p = c:lookupType( "1", true ) || throw new Error "So the type 1 doesn't exist :/";
+	let t2p = c:lookupType( "2", true ) || throw new Error "So the type 2 doesn't exist :/";
+	let t3p = c:lookupType( "3", true ) || throw new Error "So the type 3 doesn't exist :/";
+	let t4p = c:lookupType( "4", true ) || throw new Error "So the type 4 doesn't exist :/";
 
 	new IRTypeSignature s1(t1p, []);
 	new IRTypeSignature s2(t2p, []);

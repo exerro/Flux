@@ -32,6 +32,18 @@ IRDefinitionPointer[] IRContext:lookup(string name, bool hasPrivate) {
 	return found;
 }
 
+IRDefinitionPointer IRContext:lookupType(string name, bool hasPrivate) {
+	IRDefinitionPointer[] list = self:lookup(name, hasPrivate);
+	IRDefinitionPointer type = list[#list];
+
+	if type:definition() typeof IRClassDefinition
+	|| type:definition() typeof IREnumDefinition
+	|| type:definition() typeof IRInterfaceDefinition
+		return type;
+
+	return null;
+}
+
 void IRContext:loadfile(string filename) {
 	self.filenames[#self.filenames] = filename;
 	self.files[self.filenames[#self.filenames]] = new IRDefinitionHeap();

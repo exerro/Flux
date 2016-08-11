@@ -1,0 +1,21 @@
+
+import IRNode;
+import IRReference;
+import definitions.IRDefinitionPointer;
+import IRTypeSignature;
+
+class IRReferenceList extends IRNode {
+	IRDefinitionPointer[] list;
+	IRTypeSignature[] types;
+
+	IRReferenceList(IRDefinitionPointer[] list, IRTypeSignature[] types) {
+		self.list = list;
+		self.types = types;
+		self:IRNode( IRDefinitionPointer.void_type );
+	}
+
+	IRReference select(int index);
+	IRTypeSignature itype(int index);
+
+	int count();
+}

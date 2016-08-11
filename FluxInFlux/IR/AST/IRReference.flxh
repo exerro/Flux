@@ -1,0 +1,13 @@
+
+import IRNode;
+import definitions.IRDefinitionPointer;
+import IRTypeSignature;
+
+class IRReference extends IRNode {
+	IRDefinitionPointer ptr;
+
+	IRReference( IRDefinitionPointer ptr, IRTypeSignature type ) {
+		self.ptr = ptr;
+		self:IRNode( type );
+	}
+}

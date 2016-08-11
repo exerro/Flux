@@ -1,7 +1,10 @@
 
-// namespace Flux::Compiling;
-
 import IRScope;
+import IRFunctionCall;
+import definition.IRDefinition;
+import definition.IRDefinitionPointer;
+
+// namespace Flux::Compiling;
 
 class IRContext {
 	IRScope[] scopes;

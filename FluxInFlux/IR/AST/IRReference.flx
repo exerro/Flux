@@ -1,0 +1,4 @@
+
+// change this because templates and stuff...
+string IRReference:tostring()
+	= self.ptr:definition().name;

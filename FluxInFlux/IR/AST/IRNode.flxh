@@ -1,0 +1,12 @@
+
+import IRTypeSignature;
+
+class IRNode {
+	IRTypeSignature type;
+
+	IRNode( IRDefinitionPointer type ) {
+		self.type = type;
+	}
+
+	string tostring();
+}

@@ -14,9 +14,10 @@ Parsing
 
 Type checking
 	[ ] Automagically sort out classes referring to eachother in multiple files
-	[ ] Add type lookups and template creation
-	[ ] Add function lookups and template creation
+	[x] Add type lookups and template creation
 	[ ] Add classes declarations with native type designation
+	[ ] Add class/function template specialisation
+	[ ] Add function lookups
 	[ ] Add function calls
 	[ ] Add operator calls
 	[ ] Add indexing and stuff
@@ -26,3 +27,8 @@ Optimisation
 
 Compilation
 	Everything :/
+
+Stuff to add ages away
+	Autocomplete for types to avoid signatures being too long
+		IRFunc... f(IRDef... def, IRTypeSig... sig)
+		IRFunctionCall f(IRDefinitionPointer def, IRTypeSignature sig)

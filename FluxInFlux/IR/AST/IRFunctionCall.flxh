@@ -1,0 +1,17 @@
+
+import IRNode;
+import IRTypeSignature;
+
+class IRFunctionCall extends IRNode {
+	IRNode expression;
+	IRNode[] parameters;
+
+	IRFunctionCall(IRNode expression, IRNode[] parameters, IRTypeSignature type) {
+		self.expression = expression;
+		self.parameters = parameters;
+
+		self:IRNode( type );
+	}
+
+	static IRFunctionCall lookupFunction(IRDefinitionPointer[] list, IRNode[] parameters);
+}

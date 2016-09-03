@@ -11,8 +11,11 @@ class IRScope {
 		self.heap = heap;
 	}
 
+	// adds a definition
 	void define(IRDefinition def);
+	// looks up the given name in its definitions
 	IRDefinitionPointer[] lookup(string name, bool hasPrivate);
 
+	// registers the given namespace name to be used when looking things up by IRState at the root-level
 	void use(string name);
 }

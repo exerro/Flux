@@ -2,9 +2,9 @@
 // namespace Flux::Compiling;
 
 enum IRTypeComparison {
-	ExactMatch, ExactMatchTemplate;
-	ExtendsFrom, ExtendsFromTemplate;
-	CastsTo, CastsToTemplate;
+	ExactMatch;
+	ExtendsFrom;
+	CastsTo;
 	NoMatch;
 }
 

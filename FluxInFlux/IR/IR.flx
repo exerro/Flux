@@ -1,9 +1,6 @@
 
-class IRDefinitionHeap;
-class IRContext;
-
 import definitions.IRDefinitionHeap;
-import IRContext;
+import IRState;
 import definitions.IRClassDefinition;
 import definitions.IRObjectDefinition;
 import definitions.IRInterfaceDefinition;

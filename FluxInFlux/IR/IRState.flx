@@ -1,11 +1,11 @@
 
 // namespace Flux::Compiling;
 
-void IRContext:define( IRDefinition def ) {
+void IRState:define( IRDefinition def ) {
 	self.scopes[#self.scopes]:define( def );
 }
 
-IRDefinitionPointer[] IRContext:lookup(string name, bool hasPrivate) {
+IRDefinitionPointer[] IRState:lookup(string name, bool hasPrivate) {
 	IRScope global = self.scopes[1];
 	IRDefinitionPointer[] found = [];
 	string[] isUsing = [];
@@ -28,7 +28,7 @@ IRDefinitionPointer[] IRContext:lookup(string name, bool hasPrivate) {
 	return found;
 }
 
-IRDefinitionPointer IRContext:lookupType(string name, bool hasPrivate) {
+IRDefinitionPointer IRState:lookupType(string name, bool hasPrivate) {
 	IRDefinitionPointer[] list = self:lookup(name, hasPrivate);
 	IRDefinitionPointer type = list[1];
 
@@ -40,28 +40,28 @@ IRDefinitionPointer IRContext:lookupType(string name, bool hasPrivate) {
 	return null;
 }
 
-void IRContext:loadfile(string filename) {
+void IRState:loadfile(string filename) {
 	self.filenames[#self.filenames] = filename;
 	self.files[self.filenames[#self.filenames]] = new IRDefinitionHeap();
 }
 
-void IRContext:donefile()
+void IRState:donefile()
 	self.filenames[#self.filenames] = null;
 
-void IRContext:error(string err, Position position) {
+void IRState:error(string err, Position position) {
 	return error( table.concat( [position.source, "[", position.line, ", ", position.character, "]: ", err] ), 0 );
 }
 
-IRScope IRContext:pushScope() {
+IRScope IRState:pushScope() {
 	let scope = new IRScope( self.files[self.filenames[#self.filenames]] );
 	self.scopes[#self.scopes + 1] = scope;
 	return scope;
 }
 
-IRScope IRContext:popScope() {
+IRScope IRState:popScope() {
 	return table.remove( self.scopes, #self.scopes );
 }
 
-void IRContext:use( string name ) {
+void IRState:use( string name ) {
 	self.scopes[#self.scopes]:use( name );
 }

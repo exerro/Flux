@@ -1,5 +1,4 @@
 
-import types.IRTypeSignature;
 import IRDefinition;
 import IRDefinitionHeap;
 import IRDefinitionPointer;

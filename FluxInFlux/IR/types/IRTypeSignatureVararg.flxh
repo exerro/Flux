@@ -1,8 +1,0 @@
-
-// namespace Flux::Compiling;
-
-import IRTypeSignature;
-
-class IRTypeSignatureVararg extends IRTypeSignature {
-	IRDefinitionPointer name = null;
-}

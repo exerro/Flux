@@ -1,0 +1,24 @@
+
+import IRDefinitionPointer;
+import IRScope;
+
+Just incase I include this like the idiot I am, this will cause
+a syntax error: Ben, you need to make your brain work and figure
+out what the SOMETHING class should be below. It needs to contain
+a list of valid classes/interfaces/enums. Glhf.
+
+interface ITemplate {
+	SOMETHING[] type_options;
+	IRDefinitionPointer def_ptr;
+	IRScope scope;
+
+	ITemplate(Scope scope, SOMETHING[] type_options) {
+		self.type_options = type_options;
+		self.scope = scope;
+		self.def_ptr = null;
+	}
+
+	IRDefinitionPointer specialise(IRDefinitionPointer[] classes);
+
+	void assign_definition(IRDefinitionPointer def);
+}

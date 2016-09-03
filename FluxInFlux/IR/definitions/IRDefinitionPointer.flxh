@@ -3,8 +3,8 @@ import IRDefinition;
 import IRDefinitionHeap;
 
 class IRDefinitionPointer {
-	int index;
 	IRDefinitionHeap heap;
+	int index;
 
 	IRDefinitionPointer(IRDefinitionHeap heap, int index) {
 		self.heap = heap;
@@ -12,8 +12,13 @@ class IRDefinitionPointer {
 	}
 
 	IRDefinition definition();
+	// IRDefinition operator*() = definition();
 
 	bool eq(IRDefinitionPointer ptr); // bool operator ==();
 
-	const static IRDefinition function_type, struct_type, auto_type, void_type, null_type;
+	const static IRDefinition function_type,
+	                          struct_type,
+	                          auto_type,
+	                          void_type,
+	                          null_type;
 }

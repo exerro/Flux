@@ -2,8 +2,6 @@
 // namespace Flux::Compiling;
 
 // class for holding a type signature, i.e. function<void, int> or List<string> or MyNamespace::MyClass<>
-// used for comparing
-
 import IRTypeComparison;
 
 class IRTypeSignature {
@@ -15,9 +13,12 @@ class IRTypeSignature {
 		self.classes = classes;
 	}
 
-	static IRTypeSignature fromAST(Flux::Parsing::Type t);
+	// creates an IRTypeSignature from a Flux::Parsing::Type
+	static IRTypeSignature fromAST(IRContext context, Flux::Parsing::Type t);
 
+	// compares two signatures, returning the comparison result relative to the parameter (i.e. extends means self extends sig)
 	IRTypeComparison compare(IRTypeSignature sig);
 
+	// returns a string representation of the signature for debugging purposes
 	string tostring();
 }

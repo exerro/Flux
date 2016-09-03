@@ -4,13 +4,14 @@ import IRDefinitionPointer;
 
 class IRDefinitionHeap {
 	IRDefinition[] members;
-	IRDefinitionPointer pointer = 0;
-
-	IRDefinitionPointer define(IRDefinition d);
-	IRDefinitionPointer[] lookup(string name, bool hasPrivate);
-	IRDefinition get(int p);
+	int pointer = 0;
 
 	IRDefinitionHeap() {
 		self.members = [];
 	}
+
+	IRDefinitionPointer define(IRDefinition d);
+	IRDefinitionPointer[] lookup(string name, bool hasPrivate);
+	IRDefinitionPointer[] lookup_public();
+	IRDefinition get(int p);
 }

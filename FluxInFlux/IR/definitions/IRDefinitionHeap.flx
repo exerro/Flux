@@ -1,5 +1,5 @@
 
-// namespace Flux::Compiling;
+// namespace Flux::IR;
 
 IRDefinitionPointer IRDefinitionHeap:define(IRDefinition d) {
 	let p = self.pointer++;
@@ -11,7 +11,17 @@ IRDefinitionPointer[] IRDefinitionHeap:lookup(string name, bool hasPrivate) {
 	IRDefinitionPointer[] found = [];
 
 	foreach i, m in self.members
-		if m.name == name && (hasPrivate || self.members[i].isPublic)
+		if m.name == name && (hasPrivate || m.isPublic)
+			found[#found + 1] = new IRDefinitionPointer( self, i );
+
+	return found;
+}
+
+IRDefinitionPointer[] IRDefinitionHeap:lookup_public() {
+	IRDefinitionPointer[] found = [];
+
+	foreach i, m in self.members
+		if m.isPublic
 			found[#found + 1] = new IRDefinitionPointer( self, i );
 
 	return found;

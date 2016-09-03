@@ -1,0 +1,56 @@
+
+import IRScope;
+import AST.IRFunctionCall;
+import definitions.IRDefinition;
+import definitions.IRDefinitionPointer;
+
+// namespace Flux::Compiling;
+
+// class used to control the AST->IR process and hold/modify the current state
+class IRState {
+	IRScope[] scopes;
+	IRDefinitionHeap{string} file_headers;
+	SOMETHING{string} file_sources;
+	Position[] position_stack;
+
+	IRState() {
+		self.scopes = [];
+		self.files = [];
+		self.filenames = [];
+	}
+
+	// adds a definition to the top scope
+	void define(IRDefinition def);
+
+	// looks up a name in all scopes (including root level)
+	IRDefinitionPointer[] lookup(string name, bool hasPrivate);
+	// looks up a name in all scopes (including root level) for a class, interface, enum, or alias
+	IRDefinitionPointer lookupType(string name, bool hasPrivate);
+
+	// initialises a file header and source content
+	void init_filename(string filename);
+	// pre-declares the classes/interfaces/enums of a file in its header
+	void add_file_classes(string filename, SOMETHING[] classes);
+	// adds all other declarations (including class members) to a file's header
+	void add_file_declarations(string filename, SOMETHING[] declarations)
+	// converts a file source's AST into the IR, resolving lookups and types
+	void load_file_source(string filename, SOMETHING source);
+
+	// pushes a position onto the stack
+	void push_position(Position p);
+	// sets the top position on the stack
+	void set_position(Position p);
+	// pops the top position from the stack
+	void pop_position();
+
+	// errors with a message, showing a traceback from the stack
+	void error(string err);
+
+	// pushes a scope to the top
+	IRScope pushScope();
+	// pops a scope from the top
+	IRScope popScope();
+
+	// registers a namespace to be used when looking up root-level names in the top scope
+	void use(string name);
+}

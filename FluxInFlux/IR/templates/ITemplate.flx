@@ -1,0 +1,13 @@
+
+IRDefinitionPointer ITemplate:specialise(IRDefinitionPointer[] classes) {
+	if self.def_ptr == null
+		throw new ExceptionTODO "need to work on the exception system :/";
+
+	// create respective object
+	// define in self.scope
+	// return pointer to new definition
+}
+
+void ITemplate:assign_definition(IRDefinitionPointer def) {
+	self.def_ptr = def;
+}

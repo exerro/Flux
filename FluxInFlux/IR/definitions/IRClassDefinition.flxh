@@ -1,5 +1,5 @@
 
-import IRTypeSignature;
+import types.IRTypeSignature;
 import IRDefinition;
 import IRDefinitionHeap;
 import IRDefinitionPointer;
@@ -16,8 +16,6 @@ class IRClassDefinition extends IRDefinition {
 
 	IRDefinitionPointer super;
 	IRDefinitionPointer[] interfaces;
-
-	IRTypeSignature signature;
 
 	Position position;
 

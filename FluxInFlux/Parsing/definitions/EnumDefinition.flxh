@@ -2,7 +2,6 @@
 namespace Flux::Parsing;
 
 class EnumDefinition extends ASTNode {
-	ASTNodeType type = Flux::Parsing::ASTNodeType.EnumDefinition;
 	string name;
 	string[] members;
 

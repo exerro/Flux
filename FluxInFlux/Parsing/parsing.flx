@@ -23,7 +23,7 @@ let Instruction = Flux::Parsing::TokenType.Instruction,
     EOF = Flux::Parsing::TokenType.EOF;
 
 import util;
-import Source;
+import core.Source;
 import Block;
 import statements.Statement;
 import expressions.Expression;

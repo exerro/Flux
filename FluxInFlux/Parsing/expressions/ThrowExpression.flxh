@@ -2,7 +2,6 @@
 namespace Flux::Parsing;
 
 class ThrowExpression extends Flux::Parsing::PrimaryExpression {
-	ASTNodeType type = Flux::Parsing::ASTNodeType.ThrowExpression;
 	Expression value;
 
 	ThrowExpression(Expression value, Position position) {

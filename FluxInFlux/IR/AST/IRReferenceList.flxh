@@ -2,7 +2,7 @@
 import IRNode;
 import IRReference;
 import definitions.IRDefinitionPointer;
-import IRTypeSignature;
+import types.IRTypeSignature;
 
 class IRReferenceList extends IRNode {
 	IRDefinitionPointer[] list;

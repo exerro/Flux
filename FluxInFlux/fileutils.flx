@@ -1,0 +1,28 @@
+
+namespace Flux;
+
+bool isfile(string file) {
+	let h = io.open(file);
+	if h {
+		h:close();
+		return true;
+	}
+	return false;
+}
+
+string[] listfiles(string path) {
+	return [];
+}
+
+string readfile(string file) {
+	let h = io.open(file);
+	let content = h:read "*a";
+
+	h:close();
+
+	return content;
+}
+
+void writefile(string file, content) {
+	return null;
+}

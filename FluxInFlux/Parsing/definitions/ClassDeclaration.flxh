@@ -2,7 +2,6 @@
 namespace Flux::Parsing;
 
 class ClassDeclaration extends Flux::Parsing::ASTNode {
-	ASTNodeType type = Flux::Parsing::ASTNodeType.ClassDeclaration;
 	Type name;
 	TemplateList _template;
 

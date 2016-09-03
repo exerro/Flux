@@ -2,7 +2,6 @@
 namespace Flux::Parsing;
 
 class ListExpression extends Flux::Parsing::PrimaryExpression {
-	ASTNodeType type = Flux::Parsing::ASTNodeType.ListExpression;
 	Expression[] values;
 	Expression[] comprehensions;
 	string[] source_names;

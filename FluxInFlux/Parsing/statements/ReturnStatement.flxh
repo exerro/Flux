@@ -1,8 +1,9 @@
 
+import expressions.ConstantType;
+
 namespace Flux::Parsing;
 
 class ReturnStatement extends Flux::Parsing::Statement {
-	ASTNodeType type = Flux::Parsing::ASTNodeType.ReturnStatement;
 	Expression value;
 
 	ReturnStatement(Expression value, null Position position = value.position) {

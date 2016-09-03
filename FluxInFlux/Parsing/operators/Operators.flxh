@@ -1,0 +1,26 @@
+
+import OperatorExpression;
+import OperatorExpressionStack;
+
+namespace Flux::Parsing::Operator;
+
+enum Mode {
+	UNARY_L, UNARY_R;
+	BINARY;
+	TERNARY_A, TERNARY_B;
+}
+
+bool[] left_assocs = [];
+string[] symbols = [];
+Mode[] modes = [];
+int[] precedences = [];
+
+function OperatorExpression(Source, OperatorExpressionStack) createSimpleSymbolParser(string symbol);
+function OperatorExpression(Source, OperatorExpressionStack) createSimpleKeywordParser(string keyword);
+
+void register(string op, Mode mode, int precedence, bool left_assoc, function OperatorExpression(Source, OperatorExpressionStack) parse);
+
+bool is_operator(string op);
+int get_operator_precedence(string op, Mode mode);
+
+void init_standard_operators();

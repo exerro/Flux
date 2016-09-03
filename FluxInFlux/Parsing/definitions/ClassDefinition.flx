@@ -149,7 +149,7 @@ bool ClassDefinition:parse(Source source) {
 		Definition raw_def;
 
 		// if the definition is a normal definition, it needs a template added to it
-		if definition.type == Flux::Parsing::ASTNodeType.Definition && #_template.names > 0 {
+		if definition typeof Flux::Parsing::Definition && #_template.names > 0 {
 			definition = new Flux::Parsing::TemplateDefinition(definition, _template, template_position);
 			raw_def = definition.definition;
 		}

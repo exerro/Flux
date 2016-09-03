@@ -1,11 +1,9 @@
 
-import ASTNodeType;
 import Position;
 
 namespace Flux::Parsing;
 
-class Block (ASTNode) extends ASTNode {
-	ASTNodeType type = Flux::Parsing::ASTNodeType.Block;
+class Block (ASTNode) extends Flux::Parsing::ASTNode {
 	bool isVoid = false;
 
 	// void operator[]=(int index, ASTNode value) = self:__set__(index, value);

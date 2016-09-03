@@ -2,7 +2,6 @@
 namespace Flux::Parsing;
 
 class BacktickExpression extends RightUnaryExpression {
-	ASTNodeType type = Flux::Parsing::ASTNodeType.BacktickExpression;
 	Expression lvalue, rvalue;
 	string op;
 

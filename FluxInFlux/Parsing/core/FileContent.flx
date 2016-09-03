@@ -1,0 +1,28 @@
+
+namespace Flux::Parsing;
+
+void FileContent:addClassDefinition(ClassDefinition def) {
+	self.classes[#self.classes + 1] = def;
+}
+
+void FileContent:push(ASTNode statement) {
+	if self.header != null
+	&& (statement typeof Flux::Parsing::Definition
+	||  statement typeof Flux::Parsing::InterfaceDefinition
+	||  statement typeof Flux::Parsing::EnumDefinition
+	||  statement typeof Flux::Parsing::TemplateDefinition
+	||  statement typeof Flux::Parsing::ClassDefinition
+	||  statement typeof Flux::Parsing::AliasClassDefinition) {
+		// define the thing in the header
+	}
+
+	if statement typeof Flux::Parsing::ClassDefinition || statement typeof Flux::Parsing::AliasClassDefinition
+		if self.header != null {
+			// add class to header listing
+		}
+		else {
+			// add class to this listing
+		}
+
+	self.statements[#self.statements + 1] = statement;
+}

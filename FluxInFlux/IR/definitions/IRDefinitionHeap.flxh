@@ -1,7 +1,6 @@
 
-// namespace Flux::Compiling;
-
 import IRDefinition;
+import IRDefinitionPointer;
 
 class IRDefinitionHeap {
 	IRDefinition[] members;

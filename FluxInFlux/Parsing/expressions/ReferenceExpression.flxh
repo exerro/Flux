@@ -2,7 +2,6 @@
 namespace Flux::Parsing;
 
 class ReferenceExpression extends Flux::Parsing::PrimaryExpression {
-	ASTNodeType type = Flux::Parsing::ASTNodeType.Reference;
 	string name;
 
 	ReferenceExpression(string name, Position position) {

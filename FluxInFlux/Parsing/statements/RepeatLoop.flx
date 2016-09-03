@@ -29,7 +29,7 @@ bool RepeatLoop:parse(Source source) {
 		source:error "expected ';' after condition";
 
 	else
-		condition = new Flux::Parsing::ConstantExpression( Flux::Parsing::ASTNodeType.Boolean, "false" );
+		condition = new Flux::Parsing::ConstantExpression( Flux::Parsing::ConstantType.Boolean, "false" );
 		then inverted = false;
 
 	source:push( new Flux::Parsing::RepeatLoop(condition, block, inverted, position) );

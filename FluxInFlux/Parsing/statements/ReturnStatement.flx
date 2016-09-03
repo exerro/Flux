@@ -11,7 +11,7 @@ bool ReturnStatement:parse(Source source) {
 	if !lexer:skip( Keyword, "return" )
 		return false;
 
-	let expr = Flux::Parsing::Expression:parse( source ) || new Flux::Parsing::ConstantExpression( Flux::Parsing::ASTNodeType.NullConstant, "null", position );
+	let expr = Flux::Parsing::Expression:parse( source ) || new Flux::Parsing::ConstantExpression( Flux::Parsing::ConstantType.Null, "null", position );
 
 	Flux::Parsing::expectSemicolon( source, "return statement" );
 

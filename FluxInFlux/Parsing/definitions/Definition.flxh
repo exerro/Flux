@@ -10,15 +10,14 @@ namespace Flux::Parsing;
 const bool DEFAULT_PUBLIC = true;
 
 class Definition extends ASTNode {
-	ASTNodeType type = Flux::Parsing::ASTNodeType.Definition;
 	Type _type;
 	Type _class;
 	string name;
-	Expression value;
+	ASTNode value;
 	bool isConst, isPublic, isStatic;
 	string[] flags;
 	
-	Definition(Type _type, null Type _class, string name, null Expression value, bool isConst, isPublic, isStatic, string[] flags, Position position) {
+	Definition(Type _type, null Type _class, string name, null ASTNode value, bool isConst, isPublic, isStatic, string[] flags, Position position) {
 		self._type = _type;
 		self._class = _class;
 		self.name = name;

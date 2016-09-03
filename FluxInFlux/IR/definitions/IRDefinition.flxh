@@ -1,7 +1,10 @@
 
 // namespace Flux::Compiling;
 
+import types.IRTypeSignature;
+
 class IRDefinition {
+	IRTypeSignature type;
 	string name;
 	bool isPublic;
 

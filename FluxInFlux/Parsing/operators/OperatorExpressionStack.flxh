@@ -1,15 +1,13 @@
 
 namespace Flux::Parsing;
 
-const string POSTOP = "postop", PREOP = "preop";
-
 class OperatorExpressionStack {
 	private string[] operators;
-	private string[] operator_types;
+	private OperatorMode[] operator_modes;
 	private int[] operator_precedences;
 	private Position[] operator_positions;
-	private Expression[] operands;
-	private string last;
+	private ASTNode[] operands;
+	private bool last_was_expression;
 
 	OperatorExpression() {
 		self.operators = [];
@@ -26,11 +24,11 @@ class OperatorExpressionStack {
 	bool wasLastRightUnaryOperator();
 	bool wasLastExpression();
 
-	void pushOperand(Expression e);
+	void pushOperand(ASTNode e);
 	void pushBinaryOperator(string e, int precedence, Position p);
 	void pushLeftUnaryOperator(string e, int precedence, Position p);
 	void pushRightUnaryOperator(string e, int precedence, Position p);
 
 	void collapse();
-	Expression result();
+	ASTNode result();
 }

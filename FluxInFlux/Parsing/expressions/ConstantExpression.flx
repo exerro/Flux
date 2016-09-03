@@ -6,7 +6,7 @@ ASTNode ConstantExpression:parse(Source source) {
 
 	if source.lexer:skip(Keyword, "null")
 		return new Flux::Parsing::ConstantExpression(
-			Flux::Parsing::ASTNodeType.NullConstant,
+			Flux::Parsing::ConstantType.Null,
 			"null",
 			token.position
 		);
@@ -14,49 +14,49 @@ ASTNode ConstantExpression:parse(Source source) {
 	switch token.type;
 	case String
 		return new Flux::Parsing::ConstantExpression(
-			Flux::Parsing::ASTNodeType.StringConstant,
+			Flux::Parsing::ConstantType.String,
 			source.lexer:next().value,
 			token.position
 		);
 	case Character
 		return new Flux::Parsing::ConstantExpression(
-			Flux::Parsing::ASTNodeType.CharacterConstant,
+			Flux::Parsing::ConstantType.Character,
 			source.lexer:next().value,
 			token.position
 		);
 	case Integer
 		return new Flux::Parsing::ConstantExpression(
-			Flux::Parsing::ASTNodeType.IntegerConstant,
+			Flux::Parsing::ConstantType.Integer,
 			source.lexer:next().value,
 			token.position
 		);
 	case Float
 		return new Flux::Parsing::ConstantExpression(
-			Flux::Parsing::ASTNodeType.FloatConstant,
+			Flux::Parsing::ConstantType.Float,
 			source.lexer:next().value,
 			token.position
 		);
 	case Byte
 		return new Flux::Parsing::ConstantExpression(
-			Flux::Parsing::ASTNodeType.ByteConstant,
+			Flux::Parsing::ConstantType.Byte,
 			source.lexer:next().value,
 			token.position
 		);
 	case Hexadecimal
 		return new Flux::Parsing::ConstantExpression(
-			Flux::Parsing::ASTNodeType.HexadecimalConstant,
+			Flux::Parsing::ConstantType.Integer,
 			source.lexer:next().value,
 			token.position
 		);
 	case Binary
 		return new Flux::Parsing::ConstantExpression(
-			Flux::Parsing::ASTNodeType.BinaryConstant,
+			Flux::Parsing::ConstantType.Integer,
 			source.lexer:next().value,
 			token.position
 		);
 	case Boolean
 		return new Flux::Parsing::ConstantExpression(
-			Flux::Parsing::ASTNodeType.BooleanConstant,
+			Flux::Parsing::ConstantType.Boolean,
 			source.lexer:next().value,
 			token.position
 		);
@@ -66,7 +66,7 @@ ASTNode ConstantExpression:parse(Source source) {
 
 string ConstantExpression:serialize()
 	= match self.type {
-		Flux::Parsing::ASTNodeType.StringConstant => ("%q"):format( self.value );
-		Flux::Parsing::ASTNodeType.CharacterConstant => "'" `concat` self.value `concat` "'";
+		Flux::Parsing::ConstantType.String => ("%q"):format( self.value );
+		Flux::Parsing::ConstantType.Character => "'" `concat` self.value `concat` "'";
 		default => self.value;
 	};

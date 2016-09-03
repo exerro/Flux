@@ -14,27 +14,23 @@ IRDefinitionPointer[] IRContext:lookup(string name, bool hasPrivate) {
 		let found = self.scopes[i]:lookup( name, hasPrivate );
 		if #found > 0 return found;
 
-		foreach u in self.scopes[i].isUsing
-			isUsing[#isUsing + 1] = u;
-	}
-
-	foreach s in self.scopes
 		foreach u in s.isUsing
-			isUsing[#isUsing + 1] = u;
-
-	foreach v in global:lookup( name, hasPrivate )
-		found[#found + 1] = v;
+			table.insert( isUsing, 1, u );
+	}
 
 	foreach u in isUsing
 		foreach v in global:lookup( table.concat( [u, name], "::" ), hasPrivate )
 			found[#found + 1] = v;
+
+	foreach v in global:lookup( name, hasPrivate )
+		found[#found + 1] = v;
 
 	return found;
 }
 
 IRDefinitionPointer IRContext:lookupType(string name, bool hasPrivate) {
 	IRDefinitionPointer[] list = self:lookup(name, hasPrivate);
-	IRDefinitionPointer type = list[#list];
+	IRDefinitionPointer type = list[1];
 
 	if type:definition() typeof IRClassDefinition
 	|| type:definition() typeof IREnumDefinition

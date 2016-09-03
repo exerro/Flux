@@ -4,7 +4,6 @@ import OperatorTypeof;
 namespace Flux::Parsing;
 
 class LeftUnaryExpression extends Flux::Parsing::PrimaryExpression {
-	ASTNodeType type = Flux::Parsing::ASTNodeType.LeftUnaryExpression;
 	Expression value;
 	string op;
 

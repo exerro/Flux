@@ -1,6 +1,6 @@
 
 import IRNode;
-import IRTypeSignature;
+import types.IRTypeSignature;
 
 class IRFunctionCall extends IRNode {
 	IRNode expression;

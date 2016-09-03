@@ -2,7 +2,6 @@
 namespace Flux::Parsing;
 
 class SwitchStatement extends Flux::Parsing::Statement {
-	ASTNodeType type = Flux::Parsing::ASTNodeType.SwitchStatement;
 	Expression expression;
 	Expression[][] cases;
 	Block[] blocks;

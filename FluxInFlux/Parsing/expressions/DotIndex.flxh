@@ -2,7 +2,6 @@
 namespace Flux::Parsing;
 
 class DotIndex extends RightUnaryExpression {
-	ASTNodeType type = Flux::Parsing::ASTNodeType.DotIndex;
 	Expression value;
 	string index;
 

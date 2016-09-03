@@ -1,0 +1,13 @@
+
+import IRDefinition;
+import IRScope;
+
+class IRFunctionDefinition extends IRDefinition {
+	IRScope scope;
+
+	IRFunctionDefinition() {
+		
+	}
+
+	void specialise(int[] indexes, IRTypeSignature[] types);
+}

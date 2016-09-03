@@ -4,7 +4,6 @@ import TemplateList;
 namespace Flux::Parsing;
 
 class TemplateDefinition extends ASTNode {
-	ASTNodeType type = Flux::Parsing::ASTNodeType.TemplateDefinition;
 	TemplateList template_list;
 	Definition definition;
 	

@@ -1,5 +1,5 @@
 
-import IRTypeSignature;
+import types.IRTypeSignature;
 
 class IRNode {
 	IRTypeSignature type;

@@ -1,24 +1,4 @@
 
-int{IRTypeComparison} weights = {
-	[IRTypeComparison.ExactMatch] = 6;
-	[IRTypeComparison.ExactMatchTemplate] = 5;
-	[IRTypeComparison.ExtendsFrom] = 4;
-	[IRTypeComparison.ExtendsFromTemplate] = 3;
-	[IRTypeComparison.CastsTo] = 2;
-	[IRTypeComparison.CastsToTemplate] = 1;
-	[IRTypeComparison.NoMatch] = 0;
-};
-
-IRTypeComparison{int} compare_lookup = {
-	[6] = IRTypeComparison.ExactMatch;
-	[5] = IRTypeComparison.ExactMatchTemplate;
-	[4] = IRTypeComparison.ExtendsFrom;
-	[3] = IRTypeComparison.ExtendsFromTemplate;
-	[2] = IRTypeComparison.CastsTo;
-	[1] = IRTypeComparison.CastsToTemplate;
-	[0] = IRTypeComparison.NoMatch;
-};
-
 IRTypeSignature IRTypeSignature:fromAST(Flux::Parsing::Type t) {
 	// lol no
 }
@@ -46,33 +26,33 @@ IRTypeComparison IRTypeSignature:compare(IRTypeSignature sig) {
 		int max = 0;
 
 		foreach v in sig.classes
-			max = math.max( weights[self:compare( v )], max );
+			max = math.max( IR_compare_weights[self:compare( v )], max );
 
-		return compare_lookup[max % 2 == 0 && max > 0 && max - 1 || max];
+		return IR_compare_lookup[max % 2 == 0 && max > 0 && max - 1 || max];
 	}
 	else if #self.classes != #sig.classes
 		return IRTypeComparison.NoMatch;
 	else {
-		int min = weights[IRTypeComparison.ExactMatch];
+		int min = IR_compare_weights[IRTypeComparison.ExactMatch];
 
 		if self.name:eq( sig.name ) {
-			min = weights[IRTypeComparison.ExactMatch];
+			min = IR_compare_weights[IRTypeComparison.ExactMatch];
 		}
 		else if (self.name:definition() typeof IRClassDefinition && sig.name:definition() typeof IRClassDefinition)
 		     && self.name:definition():doesExtend( sig.name ) {
-			min = weights[IRTypeComparison.ExtendsFrom];
+			min = IR_compare_weights[IRTypeComparison.ExtendsFrom];
 		}
 		else if (self.name:definition() typeof IRClassDefinition && sig.name:definition() typeof IRClassDefinition)
 		     && self.name:definition():doesCastTo( sig.name ) {
-			min = weights[IRTypeComparison.CastsTo];
+			min = IR_compare_weights[IRTypeComparison.CastsTo];
 		}
 		else
 			return IRTypeComparison.NoMatch;
 
 		foreach i, v in self.classes
-			min = math.min( weights[v:compare( sig.classes[i] )], min );
+			min = math.min( IR_compare_weights[v:compare( sig.classes[i] )], min );
 
-		return compare_lookup[min];
+		return IR_compare_lookup[min];
 	}
 }
 

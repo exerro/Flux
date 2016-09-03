@@ -1,33 +1,37 @@
 
 import Lexer;
 import Context;
+import fileutils;
+import FileContent;
 
 namespace Flux::Parsing;
 
-const string FLUX_INCLUDE_PATH = "";
+const string FLUX_INCLUDE_PATH = "Flux;Flux/std;Flux/std/Lua";
 
 class Source {
 	string include_path;
 	string[] current_include_path;
-	bool{string} imported;
-	string[] import_queue;
-	ASTNode[] statements;
+	FileContent{string} headers;
+	string[] import_queue, import_queue_names;
+	FileContent[] files;
 	ASTNode[][] blocks;
 	Context[] contexts;
+	FileContent current_file;
 
 	Lexer lexer;
 	Context context;
 	ASTNode[] block;
 
 	Source(null string include_path = "") {
-		self.include_path = Flux::Parsing::FLUX_INCLUDE_PATH `concat` include_path;
+		self.include_path = Flux::Parsing::FLUX_INCLUDE_PATH `concat` ";" `concat` include_path;
 		self.current_include_path = [];
 		self.imported = {};
-		self.statements = [];
-		self.block = self.statements;
-		self.blocks = [self.block];
+		self.files = [];
+		self.headers = {};
+		self.blocks = [];
 		self.contexts = [];
 		self.import_queue = [];
+		self.import_queue_names = [];
 	}
 
 	Context pushContext();
@@ -45,7 +49,10 @@ class Source {
 
 	void push(ASTNode t);
 
-	void importFile(string name);
+	void beginParse();
+	void closeParse();
+	FileContent importFileRaw(string name, string path, Position position);
+	string importFile(string name, Position position);
 	void parseFileContent(string content, null string source = "string");
 
 	void error(string err);

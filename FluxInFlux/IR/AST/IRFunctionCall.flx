@@ -1,20 +1,31 @@
 
 IRFunctionCall IRFunctionCall:lookupFunction(IRDefinitionPointer[] list, IRNode[] parameters) {
-	let max_weighting = 0;
-	let IRDefinitionPointer max_ptr = null;
+	int max_weighting = 0;
+	IRDefinitionPointer max_ptr = null;
+	IRNode[] call_parameters;
+
+	// fuck this
 
 	foreach call_ptr in list {
-		// fix this pseudocode
-		let min_parameter_weighting = valid_parameter_count && weighting_of_exact_match || 0;
+		let signature = call_ptr:definition().type;
 
-		foreach parameter in parameters {
-			// update min_parameter_weighting
+		if (signature typeof IRTypeSignatureFunction) { // just for the type checker, it should always be a function signature
+			// fix this pseudocode
+			let min_parameter_weighting = valid_parameter_count && weighting_of_exact_match || 0;
+
+			foreach parameter in parameters {
+				// update min_parameter_weighting
+			}
+
+			if max_weighting < min_parameter_weighting {
+				max_ptr = call_ptr;
+				max_weighting = min_parameter_weighting;
+				// do parameter casting?
+				// keep a list of types for the template specialisation later?
+			}
+
+			max_weighting = math.max( max_weighting, min_parameter_weighting );
 		}
-
-		max_weighting = math.max( max_weighting, min_parameter_weighting );
-
-		if max_weighting == min_parameter_weighting
-			max_ptr = call_ptr;
 	}
 
 	if max_weighting > 0 {

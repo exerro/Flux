@@ -13,7 +13,6 @@ import OperatorTypeof;
 namespace Flux::Parsing;
 
 class RightUnaryExpression extends Flux::Parsing::PrimaryExpression {
-	ASTNodeType type = Flux::Parsing::ASTNodeType.RightUnaryExpression;
 	Expression value;
 	string op;
 

@@ -1,8 +1,8 @@
 
 import IRScope;
-import IRFunctionCall;
-import definition.IRDefinition;
-import definition.IRDefinitionPointer;
+import AST.IRFunctionCall;
+import definitions.IRDefinition;
+import definitions.IRDefinitionPointer;
 
 // namespace Flux::Compiling;
 

@@ -1,4 +1,4 @@
 
-class IREnumDefinition {
+class IREnumDefinition extends IRDefinition {
 	
 }

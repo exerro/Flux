@@ -1,0 +1,4 @@
+
+import libfolder.test;
+
+int x = 0;

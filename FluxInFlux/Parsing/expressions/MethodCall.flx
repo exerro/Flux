@@ -22,7 +22,7 @@ ASTNode MethodCall:parse( Source source, Expression value ) {
 		return new Flux::Parsing::MethodCall( value, name, parameters, position );
 	}
 	else if lexer:test( String ) {
-		parameters[1] = new Flux::Parsing::ConstantExpression( Flux::Parsing::ASTNodeType.StringConstant, lexer:next().value, position );
+		parameters[1] = new Flux::Parsing::ConstantExpression( Flux::Parsing::ConstantType.String, lexer:next().value, position );
 
 		return new Flux::Parsing::MethodCall( value, name, parameters, position );
 	}

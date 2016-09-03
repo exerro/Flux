@@ -228,10 +228,10 @@ local function parseReturnStatement( source, pos )
 end
 
 local function parseBreakStatement( source, pos )
-	if not source:isLoop() then
+	--[[ if not source:isLoop() then
 		source.lexer:back()
 		throw( source.lexer, "unexpected 'break' outside of loop" )
-	end
+	end ]]
 
 	source:push {
 		type = "BreakStatement";

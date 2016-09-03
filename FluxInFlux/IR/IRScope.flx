@@ -8,9 +8,20 @@ void IRScope:define(IRDefinition def) {
 IRDefinitionPointer[] IRScope:lookup( string name, bool hasPrivate ) {
 	IRDefinitionPointer[] matches = [];
 
-	foreach p in self.definitions
-		if p:definition().name == name && (hasPrivate || p:definition().isPublic)
-			matches[#matches + 1] = p;
+	for (int i = #self.definitions, i > 0, i--) {
+		let p = self.definitions[i];
+
+		if p:definition().name == name && (hasPrivate || p:definition().isPublic) {
+			bool isFunction = p:definition() typeof IRFunctionDefinition;
+
+			if isFunction
+				matches[#matches + 1] = p;
+			else if #matches == 0 {
+				matches[1] = p;
+				break;
+			}
+		}
+	}
 
 	return matches;
 }

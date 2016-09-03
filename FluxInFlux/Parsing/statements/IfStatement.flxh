@@ -9,7 +9,6 @@
 namespace Flux::Parsing;
 
 class IfStatement extends Flux::Parsing::Statement {
-	ASTNodeType type = Flux::Parsing::ASTNodeType.IfStatement;
 	Expression condition;
 	Block block, elseblock;
 

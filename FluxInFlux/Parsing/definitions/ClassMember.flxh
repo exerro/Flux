@@ -11,7 +11,7 @@ class ClassMember {
 	
 	ClassMember(ASTNode d) {
 		TemplateList[] template_list;
-		if d.type == Flux::Parsing::ASTNodeType.TemplateDefinition {
+		if (d typeof Flux::Parsing::TemplateDefinition) {
 			template_list = d.template_list;
 			d = d.definition;
 		}

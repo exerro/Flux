@@ -1,2 +1,4 @@
 
-import test2;
+namespace Nope;
+
+int x = 0;

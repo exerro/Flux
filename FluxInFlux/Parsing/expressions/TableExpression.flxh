@@ -1,8 +1,9 @@
 
+import ConstantType;
+
 namespace Flux::Parsing;
 
 class TableExpression extends Flux::Parsing::PrimaryExpression {
-	ASTNodeType type = Flux::Parsing::ASTNodeType.TableExpression;
 	Expression[][] values;
 
 	TableExpression(Expression[][] values, Position position) {

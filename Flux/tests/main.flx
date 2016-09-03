@@ -15,7 +15,7 @@ class Element {
 class Button extends Element {
 	string text = "";
 
-	Button(int x, y, null string text = "Hello world!") {
+	Button(int x, y, string? text = "Hello world!") {
 		self.text = text;
 		self:Element( x, y );
 	}

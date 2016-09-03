@@ -2,7 +2,6 @@
 namespace Flux::Parsing;
 
 class Index extends RightUnaryExpression {
-	ASTNodeType type = Flux::Parsing::ASTNodeType.Index;
 	Expression value;
 	Expression[] index;
 

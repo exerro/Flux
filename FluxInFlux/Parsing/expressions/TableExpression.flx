@@ -24,14 +24,14 @@ ASTNode TableExpression:parse(Source source)
 				else if lexer:test(Identifier) && lexer:test(Symbol, "=", 1) { // if it's a key = value
 					let token = lexer:next();
 
-					index = new Flux::Parsing::ConstantExpression(Flux::Parsing::ASTNodeType.StringConstant, token.value, token.position);
+					index = new Flux::Parsing::ConstantExpression(Flux::Parsing::ConstantType.String, token.value, token.position);
 
 					if !lexer:skip(Symbol, "=")
 						source:error "expected '=' after index";
 				}
 
 				else // if it's an array entry
-					index = new Flux::Parsing::ConstantExpression(Flux::Parsing::ASTNodeType.IntegerConstant, tostring(i++), lexer:get().position);
+					index = new Flux::Parsing::ConstantExpression(Flux::Parsing::ConstantType.Integer, tostring(i++), lexer:get().position);
 
 				value = Flux::Parsing::Expression:parse(source) || source:error "expected expression for table value";
 				values[#values + 1] = [index, value];

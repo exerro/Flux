@@ -1,10 +1,5 @@
 
 namespace Flux::Parsing;
 
-string ASTNodeTypeTostring(ASTNodeType type)
-	switch type
-	case 1 nothing;
-	then return type;
-
 string ASTNode:serialize()
-	= "<Serialization of " + Flux::Parsing::ASTNodeTypeTostring( self.type ) + " isn't implemented>";
+	= "<Serialization of class isn't implemented>";

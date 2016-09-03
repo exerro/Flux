@@ -2,7 +2,6 @@
 namespace Flux::Parsing;
 
 class FunctionParameter extends ASTNode {
-	ASTNodeType type = Flux::Parsing::ASTNodeType.FunctionParameter;
 	Type _type;
 	string name;
 

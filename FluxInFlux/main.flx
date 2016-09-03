@@ -1,161 +1,22 @@
 
-let source_code = '
-
-class byte;
-class int;
-class float;
-
-@flagcdef native-ByteConstant
-@flagcdef force-inline
-const final class byte implements IAddable, ISubtractable, IModdable {
-	byte() = 0b;
-	byte(byte);
-
-	byte operator+(byte);
-	byte operator-(byte);
-	byte operator%(byte);
-
-	byte operator&(byte);
-	byte operator|(byte);
-	byte operator^(byte);
-	byte operator<<(byte);
-	byte operator>>(byte);
-
-	byte operator~();
-
-	int operator->();
-	float operator->();
-}
-
-@flagcdef native-IntConstant
-@flagcdef force-inline
-const final class int implements IAddable, ISubtractable, IProductable, IDivisable, IModdable, IExponentable {
-	int() = 0;
-	int(int);
-
-	int operator+(int);
-	int operator-(int);
-	int operator*(int);
-	int operator/(int);
-	int operator%(int);
-	int operator**(int);
-
-	int operator&(int);
-	int operator|(int);
-	int operator^(int);
-	int operator<<(int);
-	int operator>>(int);
-
-	int operator~();
-	int operator-();
-
-	byte operator->();
-	float operator->();
-}
-
-@flagcdef native-FloatConstant
-@flagcdef force-inline
-const final class float implements IAddable, ISubtractable, IProductable, IDivisable, IModdable, IExponentable {
-	float() = 0.0;
-	float(float);
-
-	float operator+(float);
-	float operator-(float);
-	float operator*(float);
-	float operator/(float);
-	float operator%(float);
-	float operator**(float);
-
-	float operator-();
-
-	byte operator->();
-	int operator->();
-}
-
-// an N dimensional vector, meant to be extended
-template<T [float, int]>
-abstract class Vector<T> {
-	T[] objects;
-
-	Vector<T> operator+(Vector<T> value);
-	Vector<T> operator-(Vector<T> value);
-	Vector<T> operator*(float value);
-	Vector<T> operator/(float value);
-
-	float dot(Vector<T> value);
-	Vector<T> cross(Vector<T> value);
-}
-
-template<T>
-class Vector2D<T> extends Vector<T> {
-	Vector2D(T x, y);
-
-	T getter x() = objects[0];
-	T getter y() = objects[1];
-
-	T setter x(T x) objects[0] = x;
-	T setter y(T y) objects[1] = y;
-}
-
-template<T>
-Vector2D<T>:Vector2D(T x, y) {
-	objects[0] = x;
-	objects[1] = y;
-}
-
-class Vec2 = Vector2D<float>;
-
-class Something {
-	float x, y, z;
-	string something = "blah";
-
-	Something(float x, y, z);
-}
-
-Something:Something(float _x, _y, _z) {
-	x = _x; y = _y; z = _z;
-}
-
-void f(struct {float x, y} v) {
-	print( v.x, v.y );
-}
-
-f( new Vector2D<float>(1.0, 2.0) ); // 1.0, 2.0
-f( new Something(5.0, 7.0, 9.0) ); // 5.0, 7.0
-f( new Vec2(3.0, 4.0) ); // 3.0, 4.0
-
-int main() {
-	print "Hi";
-
-	let x = 5;
-
-	while 1 > 2 {
-		if a > 2
-			print "yah";
-	}
-}
-';
-
 import flux;
 
 void main() {
-	new Flux::Parsing::Source source();
+	new Flux::Parsing::Source source("/home/ben/Code/Flux/Flux/tests");
 	new Flux::Parsing::Lexer lexer( source_code );
-	new Flux::Parsing::Context context();
 
-	context.isNamespace = true;
+	source:beginParse();
+	source:importFile( "main", new Flux::Position( "Flux compiler", 1, 1, "import main;" ) );
+	source:closeParse();
 
-	source.context = context;
-	source.contexts[1] = context;
-	source.lexer = lexer;
-
-	while !lexer:isEOF() {
-		Flux::Parsing::Statement:parse( source );
+	foreach file in source.files {
+		print( "@" `concat` file.name );
+		foreach statement in file.statements {
+			print( statement:serialize() `concat` "\n" );
+		}
 	}
 
-	foreach expr in source.statements
-		_; // print( expr:serialize() `concat` "\n" );
-
+	/*
 	new IRContext c();
 
 	c:loadfile "main";

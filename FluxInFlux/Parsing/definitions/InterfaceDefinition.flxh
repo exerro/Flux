@@ -6,7 +6,6 @@ import ClassMember;
 namespace Flux::Parsing;
 
 class InterfaceDefinition extends ASTNode {
-	ASTNodeType type = Flux::Parsing::ASTNodeType.InterfaceDefinition;
 	Type name;
 	string[] _implements;
 	TemplateList _template;

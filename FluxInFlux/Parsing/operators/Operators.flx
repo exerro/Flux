@@ -1,0 +1,122 @@
+
+namespace Flux::Parsing::Operator;
+
+function OperatorExpression(Source, OperatorExpressionStack) createSimpleSymbolParser(string symbol)
+	= function(Source source, OperatorExpressionStack stack)
+		= token && new OperatorExpression( symbol, [], token.position )
+		where token = source.lexer:skip( Symbol, symbol );
+
+function OperatorExpression(Source, OperatorExpressionStack) createSimpleKeywordParser(string keyword)
+	= function(Source source, OperatorExpressionStack stack)
+		= token && new OperatorExpression( keyword, [], token.position )
+		where token = source.lexer:skip( Keyword, keyword );
+
+void register(string op, Mode mode, int precedence, bool left_assoc, function OperatorExpression(Source, OperatorExpressionStack) parse) {
+	Flux::Parsing::Operator::symbols[#Flux::Parsing::Operator::symbols + 1] = op;
+	Flux::Parsing::Operator::modes[#Flux::Parsing::Operator::modes + 1] = mode;
+	Flux::Parsing::Operator::precedences[#Flux::Parsing::Operator::precedences + 1] = precedence;
+	Flux::Parsing::Operator::left_assoc[#Flux::Parsing::Operator::left_assoc + 1] = left_assoc;
+	Flux::Parsing::Operator::parsers[#Flux::Parsing::Operator::parsers + 1] = parse;
+}
+
+bool is_operator(string op) {
+	foreach v in Flux::Parsing::Operator::symbols
+		if v == op
+			return true;
+	return false;
+}
+
+int get_operator_precedence(string op, Mode mode) {
+	foreach i, v in Flux::Parsing::Operator::symbols
+		if v == op && Flux::Parsing::Operator::modes[i] == mode
+			return Flux::Parsing::Operator::precedences[i];
+	return null;
+}
+
+void init_standard_operators() {
+	// ternary operator pair (A if C else B)
+	Flux::Parsing::Operator::register( "else", Flux::Parsing::Operator::Mode.TERNARY_B, 0, true, Flux::Parsing::Operator::createSimpleKeywordParser "else" );
+	Flux::Parsing::Operator::register( "if" Flux::Parsing::Operator::Mode.TERNARY_A, 0, true, Flux::Parsing::Operator::createSimpleKeywordParser "if" );
+
+	// binary equality operators
+	Flux::Parsing::Operator::register( "=", Flux::Parsing::Operator::Mode.BINARY, 1, false, Flux::Parsing::Operator::createSimpleSymbolParser "=" );
+
+	Flux::Parsing::Operator::register( "+=", Flux::Parsing::Operator::Mode.BINARY, 1, false, Flux::Parsing::Operator::createSimpleSymbolParser "+=" );
+	Flux::Parsing::Operator::register( "-=", Flux::Parsing::Operator::Mode.BINARY, 1, false, Flux::Parsing::Operator::createSimpleSymbolParser "-=" );
+	Flux::Parsing::Operator::register( "*=", Flux::Parsing::Operator::Mode.BINARY, 1, false, Flux::Parsing::Operator::createSimpleSymbolParser "*=" );
+	Flux::Parsing::Operator::register( "/=", Flux::Parsing::Operator::Mode.BINARY, 1, false, Flux::Parsing::Operator::createSimpleSymbolParser "/=" );
+	Flux::Parsing::Operator::register( "%=", Flux::Parsing::Operator::Mode.BINARY, 1, false, Flux::Parsing::Operator::createSimpleSymbolParser "%=" );
+	Flux::Parsing::Operator::register( "**=", Flux::Parsing::Operator::Mode.BINARY, 1, false, Flux::Parsing::Operator::createSimpleSymbolParser "**=" );
+
+	Flux::Parsing::Operator::register( "&=", Flux::Parsing::Operator::Mode.BINARY, 1, false, Flux::Parsing::Operator::createSimpleSymbolParser "&=" );
+	Flux::Parsing::Operator::register( "|=", Flux::Parsing::Operator::Mode.BINARY, 1, false, Flux::Parsing::Operator::createSimpleSymbolParser "|=" );
+	Flux::Parsing::Operator::register( "^=", Flux::Parsing::Operator::Mode.BINARY, 1, false, Flux::Parsing::Operator::createSimpleSymbolParser "^=" );
+	Flux::Parsing::Operator::register( "<<=", Flux::Parsing::Operator::Mode.BINARY, 1, false, Flux::Parsing::Operator::createSimpleSymbolParser "<<=" );
+	Flux::Parsing::Operator::register( ">>=", Flux::Parsing::Operator::Mode.BINARY, 1, false, Flux::Parsing::Operator::createSimpleSymbolParser ">>=" );
+	
+	Flux::Parsing::Operator::register( "&&=", Flux::Parsing::Operator::Mode.BINARY, 1, false, Flux::Parsing::Operator::createSimpleSymbolParser "&&=" );
+	Flux::Parsing::Operator::register( "||=", Flux::Parsing::Operator::Mode.BINARY, 1, false, Flux::Parsing::Operator::createSimpleSymbolParser "||=" );
+
+	// binary logical operators
+	Flux::Parsing::Operator::register( "||", Flux::Parsing::Operator::Mode.BINARY, 2, true, Flux::Parsing::Operator::createSimpleSymbolParser "||" );
+	Flux::Parsing::Operator::register( "&&", Flux::Parsing::Operator::Mode.BINARY, 3, true, Flux::Parsing::Operator::createSimpleSymbolParser "&&" );
+
+	// binary comparison operators
+	Flux::Parsing::Operator::register( ">", Flux::Parsing::Operator::Mode.BINARY, 4, true, Flux::Parsing::Operator::createSimpleSymbolParser ">" );
+	Flux::Parsing::Operator::register( "<", Flux::Parsing::Operator::Mode.BINARY, 4, true, Flux::Parsing::Operator::createSimpleSymbolParser "<" );
+	Flux::Parsing::Operator::register( "<=", Flux::Parsing::Operator::Mode.BINARY, 4, true, Flux::Parsing::Operator::createSimpleSymbolParser "<=" );
+	Flux::Parsing::Operator::register( ">=", Flux::Parsing::Operator::Mode.BINARY, 4, true, Flux::Parsing::Operator::createSimpleSymbolParser ">=" );
+	Flux::Parsing::Operator::register( "==", Flux::Parsing::Operator::Mode.BINARY, 4, true, Flux::Parsing::Operator::createSimpleSymbolParser "==" );
+	Flux::Parsing::Operator::register( "!=", Flux::Parsing::Operator::Mode.BINARY, 4, true, Flux::Parsing::Operator::createSimpleSymbolParser "!=" );
+
+	// binary range operator
+	Flux::Parsing::Operator::register( "..", Flux::Parsing::Operator::Mode.BINARY, 5, true, Flux::Parsing::Operator::createSimpleSymbolParser ".." );
+
+	// binary bitwise operators
+	Flux::Parsing::Operator::register( "|", Flux::Parsing::Operator::Mode.BINARY, 6, true, Flux::Parsing::Operator::createSimpleSymbolParser "|" );
+	Flux::Parsing::Operator::register( "&", Flux::Parsing::Operator::Mode.BINARY, 7, true, Flux::Parsing::Operator::createSimpleSymbolParser "&" );
+	Flux::Parsing::Operator::register( "^", Flux::Parsing::Operator::Mode.BINARY, 8, true, Flux::Parsing::Operator::createSimpleSymbolParser "^" );
+	Flux::Parsing::Operator::register( "<<", Flux::Parsing::Operator::Mode.BINARY, 9, true, Flux::Parsing::Operator::createSimpleSymbolParser "<<" );
+	Flux::Parsing::Operator::register( ">>", Flux::Parsing::Operator::Mode.BINARY, 9, true, Flux::Parsing::Operator::createSimpleSymbolParser ">>" );
+
+	// binary arithmetic operators
+	Flux::Parsing::Operator::register( "+", Flux::Parsing::Operator::Mode.BINARY, 10, true, Flux::Parsing::Operator::createSimpleSymbolParser "+" );
+	Flux::Parsing::Operator::register( "-", Flux::Parsing::Operator::Mode.BINARY, 10, true, Flux::Parsing::Operator::createSimpleSymbolParser "-" );
+	Flux::Parsing::Operator::register( "*", Flux::Parsing::Operator::Mode.BINARY, 11, true, Flux::Parsing::Operator::createSimpleSymbolParser "*" );
+	Flux::Parsing::Operator::register( "/", Flux::Parsing::Operator::Mode.BINARY, 11, true, Flux::Parsing::Operator::createSimpleSymbolParser "/" );
+	Flux::Parsing::Operator::register( "%", Flux::Parsing::Operator::Mode.BINARY, 11, true, Flux::Parsing::Operator::createSimpleSymbolParser "%" );
+	Flux::Parsing::Operator::register( "**", Flux::Parsing::Operator::Mode.BINARY, 12, false, Flux::Parsing::Operator::createSimpleSymbolParser "**" );
+
+	// backtick invocation
+	Flux::Parsing::Operator::register( "backtick-left", Flux::Parsing::Operator.Mode.UNARY_L, 13, true, error );
+	Flux::Parsing::Operator::register( "backtick-right", Flux::Parsing::Operator::Mode.UNARY_R, 14, true, error );
+	Flux::Parsing::Operator::register( "backtick", Flux::Parsing::Operator::Mode.BINARY, 15, true, error );
+
+	// left unary operators
+	Flux::Parsing::Operator::register( "++", Flux::Parsing::Operator::Mode.UNARY_L, 16, true, Flux::Parsing::Operator::createSimpleSymbolParser "++" );
+	Flux::Parsing::Operator::register( "--", Flux::Parsing::Operator::Mode.UNARY_L, 16, true, Flux::Parsing::Operator::createSimpleSymbolParser "--" );
+	Flux::Parsing::Operator::register( "#", Flux::Parsing::Operator::Mode.UNARY_L, 16, true, Flux::Parsing::Operator::createSimpleSymbolParser "#" );
+	Flux::Parsing::Operator::register( "!", Flux::Parsing::Operator::Mode.UNARY_L, 16, true, Flux::Parsing::Operator::createSimpleSymbolParser "!" );
+	Flux::Parsing::Operator::register( "~", Flux::Parsing::Operator::Mode.UNARY_L, 16, true, Flux::Parsing::Operator::createSimpleSymbolParser "~" );
+	Flux::Parsing::Operator::register( "-", Flux::Parsing::Operator::Mode.UNARY_L, 16, true, Flux::Parsing::Operator::createSimpleSymbolParser "-" );
+	Flux::Parsing::Operator::register( "+", Flux::Parsing::Operator::Mode.UNARY_L, 16, true, Flux::Parsing::Operator::createSimpleSymbolParser "+" );
+
+	// right unary arithmetic operators
+	Flux::Parsing::Operator::register( "++", Flux::Parsing::Operator::Mode.UNARY_R, 17, true, Flux::Parsing::Operator::createSimpleSymbolParser "++" );
+	Flux::Parsing::Operator::register( "--", Flux::Parsing::Operator::Mode.UNARY_R, 17, true, Flux::Parsing::Operator::createSimpleSymbolParser "--" );
+
+	// right unary complex operators
+	Flux::Parsing::Operator::register( "()", Flux::Parsing::Operator::Mode.UNARY_R, 17, true, error );
+	Flux::Parsing::Operator::register( ":()", Flux::Parsing::Operator::Mode.UNARY_R, 17, true, error );
+	Flux::Parsing::Operator::register( ".", Flux::Parsing::Operator::Mode.UNARY_R, 17, true, error );
+	Flux::Parsing::Operator::register( "[]", Flux::Parsing::Operator::Mode.UNARY_R, 17, true, error );
+	Flux::Parsing::Operator::register( "->", Flux::Parsing::Operator::Mode.UNARY_R, 17, true, error );
+
+	// right unary type-based operators
+	Flux::Parsing::Operator::register( "extends", Flux::Parsing::Operator::Mode.UNARY_R, 17, true, Flux::Parsing::Operator::createSimpleKeywordParser "extends" );
+	Flux::Parsing::Operator::register( "typeof", Flux::Parsing::Operator::Mode.UNARY_R, 17, true, Flux::Parsing::Operator::createSimpleKeywordParser "typeof" );
+	Flux::Parsing::Operator::register( "implements", Flux::Parsing::Operator::Mode.UNARY_R, 17, true, Flux::Parsing::Operator::createSimpleKeywordParser "implements" );
+
+	// dereference
+	Flux::Parsing::Operator::register( "*", Flux::Parsing::Operator::Mode.UNARY_L, 18, true, Flux::Parsing::Operator::createSimpleSymbolParser "*" );
+}

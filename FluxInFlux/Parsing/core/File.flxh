@@ -1,0 +1,29 @@
+
+import definitions.ClassDefinition;
+import definitions.InterfaceDefinition;
+import definitions.EnumDefinition;
+import definitions.AliasClassDefinition;
+import definitions.Definition;
+
+namespace Flux::Parsing;
+
+class File {
+	string name;
+	ASTNode[] header,
+	          content;
+
+	File(string name) {
+		self.name = name;
+		self.header = [];
+		self.content = [];
+	}
+
+	ASTNode addClassDefinition(ClassDefinition def);
+	ASTNode addInterfaceDefinition(InterfaceDefinition def);
+	ASTNode addEnumDefinition(EnumDefinition def);
+	ASTNode addAliasClassDefinition(AliasClassDefinition def);
+	ASTNode addGeneralDefinition(Definition def);
+	ASTNode addTemplateDefinition(TemplateDefinition def);
+
+	ASTNode addDefinition(ASTNode def);
+}

@@ -7,3 +7,6 @@ enum IRTypeComparison {
 	CastsTo, CastsToTemplate;
 	NoMatch;
 }
+
+int{IRTypeComparison} IR_compare_weights;
+IRTypeComparison{int} IR_compare_lookup;

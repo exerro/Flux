@@ -2,7 +2,6 @@
 namespace Flux::Parsing;
 
 class FunctionExpression extends PrimaryExpression {
-	ASTNodeType type = Flux::Parsing::ASTNodeType.FunctionExpression;
 	FunctionParameter[] parameters;
 	Type returns;
 	Block body;

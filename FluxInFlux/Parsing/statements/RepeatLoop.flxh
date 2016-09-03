@@ -1,8 +1,9 @@
 
+import expressions.ConstantType;
+
 namespace Flux::Parsing;
 
 class RepeatLoop extends Flux::Parsing::Statement {
-	ASTNodeType type = Flux::Parsing::ASTNodeType.RepeatLoop;
 	Expression condition;
 	Block block;
 	bool inverted;

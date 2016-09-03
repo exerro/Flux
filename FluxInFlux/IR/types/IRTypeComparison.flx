@@ -1,0 +1,20 @@
+
+int{IRTypeComparison} IR_compare_weights = {
+	[IRTypeComparison.ExactMatch] = 6;
+	[IRTypeComparison.ExactMatchTemplate] = 5;
+	[IRTypeComparison.ExtendsFrom] = 4;
+	[IRTypeComparison.ExtendsFromTemplate] = 3;
+	[IRTypeComparison.CastsTo] = 2;
+	[IRTypeComparison.CastsToTemplate] = 1;
+	[IRTypeComparison.NoMatch] = 0;
+};
+
+IRTypeComparison{int} IR_compare_lookup = {
+	[6] = IRTypeComparison.ExactMatch;
+	[5] = IRTypeComparison.ExactMatchTemplate;
+	[4] = IRTypeComparison.ExtendsFrom;
+	[3] = IRTypeComparison.ExtendsFromTemplate;
+	[2] = IRTypeComparison.CastsTo;
+	[1] = IRTypeComparison.CastsToTemplate;
+	[0] = IRTypeComparison.NoMatch;
+};

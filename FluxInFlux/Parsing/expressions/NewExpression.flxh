@@ -1,8 +1,9 @@
 
+import ConstantType;
+
 namespace Flux::Parsing;
 
 class NewExpression extends PrimaryExpression {
-	ASTNodeType type = Flux::Parsing::ASTNodeType.NewExpression;
 	Type _type;
 	Expression[] parameters;
 

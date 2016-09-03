@@ -1,0 +1,12 @@
+
+import IRTypeSignature;
+
+class IRTypeSignatureFunction extends IRTypeSignature {
+	IRTypeSignature[] types;
+	int[] parameters;
+	int returns;
+
+	IRTypeSignatureFunction(IRTypeSignature[] types, int[] parameters, int returns) {
+
+	}
+}

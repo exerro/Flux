@@ -1,16 +1,25 @@
 
+AST structure:
+	Source
+		File
+			(predec) ASTNode (class/interface declarations)
+			(header) ASTNode (declarations)
+			(source) ASTNode (definitions)
+
 Parsing
-	[ ] Change unary operator parsing to allow for different precedences.
-	[ ] Add `A if C else B` syntax
-	[x] Add templated classes
-	[x] Make class function definitions add '<class> self' as first parameter
-	[x] Add @flagdef, @flagcdef
-	[ ] Add preprocessor instructions
-	[x] List comprehensions
-	[ ] Add import functionality
-	[ ] Vararg functions
-	[ ] Allow `static int MyClass:method() {}` to select just the static method?
-	[ ] Sort out file importing
+	[ ]	Change unary operator parsing to allow for different precedences.
+	[ ]	Add `A if C else B` syntax
+	[x]	Add templated classes
+	[x]	Make class function definitions add '<class> self' as first parameter
+	[x]	Add @flagdef, @flagcdef
+	[ ]	Add preprocessor instructions
+	[x]	List comprehensions
+	[ ]	Add import functionality
+	[ ]	Vararg functions
+	[ ]	Allow `static int MyClass:method() {}` to select just the static method?
+	[ ]	Sort out file importing
+		[ ]	Lift all declarations/imports/stuff into headers
+		[ ]	Auto-generate header if not found
 
 Type checking
 	[ ] Automagically sort out classes referring to eachother in multiple files
@@ -32,3 +41,20 @@ Stuff to add ages away
 	Autocomplete for types to avoid signatures being too long
 		IRFunc... f(IRDef... def, IRTypeSig... sig)
 		IRFunctionCall f(IRDefinitionPointer def, IRTypeSignature sig)
+
+First, need to fix file importing. (Parse time) Files need to keep a list of classes.
+Result could look something like this:
+
+{FileStart: name = X}
+{FileStart: name = a, classes = {"a", "b", "c"}}
+{Normal AST}
+{FileEnd}
+{FileImport: name = a}
+{Normal AST}
+{FileEnd}
+
+Import all the headers, then import all the .flx/.lua etc
+
+(Compile time) use the Context or Source or whatever class it is to keep a track of definitions (each file has a IRDefinitionHeap, track by name/path without extension to avoid .flx being different from .flxh)
+Since classes will be defined at the FileStart, there will never be any issues with referencing types that don't exist if the file is imported at some point.
+A FileImport ASTNode should add all the public definitions/classes of the imported file to the current file's scope (not heap).

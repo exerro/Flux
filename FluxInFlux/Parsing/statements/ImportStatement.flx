@@ -5,15 +5,21 @@ bool ImportStatement:parse(Source source) {
 	let lexer = source.lexer;
 	let position = lexer:get().position;
 
-	if lexer:test( Keyword, "import" ) && !source.context.isRoot source:error "invalid location for import statement";
-	if !lexer:skip( Keyword, "import" ) return false;
+	if !lexer:skip( Keyword, "import" )
+		return false;
 
 	let name = lexer:skipValue( Identifier ) || lexer:skipValue( String ) || source:error "expected name to import";
 
 	while lexer:skip( Symbol, "." )
-		name = name `concat` (lexer:skipValue( Identifier ) || lexer:skipValue( String ) || source:error "expected name to import");
+		name = name `concat` "." `concat` (lexer:skipValue( Identifier ) || lexer:skipValue( String ) || source:error "expected name to import");
 
-	source:importFile( name );
+	Flux::Parsing::expectSemicolon(source, "import statement");
+
+	let filename = source:importFile( name, position );
+
+	if filename == "" {
+		source:error( "failed to find file '" `concat` name `concat` "'", position );
+	}
 
 	// add this at some point+
 	// it'll allow per-file dependencies rather than per-project
@@ -21,4 +27,8 @@ bool ImportStatement:parse(Source source) {
 	// source:push( new Flux::Parsing::ImportStatement( filename ) );
 
 	return true;
+}
+
+string ImportStatement:serialize() {
+	return "import " `concat` self.name `concat` ";";
 }

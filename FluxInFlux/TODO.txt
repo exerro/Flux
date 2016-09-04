@@ -7,19 +7,23 @@ AST structure:
 			(source) ASTNode (definitions)
 
 Parsing
-	[ ]	Change unary operator parsing to allow for different precedences.
-	[ ]	Add `A if C else B` syntax
 	[x]	Add templated classes
 	[x]	Make class function definitions add '<class> self' as first parameter
 	[x]	Add @flagdef, @flagcdef
-	[ ]	Add preprocessor instructions
 	[x]	List comprehensions
 	[ ]	Vararg functions
-	[ ]	Allow `static int MyClass:method() {}` to select just the static method?
+	[ ]	Change unary operator parsing to allow for different precedences.
+	[ ]	Add `A if C else B` syntax
+	[ ] Finish & close rewrite/parsing-definitions branch
+		[ ] Add public/private modifiers to let/new `new private int x( 0 );`, `let private x = 1;`
+		[ ]	Allow `static int MyClass:method() {}` to select just the static method
+		[ ] Allow enums to specify primitive values for members
 	[ ]	Sort out file importing
 		[ ]	Move class/interface/enum declarations into header
 		[ ] Move function/variable declarations into header
 		[ ]	Move function/variable definitions into Source
+	[ ]	Add preprocessor instruction support
+	[ ] Add some sort of foreign function/variable/class interface
 
 Type checking
 	[ ] Add class/interface/enum pre-declaration from AST headers
@@ -32,16 +36,15 @@ Type checking
 	[ ] Add operator calls
 	[ ] Add AST -> IR conversions
 
-Optimisation
-	Everything :/
-
 Compilation
 	Everything :/
 
-Stuff to add ages away
-	Autocomplete for types to avoid signatures being too long
-		IRFunc... f(IRDef... def, IRTypeSig... sig)
-		IRFunctionCall f(IRDefinitionPointer def, IRTypeSignature sig)
+Optimisation
+	Everything :/
+
+Standard library
+	Everything :/
+
 
 First, need to fix file importing. (Parse time) Files need to keep a list of classes.
 Result could look something like this:

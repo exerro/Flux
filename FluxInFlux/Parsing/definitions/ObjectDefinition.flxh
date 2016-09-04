@@ -1,0 +1,53 @@
+
+import ASTNode;
+import FunctionDefinition;
+
+namespace Flux::Parsing;
+
+// used to hold variables from things like `new int x(0);`, `let x = 1;`, and `int x = 2;`
+// contains parsing method for self
+// also contains parsing method for FunctionDefinition
+class ObjectDefinition extends Flux::Parsing::ASTNode {
+	// TODO
+}
+
+/* Parsing method
+
+if in class/interface body and classname found followed by (, constructor
+	type is void
+	name is class name
+	container is class
+else
+	parse type using Type:parse() (or accept 'void')
+		if fail return no-def or err for modifiers
+	if ':' found
+		if type name follows
+			type is void
+			container is type
+			name is type name
+	else
+		if in class/interface body
+			container is class name
+		else
+			name is Type:parse()
+			if fail return no-def or err for modifiers
+		if in class/interface body or ':' found
+			name is parse method name
+		else
+			assert name has no template
+			container is null
+	if no container and 'static' error
+if '(' found
+	parse function (existing code should do I think)
+else
+	err if invalid name
+		setter
+		getter
+		operator
+	err if container and not in class/interface def
+	err if type is 'void'
+	err if template given
+	err if constructor
+	parse variable & repeat
+
+*/

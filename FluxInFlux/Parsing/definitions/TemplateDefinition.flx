@@ -1,7 +1,0 @@
-
-namespace Flux::Parsing;
-
-// no parse() required as Definition parses templates
-
-string TemplateDefinition:serialize()
-	= "template <" `concat` self.template_list:serialize() `concat` ">\n" `concat` self.definition:serialize();

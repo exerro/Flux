@@ -1,13 +1,9 @@
 
+import ASTNode;
+
 namespace Flux::Parsing;
 
-class EnumDefinition extends ASTNode {
-	string name;
-	string[] members;
-
-	EnumDefinition(string name, string[] members, Position position) {
-		self.name = name;
-		self.members = members;
-		self.position = position;
-	}
+// class for containing enum definition members/values
+class EnumDefinition extends Flux::Parsing::ASTNode {
+	// TODO
 }

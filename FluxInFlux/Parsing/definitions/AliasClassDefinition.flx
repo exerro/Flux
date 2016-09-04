@@ -1,7 +1,0 @@
-
-namespace Flux::Parsing;
-
-string AliasClassDefinition:serialize()
-	= "template <" `concat` self._template:serialize() `concat` ">\n"
-		`concat` "class " `concat` self.name:serialize()
-		`concat` " [" `concat` (self.types `concattenate` ", ") `concat` "]";

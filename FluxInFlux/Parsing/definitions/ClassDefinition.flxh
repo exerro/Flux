@@ -1,33 +1,9 @@
 
-// this probably needs to be updated to the new type/definition system
-
-import ClassMember;
-import AliasClassDefinition;
-import ClassDeclaration;
+import ASTNode;
 
 namespace Flux::Parsing;
 
-class ClassDefinition extends Flux::Parsing::ASTNode {
-	Type name;
-	Type[] container;
-	Type _extends;
-	string[] _implements;
-	TemplateList _template;
-	ClassMember[] members;
-	bool isConst, isFinal, isAbstract;
-	string[] flags;
-
-	ClassDefinition(Type name, Type[] container, Type _extends, string[] _implements, TemplateList _template, ClassMember[] members, bool isConst, isFinal, isAbstract, string[] flags, Position position) {
-		self.name = name;
-		self.container = container;
-		self._extends = _extends;
-		self._implements = _implements;
-		self._template = _template;
-		self.members = members;
-		self.isConst = isConst;
-		self.isFinal = isFinal;
-		self.isAbstract = isAbstract;
-		self.flags = flags;
-		self.position = position;
-	}
+// class for containing class definition specifics
+class ClassDefinition extends Flux::Parsing::ASTNode implements IImplementor, IClassBodyParser {
+	// TODO
 }

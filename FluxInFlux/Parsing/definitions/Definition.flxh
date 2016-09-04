@@ -3,21 +3,23 @@ import FunctionParameter;
 import EnumDefinition;
 import ClassDefinition;
 import InterfaceDefinition;
-import TemplateDefinition;
+import TemplateList;
 
 namespace Flux::Parsing;
 
-const bool DEFAULT_PUBLIC = true;
+// private class NullableTemplateList = TemplateList?;
 
+/*public*/ const bool DEFAULT_PUBLIC = true;
+
+// container class for all definitions
 class Definition extends ASTNode {
-	Type _type;
-	Type _class;
 	string name;
 	ASTNode value;
 	bool isConst, isPublic, isStatic;
 	string[] flags;
+	TemplateList template_list;
 	
-	Definition(Type _type, null Type _class, string name, null ASTNode value, bool isConst, isPublic, isStatic, string[] flags, Position position) {
+	Definition(string name, ASTNode value, bool isConst, isPublic, isStatic, string[] flags, NullableTemplateList template_list, Position position) {
 		self._type = _type;
 		self._class = _class;
 		self.name = name;

@@ -1,7 +1,0 @@
-
-namespace Flux::Parsing;
-
-class Declaration extends Flux::Parsing::ASTNode {
-	string name;
-	Type type;
-}

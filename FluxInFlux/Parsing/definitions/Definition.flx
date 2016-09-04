@@ -1,23 +1,48 @@
 
 namespace Flux::Parsing;
 
-bool Definition:parse(Source source) {
-	let lexer = source.lexer;
-	let start = lexer:mark();
-	let isClassDef = source.context.isInterface || source.context.isClass;
-	let classname = isClassDef && source.context.class_name.name:gsub( ".+::", "" );
-	let position = lexer:get().position;
+// TODO
+// Definition:parse() should handle *all* definitions
+// That's classes, interfaces, enums, functions, and variables
+// Ouch, right?
 
-	string[] flags = [];
+/* Method
+
+	collect definition flags (Instruction "flagdef")
+	parse template if present : track position
+	parse modifier#1 (public/private)
+	parse modifier#2 (static/final/abstract)
+		specialise definition type to class if final/abstract
+		err if class specialised && in class/interface body
+	parse modifier#3 (const) : track position
+	if 'class' or 'interface' skipped
+		use class/interface parser
+	if 'enum' skipped
+		use enum parser
+	else
+		use generic definition parser
+
+*/
+
+/*
+bool Definition:parse(Source source) {
+	Lexer lexer = source.lexer;
+	int start = lexer:mark();
+	// whether we're parsing inside the body of a class/interface
+	bool isClassDef = source.context.isInterface || source.context.isClass;
+	// whether the function defines a foreign function (used to decide if 'void' is a valid body)
 	bool hasForeignFunction = false;
+	// the classname without namespace
+	string classname = isClassDef && source.context.class_name.name:gsub( ".+::", "" );
+	// a list of all definition flags
+	string[] flags = [];
+	// the absolute start position
+	Position position = lexer:get().position;
+	// a list of template options if it's a templated definition
 	TemplateList _template;
 
 	while lexer:skip(Instruction, "flagdef")
 		flags[#flags + 1] = Flux::Parsing::parseInstructionOperand( lexer );
-
-	foreach flag in flags
-		if flag:find "^foreign%-"
-			hasForeignFunction = true;
 
 	// read a template
 	if lexer:skip( Keyword, "template" ) {
@@ -292,6 +317,8 @@ bool Definition:parse(Source source) {
 
 	return true;
 }
+
+*/
 
 string Definition:serialize()
 	= (#self.flags > 0 && "@flagdef " `concat` table.concat( self.flags, "\n@flagdef " ) `concat` "\n" || "")

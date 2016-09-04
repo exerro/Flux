@@ -1,21 +1,9 @@
 
-// this probably needs to be updated to the new type/definition system
-
-import ClassMember;
+import ASTNode;
 
 namespace Flux::Parsing;
 
-class InterfaceDefinition extends ASTNode {
-	Type name;
-	string[] _implements;
-	TemplateList _template;
-	ClassMember[] members;
-
-	InterfaceDefinition(Type name, string[] _implements, TemplateList _template, ClassMember[] members, Position position) {
-		self.name = name;
-		self.members = members;
-		self._implements = _implements;
-		self._template = _template;
-		self.position = position;
-	}
+// class for containing interface definition specifics
+class InterfaceDefinition extends Flux::Parsing::ASTNode implements IImplementor, IClassBodyParser {
+	// TODO
 }

@@ -25,6 +25,7 @@ class "Lexer" {
 
 	buffer = {};
 	buffer_pos = 1;
+	words = {};
 }
 
 function Lexer:Lexer(text, source)
@@ -152,6 +153,14 @@ end
 
 function Lexer:consumeIdentifier()
 	local token = self:consumePattern( "Identifier", "[%w_]+" )
+
+	local ext = self:consumePattern( "", "::[%w_]+" )
+	while ext do
+		token.value = token.value .. ext.value
+		ext = self:consumePattern( "", "::[%w_]+" )
+	end
+
+	self.words[token.value] = (self.words[token.value] or 0) + 1;
 
 	if lang.keywords[token.value] then
 		token.type = "Keyword"

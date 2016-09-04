@@ -33,6 +33,16 @@ local ok, err = pcall( function()
 		emitter:pushLineBreak()
 	end
 
+	local max, maxw = 0, ""
+	for k, v in pairs( Lexer.words ) do
+		if v > max then
+			maxw = k
+			max = v
+		end
+	end
+
+	print( "The most commonly used word is '" .. maxw .. "'" )
+
 	if RUN_COMPILED then
 		love.filesystem.write( "log.txt", emitter.output )
 		assert( loadstring( emitter.output ) )()

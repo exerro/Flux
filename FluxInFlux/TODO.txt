@@ -14,22 +14,23 @@ Parsing
 	[x]	Add @flagdef, @flagcdef
 	[ ]	Add preprocessor instructions
 	[x]	List comprehensions
-	[ ]	Add import functionality
 	[ ]	Vararg functions
 	[ ]	Allow `static int MyClass:method() {}` to select just the static method?
 	[ ]	Sort out file importing
-		[ ]	Lift all declarations/imports/stuff into headers
-		[ ]	Auto-generate header if not found
+		[ ]	Move class/interface/enum declarations into header
+		[ ] Move function/variable declarations into header
+		[ ]	Move function/variable definitions into Source
 
 Type checking
-	[ ] Automagically sort out classes referring to eachother in multiple files
-	[x] Add type lookups and template creation
+	[ ] Add class/interface/enum pre-declaration from AST headers
+	[ ] Add declaration creation from AST headers
+	[ ] Add scopes/variable lookups
+	[ ] Add template creation
+	[ ] Add type lookups
+	[ ] Add function selection based on parameters
 	[ ] Add classes declarations with native type designation
-	[ ] Add class/function template specialisation
-	[ ] Add function lookups
-	[ ] Add function calls
 	[ ] Add operator calls
-	[ ] Add indexing and stuff
+	[ ] Add AST -> IR conversions
 
 Optimisation
 	Everything :/

@@ -1,23 +1,21 @@
 
 namespace Flux::Parsing;
 
-string Block:parse(Source source) {
+ASTNode Block:parse(Source source) {
 	let lexer = source.lexer;
 	let position = lexer:get().position;
 	
 	source:pushBlock();
 
-	if lexer:skip( Symbol, "{" ) {
+	if lexer:skip( Symbol, "{" )
 		while !lexer:skip( Symbol, "}" ) {
-			if lexer:isEOF() source:error "expected '}' to block";
+			if lexer:isEOF()
+				source:error "expected '}' to close block";
 
 			Flux::Parsing::Statement:parse(source);
 		}
-	}
-
-	else {
+	else
 		Flux::Parsing::Statement:parse(source);
-	}
 
 	let statements = source:popBlock();
 

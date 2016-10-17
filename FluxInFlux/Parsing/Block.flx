@@ -4,7 +4,7 @@ namespace Flux::Parsing;
 ASTNode Block:parse(Source source) {
 	let lexer = source.lexer;
 	let position = lexer:get().position;
-	
+
 	source:pushBlock();
 
 	if lexer:skip( Symbol, "{" )
@@ -20,6 +20,10 @@ ASTNode Block:parse(Source source) {
 	let statements = source:popBlock();
 
 	return new Flux::Parsing::Block( statements, position );
+}
+
+void Block:push(ASTNode node) {
+	self[#self + 1] = node;
 }
 
 string Block:serialize()

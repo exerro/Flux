@@ -1,174 +1,76 @@
 
 namespace Flux::Parsing;
 
-Context Source:pushContext() {
-	let context = new Flux::Parsing::Context(self.context);
+void Source:setup_file(string name, string path, string extension) {
+	self.file = new Flux::Parsing::File( name, path );
+	self.files[#self.files + 1] = self.file;
+	self.files_included[path] = self.file;
 
-	self.contexts[#self.contexts + 1] = context;
-	self.context = context;
-
-	return context;
+	self.file:initialise_lexer( Flux::read_file( path `concat` extension ) );
+	self.lexer = self.file.lexer;
 }
 
-Context Source:popContext() {
-	self.contexts[#self.contexts] = null;
-	self.context = self.contexts[#self.contexts];
+void Source:parse_content() {
+	while self.lexer:test( Keyword, "import" )
+		Flux::Parsing::ImportStatement:parse( self );
 
-	return self.context;
+	while !self.lexer:isEOF()
+		Flux::Parsing::Statement:parse( self );
 }
 
-Context Source:pushRootContext()
-	= self:pushContext():specialise_root();
-
-Context Source:pushNamespaceContext(string name)
-	= self:pushContext():specialise_namespace(name);
-
-Context Source:pushClassContext(string name)
-	= self:pushContext():specialise_class(name);
-
-Context Source:pushClassnameContext()
-	= self:pushContext():specialise_classname();
-
-Context Source:pushInterfaceContext(string name)
-	= self:pushContext():specialise_interface(name);
-
-Context Source:pushFunctionContext(bool isVararg)
-	= self:pushContext():specialise_function(isVararg);
-
-Context Source:pushLoopContext()
-	= self:pushContext():specialise_loop();
-
-Block Source:pushBlock() {
-	ASTNode[] block = [];
-
-	self:pushContext():specialise_block();
-
-	self.blocks[#self.blocks + 1] = block;
-	self.block = block;
-
-	return block;
+void Source:close_file() {
+	self.files[#self.files] = null;
+	self.file = self.files[#self.files];
+	self.lexer = self.file.lexer;
 }
 
-Block Source:popBlock() {
-	let block = self.blocks[#self.blocks];
+bool Source:import_file(string name) {
+	string filename = name:gsub( "%.", "/" );
+	string[] paths_to_check = [];
 
-	self.blocks[#self.blocks] = null;
-	self.block = self.blocks[#self.blocks];
+	do { // calculate paths to check
+		string path = self.environment["PATH"];
+		int start_pos = 1;
+		int end_pos = path:find ";";
 
-	return block;
-}
-
-void Source:push(ASTNode node) {
-	if self.block && #self.block > 0
-		self.block[#self.block + 1] = node;
-	else if self.current_file
-		self.current_file:push( node );
-}
-
-void Source:beginParse() {
-	// umm maybe push a context or a block or something idk?
-}
-
-void Source:closeParse() {
-	foreach i, v in self.import_queue {
-		self:importFileRaw( self.import_queue_names[i], v );
-	}
-}
-
-FileContent Source:importFileRaw(string name, path) {
-	string filecontent = Flux::readfile( path );
-	auto current_file = self.current_file;
-
-	self.current_file = new Flux::Parsing::FileContent( name, self.headers[name] );
-	self.files[#self.files + 1] = self.current_file;
-	self.current_include_path[#self.current_include_path + 1] = string__match( path, ".+/" ) || "";
-	self:parseFileContent( filecontent, name );
-	self.current_include_path[#self.current_include_path] = null;
-	self.current_file = current_file;
-}
-
-string Source:importFile(string filename, Position position) {
-	int f = 0;
-	string segment = "";
-	string file = filename:gsub( "%.", "/" );
-	string[] tocheck = [];
-
-	while segment {
-		table.insert( tocheck, 1, segment );
-
-		if #self.current_include_path > 0 {
-			string s = self.current_include_path[#self.current_include_path];
-			int p = s:find "/";
-
-			while p {
-				table.insert( tocheck, 1, (segment != "" && segment `concat` "/" || "") `concat` s:sub( 1, p - 1 ) );
-				p = s:find( "/", p + 1 );
-			}
-
-			table.insert( tocheck, 1, (segment != "" && segment `concat` "/" || "") `concat` s );
+		while end_pos {
+			paths_to_check[#paths_to_check + 1] = path:sub( start_pos, end_pos - 1 );
+			start_pos = end_pos + 1;
+			end_pos = path:find( ";", end_pos + 1 );
 		}
 
-		segment = string__match(self.include_path, "^[^;]+", f + 1);
-		f += (segment && #segment + 1 || 0);
+		paths_to_check[#paths_to_check + 1] = path:sub( start_pos );
 	}
 
-	foreach path in tocheck {
-		string filepath = path `concat` "/" `concat` file;
-		string filepathh = filepath `concat` ".flxh";
-		string filepathc = filepath `concat` ".flxc";
-		string filepaths = filepath `concat` ".flx";
-		bool isImported = false;
+	foreach path in paths_to_check {
 
-		if self.headers[filepath] != null {
-			self:push( new Flux::Parsing::ImportStatement( filepath, position ) );
-			return filepath;
-		}
-
-		if Flux::isfile(filepathh) {
-			self.headers[filepath] = self:importFileRaw( filepath, filepathh );
-			isImported = true;
-		}
-		else {
-			self.headers[filepath] = new Flux::Parsing::FileContent( filepath );
-		}
-
-		if Flux::isfile(filepathc) {
-			table.insert( self.import_queue, 1, filepathc );
-			table.insert( self.import_queue_names, 1, filepath );
-			isImported = true;
-		}
-
-		if Flux::isfile(filepaths) {
-			table.insert( self.import_queue, 1, filepaths );
-			table.insert( self.import_queue_names, 1, filepath );
-			isImported = true;
-		}
-
-		if isImported {
-			self:push( new Flux::Parsing::ImportStatement( filepath, position ) );
-			return filepath;
-		}
 	}
 
-	return "";
+	// calculate paths to check
+	// check all paths
+	// if path found, import header and add source to queue
+		// if no header, treat source as header
+	// return false if not found
 }
 
-void Source:parseFileContent(string content, null string source = "string") {
-	let old_lexer = self.lexer;
-	let lexer = new Flux::Parsing::Lexer(content, source);
-	let context = new Flux::Parsing::Context():specialise_root();
+bool Source:import_project(string[] files) {
+	repeat {
+		if !self:import_file( files[1] )
+			return false;
 
-	self.lexer = lexer;
-	self.context = context;
-	self.contexts[#self.contexts + 1] = context;
+		table.remove( files, 1 );
+	}
+	until #files == 0;
 
-	while Flux::Parsing::ImportStatement:parse(self) {}
+	while self.import_queue[1] {
+		let file = table.remove( self.import_queue, 1 );
 
-	while !lexer:isEOF()
-		Flux::Parsing::Statement:parse(self);
+		self:setup_file( self.import_queue_names[i], file, "flx" );
+		self:parse_content();
+		self:close_file();
+	}
 
-	self:popContext();
-	self.lexer = old_lexer;
+	return true;
 }
 
 void Source:error(string err, null Position position = self.lexer:get().position)

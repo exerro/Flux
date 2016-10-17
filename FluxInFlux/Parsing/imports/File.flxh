@@ -1,4 +1,6 @@
 
+import Context;
+import Lexer;
 import types.Type;
 import definitions.Definition;
 import ASTNode;
@@ -7,24 +9,38 @@ namespace Flux::Parsing;
 
 class File {
 	string name;
+	string path;
 
 	File[] imports;
 
 	Type[] types;
-	Definition[] definitions;
-	ASTNode statements;
+	ASTNode[] statements;
 
-	File(string name) {
+	Lexer lexer;
+
+	Context[] contexts;
+	Block[] blocks;
+
+	void File(string name, string path) {
 		self.name = name;
+		self.path = path;
 		self.imports = [];
 		self.types = [];
-		self.definitions = [];
 		self.statements = [];
+		self.contexts = [];
+		self.blocks = [];
 	}
 
-	void add_import(File);
+	void initialise_lexer(string source);
 
-	void define_type(Type);
-	void define(Definition);
-	void push(statement);
+	void add_import(File file);
+
+	void define_type(Type t);
+	void push(ASTNode node);
+
+	Context push_context();
+	void pop_context();
+
+	void push_block(Position position, bool is_void);
+	Block pop_block();
 }

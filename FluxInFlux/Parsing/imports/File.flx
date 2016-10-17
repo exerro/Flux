@@ -1,0 +1,46 @@
+
+namespace Flux::Parsing;
+
+void File:initialise_lexer(string source) {
+	self.lexer = new Flux::Parsing::Lexer( source, self.name );
+	self.context = new Flux::Parsing::Context():specialise_root();
+
+	self.contexts[1] = self.context;
+}
+
+void File:add_import(File file) {
+	self.imports[#self.imports + 1] = file;
+}
+
+void File:define_type(Type type) {
+	self.types[#self.types + 1] = type;
+}
+
+void File:push(ASTNode node) {
+	if #self.blocks > 0
+		self.blocks[#self.blocks]:push( node );
+	else
+		self.statements[#self.statements + 1] = node;
+}
+
+Context File:push_context() {
+	new Flux::Parsing::Context context( self.context );
+
+	self.context = context;
+	self.contexts[#self.contexts + 1] = context;
+
+	return context;
+}
+
+void File:pop_context() {
+	self.contexts[#self.contexts] = null;
+	self.context = self.contexts[#self.contexts];
+}
+
+void File:push_block(Position position, bool is_void) {
+	self.blocks[#self.blocks + 1] = new Flux::Parsing::Block( is_void, position );
+}
+
+Block File:pop_block() {
+	return table.remove( self.blocks, #self.blocks );
+}

@@ -1,59 +1,41 @@
 
-import Lexer;
-import Context;
+import File;
 import fileutils;
-import FileContent;
 
 namespace Flux::Parsing;
 
 const string FLUX_INCLUDE_PATH = "Flux;Flux/std";
 
 class Source {
-	string include_path;
-	string[] current_include_path;
-	FileContent{string} headers;
-	string[] import_queue, import_queue_names;
-	FileContent[] files;
-	ASTNode[][] blocks;
-	Context[] contexts;
-	FileContent current_file;
+	string{string} environment;
+	string[][] current_include_path;
+	string[] current_include_path_root;
+	string[] import_queue;
+	string[] import_queue_names;
+	File{string} files_included;
+	File[] files;
 
 	Lexer lexer;
-	Context context;
-	ASTNode[] block;
+	File file;
 
 	Source(null string include_path = "") {
-		self.include_path = Flux::Parsing::FLUX_INCLUDE_PATH `concat` ";" `concat` include_path;
+		self.environment = {
+			PATH = Flux::Parsing::FLUX_INCLUDE_PATH `concat` ";" `concat` include_path;
+		};
 		self.current_include_path = [];
-		self.imported = {};
-		self.files = [];
-		self.headers = {};
-		self.blocks = [];
-		self.contexts = [];
+		self.current_include_path_root = [];
 		self.import_queue = [];
 		self.import_queue_names = [];
+		self.files_included = {};
+		self.files = [];
 	}
 
-	Context pushContext();
-	Context popContext();
-	Context pushRootContext();
-	Context pushClassnameContext();
-	Context pushNamespaceContext(string name);
-	Context pushClassContext(string name);
-	Context pushInterfaceContext(string name);
-	Context pushFunctionContext(bool isVararg);
-	Context pushLoopContext();
+	void setup_file(string name, string path, string extension);
+	void parse_content();
+	void close_file();
 
-	Block pushBlock();
-	Block popBlock();
-
-	void push(ASTNode t);
-
-	void beginParse();
-	void closeParse();
-	FileContent importFileRaw(string name, string path, Position position);
-	string importFile(string name, Position position);
-	void parseFileContent(string content, null string source = "string");
+	bool import_file(string name);
+	bool import_project(string[] files);
 
 	void error(string err);
 }

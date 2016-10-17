@@ -1,7 +1,7 @@
 
 namespace Flux;
 
-bool isfile(string file) {
+bool is_file(string file) {
 	let h = io.open(file);
 	if h {
 		h:close();
@@ -10,11 +10,11 @@ bool isfile(string file) {
 	return false;
 }
 
-string[] listfiles(string path) {
+string[] list_files(string path) {
 	return [];
 }
 
-string readfile(string file) {
+string read_file(string file) {
 	let h = io.open(file);
 	let content = h:read "*a";
 
@@ -23,6 +23,6 @@ string readfile(string file) {
 	return content;
 }
 
-void writefile(string file, content) {
+void write_file(string file, content) {
 	return null;
 }

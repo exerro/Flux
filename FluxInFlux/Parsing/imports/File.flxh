@@ -1,33 +1,30 @@
 
-// Really need to rethink this :/
-
-import definitions.ClassDefinition;
-import definitions.InterfaceDefinition;
-import definitions.EnumDefinition;
-import definitions.AliasClassDefinition;
+import types.Type;
 import definitions.Definition;
+import ASTNode;
 
 namespace Flux::Parsing;
 
 class File {
 	string name;
-	ASTNode[] header,
-	          content;
+
+	File[] imports;
+
+	Type[] types;
+	Definition[] definitions;
+	ASTNode statements;
 
 	File(string name) {
 		self.name = name;
-		self.header = [];
-		self.content = [];
+		self.imports = [];
+		self.types = [];
+		self.definitions = [];
+		self.statements = [];
 	}
 
-	ASTNode addClassDefinition(ClassDefinition def);
-	ASTNode addInterfaceDefinition(InterfaceDefinition def);
-	ASTNode addEnumDefinition(EnumDefinition def);
-	ASTNode addAliasClassDefinition(AliasClassDefinition def);
-	ASTNode addGeneralDefinition(Definition def);
-	ASTNode addTemplateDefinition(TemplateDefinition def);
+	void add_import(File);
 
-	ASTNode addDefinition(ASTNode def);
-
-	ASTNode addStatement(ASTNode statement);
+	void define_type(Type);
+	void define(Definition);
+	void push(statement);
 }

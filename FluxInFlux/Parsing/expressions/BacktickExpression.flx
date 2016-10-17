@@ -1,6 +1,18 @@
 
 namespace Flux::Parsing;
 
+class BacktickExpression extends RightUnaryExpression {
+	Expression lvalue, rvalue;
+	string op;
+
+	BacktickExpression( null Expression lvalue, null Expression rvalue, string op, null Position position = (lvalue || rvalue).position ) {
+		self.lvalue = lvalue;
+		self.rvalue = rvalue;
+		self.op = op;
+		self.position = position;
+	}
+}
+
 ASTNode BacktickExpression:parse( Source source ) {
 	let lexer = source.lexer;
 
@@ -25,7 +37,7 @@ ASTNode BacktickExpression:parse( Source source ) {
 		}
 		else {
 			let e = Flux::Parsing::LeftUnaryExpression:parse(source);
-			
+
 			if e {
 				expr = e;
 				for (int i = #op_stack, i > 0, i--)

@@ -1,5 +1,23 @@
 
+/* TODO
+
+	int x = 1;
+	let x = 5 in {
+		print( x + 1 ); // 6
+	}
+	print( x + 1 ); // 2
+
+	new UIElement button;
+	let typeof button = UIButton in {
+		print( button.text ); // all good
+	}
+	print( button.text ); // UIElement has no member 'text'
+*/
+
 namespace Flux::Parsing;
+
+class LetStatement extends Flux::Parsing::Statement {}
+	// Note, this won't exist in the AST as it uses normal definitions
 
 bool LetStatement:parse(Source source) {
 	let lexer = source.lexer;
@@ -14,7 +32,7 @@ bool LetStatement:parse(Source source) {
 		Position position = lexer:get().position;
 		string name1 = Flux::Parsing::parseName( source );
 		Type cast1 = name1 && (lexer:skip( Symbol, "->" ) && Flux::Parsing::Type:parse( source ) || Flux::Parsing::Type:autoType( position ));
-		Position backtick_pos = lexer:get().position;	
+		Position backtick_pos = lexer:get().position;
 		string backtick = lexer:skipValue( Backtick );
 		string name2 = backtick && Flux::Parsing::parseName( source ) || !name1 && source:error "expected name";
 		Type cast2 = name2 && (lexer:skip( Symbol, "->" ) && Flux::Parsing::Type:parse( source ) || Flux::Parsing::Type:autoType( lexer:peek(-1).position ));

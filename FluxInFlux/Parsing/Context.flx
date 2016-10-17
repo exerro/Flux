@@ -48,3 +48,21 @@ Context Context:specialiseLoop() {
 	self.isLoop = true;
 	return self;
 }
+
+void Context:push_flag(string f, bool v) {
+	self.flag_stacks[f] = self.flag_stacks[f] || [];
+	self.flag_stacks[#self.flag_stacks + 1] = v;
+}
+
+void Context:pop_flag(string f) {
+	self.flag_stacks[f] = self.flag_stacks[f] || [];
+	self.flag_stacks[#self.flag_stacks] = null;
+}
+
+void Context:set_flag(string f, bool v) {
+	self:pop_flag( f );
+	self:push_flag( f, v );
+}
+
+bool Context:get_flag(string f)
+	= self.flag_stacks[f] && self.flag_stacks[f][#self.flag_stacks[f]] || false;

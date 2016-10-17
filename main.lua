@@ -45,9 +45,9 @@ local ok, err = pcall( function()
 
 	if RUN_COMPILED then
 		love.filesystem.write( "log.txt", emitter.output )
-		assert( loadstring( emitter.output ) )()
+		assert( (loadstring or load)( emitter.output ) )()
 	else
-		assert( loadstring( love.filesystem.read "log.txt" ) )()
+		assert( (loadstring or load)( love.filesystem.read "log.txt" ) )()
 	end
 
 	main()

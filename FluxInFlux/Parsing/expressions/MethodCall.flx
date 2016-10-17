@@ -1,13 +1,28 @@
 
+import ConstantType;
+
 namespace Flux::Parsing;
+
+class MethodCall extends RightUnaryExpression {
+	string name;
+	Expression value;
+	Expression[] parameters;
+
+	MethodCall( Expression value, string name, Expression[] parameters, null Position position = value.position ) {
+		self.name = name;
+		self.value = value;
+		self.parameters = parameters;
+		self.position = position;
+	}
+}
 
 ASTNode MethodCall:parse( Source source, Expression value ) {
 	let lexer = source.lexer;
 	let parameters -> Expression[] = [];
 	let position = lexer:get().position;
-	
+
 	if !lexer:skip( Symbol, ":" ) return;
-	
+
 	let name = lexer:skipValue( Identifier ) || source:error "expected name after ':'";
 
 	if lexer:skip( Symbol, "(" ) {

@@ -1,6 +1,17 @@
 
 namespace Flux::Parsing;
 
+class OperatorImplements extends RightUnaryExpression {
+	Expression value;
+	Type type;
+
+	OperatorImplements( Expression value, Type type, null Position position = value.position ) {
+		self.value = value;
+		self.type = type;
+		self.position = position;
+	}
+}
+
 ASTNode OperatorImplements:parse( Source source, Expression value )
 	= type && new Flux::Parsing::OperatorImplements( value, type, position )
 	where lexer = source.lexer

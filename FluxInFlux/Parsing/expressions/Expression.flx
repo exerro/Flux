@@ -1,5 +1,15 @@
 
+import PrimaryExpression;
+import RightUnaryExpression;
+import LeftUnaryExpression;
+import BacktickExpression;
+import BinaryExpression;
+
 namespace Flux::Parsing;
+
+class Expression extends ASTNode {
+
+}
 
 ASTNode Expression:parse(Source source) {
 	// parse binary expression

@@ -1,7 +1,0 @@
-
-namespace Flux;
-
-bool isfile(string file);
-string[] listfiles(string path);
-string readfile(string file);
-void writefile(string file, content);

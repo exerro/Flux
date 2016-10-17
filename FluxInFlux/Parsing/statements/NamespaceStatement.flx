@@ -1,6 +1,17 @@
 
 namespace Flux::Parsing;
 
+class NamespaceStatement extends Flux::Parsing::Statement {
+	string name;
+	Block block;
+
+	NamespaceStatement(string name, Block block, Position position) {
+		self.name = name;
+		self.block = block;
+		self.position = position;
+	}
+}
+
 bool NamespaceStatement:parse(Source source) {
 	let lexer = source.lexer;
 	let position = lexer:get().position;
@@ -12,7 +23,7 @@ bool NamespaceStatement:parse(Source source) {
 		return false;
 
 	string name = Flux::Parsing::parseName( source ) || source:error "expected name after 'namespace'";
-	
+
 	source:pushNamespaceContext( name );
 	source:pushBlock();
 

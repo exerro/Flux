@@ -1,9 +1,0 @@
-
-import ASTNode;
-
-namespace Flux::Parsing;
-
-// class for containing class definition specifics
-class ClassDefinition extends Flux::Parsing::ASTNode implements IImplementor, IClassBodyParser {
-	// TODO
-}

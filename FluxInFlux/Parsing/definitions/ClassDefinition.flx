@@ -1,5 +1,13 @@
 
+import ASTNode;
+
 namespace Flux::Parsing;
+
+// class for containing class definition specifics
+class ClassDefinition extends Flux::Parsing::ASTNode /*implements IImplementor, IClassBodyParser*/ {
+	// TODO
+	void parse() = null;
+}
 
 bool ClassDefinition:parse(Source source) {
 	let lexer = source.lexer;
@@ -42,7 +50,7 @@ bool ClassDefinition:parse(Source source) {
 		source:error "invalid section to define class";
 
 	source:pushClassnameContext();
-	
+
 	Type name = Flux::Parsing::Type:parse( source );
 	Type _extends;
 	Type[] container;
@@ -107,7 +115,7 @@ bool ClassDefinition:parse(Source source) {
 	source:pushClassnameContext();
 	_extends = lexer:skip( Keyword, "extends" ) && Flux::Parsing::Type:parse( source );
 	source:popContext();
-	
+
 	if lexer:skip( Keyword, "implements" )
 		repeat {
 			_implements[#_implements + 1] = Flux::Parsing::parseName( source )
@@ -144,7 +152,7 @@ bool ClassDefinition:parse(Source source) {
 	source:push( new Flux::Parsing::ClassDefinition(
 		name, container, _extends, _implements, _template, members, isConst, isFinal, isAbstract, flags, position
 	) );
-	
+
 	foreach definition in definitions {
 		Definition raw_def;
 

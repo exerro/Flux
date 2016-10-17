@@ -1,5 +1,16 @@
 
+import ConstantType;
+
 namespace Flux::Parsing;
+
+class TableExpression extends Flux::Parsing::PrimaryExpression {
+	Expression[][] values;
+
+	TableExpression(Expression[][] values, Position position) {
+		self.values = values;
+		self.position = position;
+	}
+}
 
 ASTNode TableExpression:parse(Source source)
 	let position = source.lexer:get().position;

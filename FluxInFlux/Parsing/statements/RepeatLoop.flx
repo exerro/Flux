@@ -1,6 +1,19 @@
 
 namespace Flux::Parsing;
 
+class RepeatLoop extends Flux::Parsing::Statement {
+	Expression condition;
+	Block block;
+	bool inverted;
+
+	RepeatLoop(Expression condition, Block block, bool inverted, null Position position = condition.position) {
+		self.condition = condition;
+		self.block = block;
+		self.inverted = inverted;
+		self.position = position;
+	}
+}
+
 bool RepeatLoop:parse(Source source) {
 	let lexer = source.lexer;
 	let position = lexer:get().position;
@@ -24,7 +37,7 @@ bool RepeatLoop:parse(Source source) {
 		condition = Flux::Parsing::Expression:parse( source ) || source:error "expected condition after 'while'";
 		inverted = true;
 	}
-	
+
 	if !Flux::Parsing::parseSemicolon(lexer)
 		source:error "expected ';' after condition";
 

@@ -1,6 +1,21 @@
 
 namespace Flux::Parsing;
 
+class MatchExpression extends Flux::Parsing::PrimaryExpression {
+	Expression value;
+	Expression[][] cases;
+	Expression[] matches;
+	Expression _default;
+
+	MatchExpression(Expression value, Expression[][] cases, Expression[] matches, Expression _default, null Position position = value.position) {
+		self.value = value;
+		self.cases = cases;
+		self.matches = matches;
+		self._default = _default;
+		self.position = position;
+	}
+}
+
 ASTNode MatchExpression:parse(Source source) {
 	let lexer = source.lexer;
 	let position = lexer:get().position;

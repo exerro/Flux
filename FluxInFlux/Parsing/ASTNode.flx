@@ -1,5 +1,13 @@
 
+import Position;
+
 namespace Flux::Parsing;
 
-string ASTNode:serialize()
-	= "<Serialization of class isn't implemented>";
+class ASTNode {
+	Position position;
+
+	string serialize()
+		= "<Serialization of class isn't implemented>";
+
+	static ASTNode parse( Source source );
+}

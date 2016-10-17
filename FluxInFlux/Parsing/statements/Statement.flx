@@ -1,5 +1,31 @@
 
+namespace Flux::Parsing {
+	class Statement;
+}
+
+import ImportStatement;
+import IfStatement;
+import WhileLoop;
+import RepeatLoop;
+import DoStatement;
+import ForLoop;
+import ForeachLoop;
+import SwitchStatement;
+import TryStatement;
+import NewStatement;
+import ReturnStatement;
+import BreakStatement;
+import ContinueStatement;
+import LetStatement;
+
+import NamespaceStatement;
+import UsingStatement;
+
 namespace Flux::Parsing;
+
+class Statement extends Flux::Parsing::ASTNode {
+	bool parse(Source source);
+}
 
 void Statement:parse(Source source) {
 	let lexer = source.lexer;
@@ -28,7 +54,7 @@ void Statement:parse(Source source) {
 	let expr = Flux::Parsing::Expression:parse(source);
 
 	if expr {
-		Flux::Parsing::expectSemicolon( source, "expression" );
+		Flux::Parsing::expectSemicolon( source, "end of expression" );
 		source:push( expr );
 	}
 	else

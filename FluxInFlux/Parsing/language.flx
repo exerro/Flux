@@ -1,6 +1,17 @@
 
 namespace Flux::Parsing::language;
 
+bool{string} keywords = [];
+int {string} binary_operators = [];
+bool{string} unary_operators = [];
+bool{string} operators = [];
+bool{string} symbols = [];
+bool{string} valid_native_operators = [];
+
+string keyword_str, operator_str, symbol_str;
+
+int precedence = 0;
+
 let _ = (function() {
 	Flux::Parsing::language::valid_native_operators = {
 		["and"] = true, ["or"] = true;
@@ -132,7 +143,7 @@ let _ = (function() {
 
 			while found_line[1] {
 				let op = line:sub( found_line[1], found_line[2] );
-				
+
 				Flux::Parsing::language::symbols[op] = true;
 				Flux::Parsing::language::operators[op] = true;
 

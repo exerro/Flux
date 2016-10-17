@@ -1,5 +1,18 @@
 
+import ConstantType;
+
 namespace Flux::Parsing;
+
+class FunctionCall extends RightUnaryExpression {
+	Expression value;
+	Expression[] parameters;
+
+	FunctionCall( Expression value, Expression[] parameters, null Position position = value.position ) {
+		self.value = value;
+		self.parameters = parameters;
+		self.position = position;
+	}
+}
 
 ASTNode FunctionCall:parse( Source source, Expression value ) {
 	let lexer = source.lexer;

@@ -4,6 +4,18 @@ namespace Flux::Parsing;
 bool isAssignmentOperator( string op )
 	= Flux::Parsing::language::binary_operators[op] == 1;
 
+class BinaryExpression extends RightUnaryExpression {
+	Expression lvalue, rvalue;
+	string op;
+
+	BinaryExpression( Expression lvalue, Expression rvalue, string op, null Position position = lvalue.position ) {
+		self.lvalue = lvalue;
+		self.rvalue = rvalue;
+		self.op = op;
+		self.position = position;
+	}
+}
+
 ASTNode BinaryExpression:parse( Source source ) {
 	let lexer = source.lexer;
 	void collapse();
@@ -16,7 +28,7 @@ ASTNode BinaryExpression:parse( Source source ) {
 	operand_stack[1] = Flux::Parsing::BacktickExpression:parse(source);
 
 	if !operand_stack[1] return;
-	
+
 	void collapse() {
 		let lvalue = operand_stack[#operand_stack - 1],
 		    rvalue = operand_stack[#operand_stack],
@@ -53,7 +65,7 @@ ASTNode BinaryExpression:parse( Source source ) {
 			|| source:error( "expected expression after operator '" `concat` op `concat` "'" );
 		let precedence = Flux::Parsing::language::binary_operators[op];
 		let position = op_token.position;
-		
+
 		while operator_precedences[1] && (precedence < operator_precedences[#operator_precedences]
 		      || precedence > 1 && precedence == operator_precedences[#operator_precedences])
 			collapse();

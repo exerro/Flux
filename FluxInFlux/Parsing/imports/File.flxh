@@ -1,4 +1,6 @@
 
+// Really need to rethink this :/
+
 import definitions.ClassDefinition;
 import definitions.InterfaceDefinition;
 import definitions.EnumDefinition;
@@ -26,4 +28,6 @@ class File {
 	ASTNode addTemplateDefinition(TemplateDefinition def);
 
 	ASTNode addDefinition(ASTNode def);
+
+	ASTNode addStatement(ASTNode statement);
 }

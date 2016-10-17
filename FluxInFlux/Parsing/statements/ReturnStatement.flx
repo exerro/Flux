@@ -1,10 +1,21 @@
 
+import expressions.ConstantType;
+
 namespace Flux::Parsing;
+
+class ReturnStatement extends Flux::Parsing::Statement {
+	Expression value;
+
+	ReturnStatement(Expression value, null Position position = value.position) {
+		self.position = position;
+		self.value = value;
+	}
+}
 
 bool ReturnStatement:parse(Source source) {
 	let lexer = source.lexer;
 	let position = lexer:get().position;
-	
+
 	if !source.context.isFunction && lexer:test( Keyword, "return" )
 		source:error "cannot return from outside function";
 

@@ -1,6 +1,0 @@
-
-namespace Flux::Parsing;
-
-class NewStatement extends Flux::Parsing::Statement {
-	
-}

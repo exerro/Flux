@@ -1,6 +1,9 @@
 
 namespace Flux::Parsing;
 
+class NewStatement extends Flux::Parsing::Statement {}
+	// Note, this won't exist in the AST as it uses normal definitions
+
 bool NewStatement:parse(Source source) {
 	let lexer = source.lexer;
 	let position = lexer:get().position;
@@ -27,7 +30,7 @@ bool NewStatement:parse(Source source) {
 
 	// allowing for `new Button();` as an expression statement
 	if !name {
-		lexer:jump( start ); 
+		lexer:jump( start );
 		return false;
 	}
 

@@ -7,23 +7,23 @@ class Lexer;
 class Expression;
 
 let Instruction = Flux::Parsing::TokenType.Instruction,
-    String = Flux::Parsing::TokenType.String,
-    Character = Flux::Parsing::TokenType.Character,
-    Backtick = Flux::Parsing::TokenType.Backtick,
-    Float = Flux::Parsing::TokenType.Float,
-    Integer = Flux::Parsing::TokenType.Integer,
-    Byte = Flux::Parsing::TokenType.Byte,
+    String      = Flux::Parsing::TokenType.String,
+    Character   = Flux::Parsing::TokenType.Character,
+    Backtick    = Flux::Parsing::TokenType.Backtick,
+    Float       = Flux::Parsing::TokenType.Float,
+    Integer     = Flux::Parsing::TokenType.Integer,
+    Byte        = Flux::Parsing::TokenType.Byte,
     Hexadecimal = Flux::Parsing::TokenType.Hexadecimal,
-    Binary = Flux::Parsing::TokenType.Binary,
-    Boolean = Flux::Parsing::TokenType.Boolean,
-    Null = Flux::Parsing::TokenType.Null,
-    Symbol = Flux::Parsing::TokenType.Symbol,
-    Identifier = Flux::Parsing::TokenType.Identifier,
-    Keyword = Flux::Parsing::TokenType.Keyword,
-    EOF = Flux::Parsing::TokenType.EOF;
+    Binary      = Flux::Parsing::TokenType.Binary,
+    Boolean     = Flux::Parsing::TokenType.Boolean,
+    Null        = Flux::Parsing::TokenType.Null,
+    Symbol      = Flux::Parsing::TokenType.Symbol,
+    Identifier  = Flux::Parsing::TokenType.Identifier,
+    Keyword     = Flux::Parsing::TokenType.Keyword,
+    EOF         = Flux::Parsing::TokenType.EOF;
 
-import util;
-import core.Source;
+import parsing_utils;
+import imports.Source;
 import Block;
 import statements.Statement;
 import expressions.Expression;

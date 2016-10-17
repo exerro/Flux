@@ -1,6 +1,0 @@
-
-namespace Flux::Parsing;
-
-class LetStatement extends Flux::Parsing::Statement {
-	
-}

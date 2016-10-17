@@ -40,11 +40,11 @@ local ok, err --= pcall( function(...)
 	if ... then
 		io.write( emitter.output )
 	end
-	assert( loadstring( emitter.output ) )()
+	assert( (loadstring or load)( emitter.output ) )()
 
 	main()
 --end, ... )
 
-if not ok then
+if err and not ok then
 	error( err, 0 )
 end

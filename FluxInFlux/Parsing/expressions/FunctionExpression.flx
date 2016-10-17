@@ -1,6 +1,19 @@
 
 namespace Flux::Parsing;
 
+class FunctionExpression extends PrimaryExpression {
+	FunctionParameter[] parameters;
+	Type returns;
+	Block body;
+
+	FunctionExpression( FunctionParameter[] parameters, Type returns, Block body, null Position position = returns.position ) {
+		self.parameters = parameters;
+		self.returns = returns;
+		self.body = body;
+		self.position = position;
+	}
+}
+
 ASTNode FunctionExpression:parse( Source source ) {
 	let lexer = source.lexer;
 	let position = lexer:get().position;

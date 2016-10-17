@@ -1,6 +1,12 @@
 
 namespace Flux::Parsing;
 
+class BreakStatement extends Flux::Parsing::Statement {
+	BreakStatement(Position position) {
+		self.position = position;
+	}
+}
+
 bool BreakStatement:parse(Source source) {
 	let lexer = source.lexer;
 	let position = lexer:get().position;
@@ -11,7 +17,7 @@ bool BreakStatement:parse(Source source) {
 	if lexer:skip( Keyword, "break" ) {
 		Flux::Parsing::expectSemicolon( source, "break statement" );
 		source:push( new Flux::Parsing::BreakStatement( position ) );
-		
+
 		return true;
 	}
 

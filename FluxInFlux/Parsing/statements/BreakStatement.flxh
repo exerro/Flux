@@ -1,8 +1,0 @@
-
-namespace Flux::Parsing;
-
-class BreakStatement extends Flux::Parsing::Statement {
-	BreakStatement(Position position) {
-		self.position = position;
-	}
-}

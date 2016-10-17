@@ -1,5 +1,23 @@
 
+// This should be an expression
+/* Also
+
+	do {
+		print( token.value );
+	}
+	where token = source.lexer:get();
+*/
+
 namespace Flux::Parsing;
+
+class DoStatement extends Flux::Parsing::Statement {
+	Block block;
+
+	DoStatement(Block block, null Position position = block.position) {
+		self.block = block;
+		self.position = position;
+	}
+}
 
 bool DoStatement:parse(Source source) {
 	let lexer = source.lexer;

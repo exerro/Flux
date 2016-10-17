@@ -1,6 +1,9 @@
 
 namespace Flux::Parsing;
 
+class ForLoop extends Flux::Parsing::Statement {}
+	// Note, this won't exist in the AST as it creates a while loop
+
 bool ForLoop:parse(Source source) {
 	let lexer = source.lexer;
 	let position = lexer:get().position;
@@ -15,7 +18,7 @@ bool ForLoop:parse(Source source) {
 	Expression value;
 	Expression condition;
 	Expression increment;
-	
+
 	type = Flux::Parsing::Type:parse( source );
 	name = lexer:skipValue( Identifier ) || source:error "expected name after type";
 	value = lexer:skip( Symbol, "=" )

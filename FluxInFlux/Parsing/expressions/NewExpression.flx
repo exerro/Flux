@@ -1,5 +1,18 @@
 
+import ConstantType;
+
 namespace Flux::Parsing;
+
+class NewExpression extends PrimaryExpression {
+	Type _type;
+	Expression[] parameters;
+
+	NewExpression( Type _type, Expression[] parameters, null Position position = _type.position ) {
+		self._type = _type;
+		self.parameters = parameters;
+		self.position = position;
+	}
+}
 
 ASTNode NewExpression:parse( Source source ) {
 	let lexer = source.lexer;

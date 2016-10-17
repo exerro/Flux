@@ -1,6 +1,17 @@
 
 namespace Flux::Parsing;
 
+class Index extends RightUnaryExpression {
+	Expression value;
+	Expression[] index;
+
+	Index( Expression value, Expression[] index, null Position position = value.position ) {
+		self.value = value;
+		self.index = index;
+		self.position = position;
+	}
+}
+
 ASTNode Index:parse( Source source, Expression value ) {
 	let lexer = source.lexer;
 	let index -> Expression[] = [];

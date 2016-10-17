@@ -1,6 +1,17 @@
 
 namespace Flux::Parsing;
 
+class Cast extends RightUnaryExpression {
+	Expression value;
+	Type type;
+
+	Cast( Expression value, Type type, null Position position = value.position ) {
+		self.value = value;
+		self.type = type;
+		self.position = position;
+	}
+}
+
 ASTNode Cast:parse( Source source, Expression value )
 	= type && new Flux::Parsing::Cast( value, type, position )
 	where lexer = source.lexer

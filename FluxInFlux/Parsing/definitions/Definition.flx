@@ -1,5 +1,38 @@
 
+import FunctionParameter;
+import EnumDefinition;
+import ClassDefinition;
+import InterfaceDefinition;
+import TemplateList;
+
 namespace Flux::Parsing;
+
+// private class NullableTemplateList = TemplateList?;
+
+/*public*/ const bool DEFAULT_PUBLIC = true;
+
+// container class for all definitions
+class Definition extends ASTNode {
+	string name;
+	ASTNode value;
+	bool isConst, isPublic, isStatic;
+	string[] flags;
+	TemplateList template_list;
+
+	Definition(string name, ASTNode value, bool isConst, isPublic, isStatic, string[] flags, NullableTemplateList template_list, Position position) {
+		self._type = _type;
+		self._class = _class;
+		self.name = name;
+		self.value = value;
+		self.isConst = isConst;
+		self.isPublic = isPublic;
+		self.isStatic = isStatic;
+		self.flags = flags;
+		self.position = position;
+	}
+
+	bool parse( Source source ) = null;
+}
 
 // TODO
 // Definition:parse() should handle *all* definitions
@@ -227,7 +260,7 @@ bool Definition:parse(Source source) {
 			// if the parameter names weren't given, you can't use them, so it won't let you define a body
 			if !parameterNamesGiven && !lexer:test( Symbol, ";" ) && !lexer:test( Keyword, "void" )
 				source:error "expected ';' after partial function declaration";
-			
+
 			Block body;
 
 			if lexer:skip( Keyword, "void" )

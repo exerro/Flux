@@ -240,7 +240,7 @@ function parseFunctionBody( source )
 
 	if lexer:skip( "Symbol", "=" ) then
 		local expr = parseExpression( source ) or throw( lexer, "expected expression after '='" )
-		
+
 		source:begin "function"
 
 		while lexer:skip( "Keyword", "where" ) do
@@ -289,7 +289,7 @@ function parseDefinition( source, expectFunction )
 			if body then
 				table.insert( body, wrapReturnStatement( wrapStringAsReference( "self", position ) ) )
 			end
-		
+
 			for i = 1, #parameters do
 				parameter_types[i] = parameters[i].class
 			end
@@ -325,7 +325,7 @@ function parseDefinition( source, expectFunction )
 		table.insert( parameters, 1, { class = wrapTypename( classname ), name = "self", nullable = false, default = nil } )
 		table.insert( defaults, 1, false )
 		table.insert( body, wrapReturnStatement( wrapStringAsReference( "self", position ) ) )
-	
+
 		for i = 1, #parameters do
 			parameter_types[i] = parameters[i].class
 		end
@@ -405,11 +405,11 @@ function parseDefinition( source, expectFunction )
 				table.insert( parameters, 1, { class = wrapTypename( classname ), name = "self", nullable = false, default = nil } )
 				table.insert( defaults, 1, false )
 			end
-			
+
 			for i = 1, #parameters do
 				parameter_types[i] = parameters[i].class
 			end
-			
+
 			if method then
 				table.insert( parameters, 1, {
 					class = wrapTypename( name );
@@ -507,7 +507,7 @@ function compileDefinition( emitter, t )
 		local isFunctionDefinition = t.class.type == "FunctionType"
 
 		emitter:define( t.name )
-		
+
 		if isFunctionDefinition then
 			if not t.value then
 				emitter:pushWord "local"

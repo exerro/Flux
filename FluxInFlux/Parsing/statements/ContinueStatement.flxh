@@ -1,8 +1,0 @@
-
-namespace Flux::Parsing;
-
-class ContinueStatement extends Flux::Parsing::Statement {
-	ContinueStatement(Position position) {
-		self.position = position;
-	}
-}

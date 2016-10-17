@@ -6,7 +6,7 @@ import FileContent;
 
 namespace Flux::Parsing;
 
-const string FLUX_INCLUDE_PATH = "Flux;Flux/std;Flux/std/Lua";
+const string FLUX_INCLUDE_PATH = "Flux;Flux/std";
 
 class Source {
 	string include_path;

@@ -1,6 +1,17 @@
 
 namespace Flux::Parsing;
 
+class WhileLoop extends Flux::Parsing::Statement {
+	Expression condition;
+	Block block;
+
+	WhileLoop(Expression condition, Block block, null Position position = condition.position) {
+		self.condition = condition;
+		self.block = block;
+		self.position = position;
+	}
+}
+
 bool WhileLoop:parse(Source source) {
 	let lexer = source.lexer;
 	let position = lexer:get().position;

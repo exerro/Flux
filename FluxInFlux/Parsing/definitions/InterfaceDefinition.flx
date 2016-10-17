@@ -1,0 +1,10 @@
+
+import ASTNode;
+
+namespace Flux::Parsing;
+
+// class for containing interface definition specifics
+class InterfaceDefinition extends Flux::Parsing::ASTNode /*implements IImplementor, IClassBodyParser*/ {
+	// TODO
+	void parse() = null;
+}

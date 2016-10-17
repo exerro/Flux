@@ -11,13 +11,13 @@ Parsing
 	[x]	Make class function definitions add '<class> self' as first parameter
 	[x]	Add @flagdef, @flagcdef
 	[x]	List comprehensions
-	[ ]	Vararg functions
-	[ ]	Change unary operator parsing to allow for different precedences.
-	[ ]	Add `A if C else B` syntax
 	[ ] Finish & close rewrite/parsing-definitions branch
 		[ ] Add public/private modifiers to let/new `new private int x( 0 );`, `let private x = 1;`
 		[ ]	Allow `static int MyClass:method() {}` to select just the static method
 		[ ] Allow enums to specify primitive values for members
+	[ ]	Vararg functions
+	[ ]	Change unary operator parsing to allow for different precedences.
+	[ ]	Add `A if C else B` syntax
 	[ ]	Sort out file importing
 		[ ]	Move class/interface/enum declarations into header
 		[ ] Move function/variable declarations into header

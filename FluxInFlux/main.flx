@@ -2,7 +2,7 @@
 import flux;
 
 void main() {
-	new Flux::Parsing::Source source("/home/ben/Code/Flux/Flux/tests");
+	new Flux::Parsing::Source source("./Flux/tests");
 	new Flux::Parsing::Lexer lexer( source_code );
 
 	source:beginParse();

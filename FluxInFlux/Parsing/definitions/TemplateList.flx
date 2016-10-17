@@ -1,6 +1,16 @@
 
 namespace Flux::Parsing;
 
+class TemplateList {
+	string[] names;
+	Type[][] classes;
+
+	TemplateList(string[] names, Type[][] classes) {
+		self.names = names;
+		self.classes = classes;
+	}
+}
+
 TemplateList TemplateList:parse( Source source ) {
 	Lexer lexer = source.lexer;
 	string[] names = [];

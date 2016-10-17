@@ -18,7 +18,7 @@ function class( name )
 		return obj
 	end
 
-	getfenv( 2 )[name] = class
+	(getfenv and getfenv(2) or _G)[name] = class
 
 	return function(t)
 		for k, v in pairs( t ) do

@@ -1,15 +1,27 @@
 
-template<T>
-string concattenate(T[] elements, null string seperator = "") {
-	string[] s = [];
-
-	foreach i, v in elements
-		s[i] = v:serialize();
-
-	return table.concat( s, seperator );
-}
-
 namespace Flux::Parsing;
+
+char[] letters = [];
+
+bool parseSemicolon(Lexer lexer);
+void expectSemicolon(Source source, null string location);
+
+bool tokenFollowsLast(Lexer lexer);
+bool tokenSameLineAsLast(Lexer lexer);
+
+string parseOperator(Lexer lexer);
+
+string parseName(Source source);
+string parseMethodName(Source source);
+string parseInstructionOperand(Lexer lexer);
+
+string resolveDefinitionName(Source source, string name);
+
+string intToName(int n);
+
+Block parseFunctionBody(Source source);
+
+string serializeExpression(Expression e);
 
 bool parseSemicolon(Lexer lexer)
 	= ((lexer:skip(Symbol, ";") || lexer:test(Symbol, ";", -1)) || lexer:test(Symbol, "}")) && true || false;
@@ -28,10 +40,29 @@ bool tokenSameLineAsLast(Lexer lexer)
 	where a = lexer:peek( -1 )
 	where b = lexer:get();
 
+string parseOperator(Lexer lexer) {
+	let symbol = lexer:test( Symbol );
+	if !symbol return;
+
+	let op = symbol.value;
+
+	if Flux::Parsing::operators[op]
+		lexer:next();
+	else return;
+
+	if op == ">" && Flux::Parsing::tokenFollowsLast( lexer ) && lexer:skip( Symbol, ">" )
+		op = ">>";
+
+	if (op == ">" || op == ">>") && Flux::Parsing::tokenFollowsLast(lexer) && lexer:skip( Symbol, "=" )
+		op = op == ">" && ">=" || ">>=";
+
+	return op;
+}
+
 string parseName(Source source) {
 	let name = source.lexer:skipValue(Identifier);
 
-	while name && source.lexer:skip(Symbol, "::")
+	if (name) while source.lexer:skip(Symbol, "::")
 		name = name `concat` "::" `concat` (source.lexer:skipValue(Identifier) || source:error "expected name after ':'");
 
 	return name;
@@ -41,36 +72,21 @@ string parseMethodName(Source source) {
 	let lexer = source.lexer;
 
 	if lexer:skip( Keyword, "operator" ) {
-		if lexer:test( Symbol, "(" ) {
+		if lexer:test( Symbol, "(" ) { // call operator: can't skip as `bool operator(int)` not `bool operator()(int)`
 			return "()";
 		}
-		else if lexer:skip( Symbol, "[" ) {
+		else if lexer:skip( Symbol, "[" ) { // index/setindex operator
 			if !lexer:skip( Symbol, "]" ) source:error "expected ']' after '['";
 			return lexer:skip( Symbol, "=" ) && "[]=" || "[]";
 		}
-		else {
-			let symbol = lexer:skip( Symbol );
-			let op = symbol && symbol.value;
-			
-			if op == ">" && Flux::Parsing::tokenFollowsLast(lexer) && lexer:skip( Symbol, ">" )
-				op = ">>";
-
-			if (op == ">" || op == ">>") && Flux::Parsing::tokenFollowsLast(lexer) && lexer:skip( Symbol, "=" )
-				op = op `concat` "=";
-
-			if Flux::Parsing::language::operators[op] {
-				return op;
-			}
-			else {
-				source:error( "expected operator after 'operator'", symbol && symbol.position );
-			}
-		}
+		else
+			return Flux::Parsing::parseOperator( lexer )
+				|| source:error( "expected operator after 'operator'", symbol && symbol.position );
 	}
-	else if source.context.isClass || source.context.isInterface // setters and getters might not be allowed in interfaces...
-		if lexer:skip( Keyword, "setter" )
-			return "setter " `concat` (lexer:skipValue( Identifier ) || source:error "expected name after 'setter'");
-		else if lexer:skip( Keyword, "getter" )
-			return "getter " `concat` (lexer:skipValue( Identifier ) || source:error "expected name after 'getter'");
+	else if lexer:skip( Keyword, "setter" )
+		return "setter " `concat` (lexer:skipValue( Identifier ) || source:error "expected name after 'setter'");
+	else if lexer:skip( Keyword, "getter" )
+		return "getter " `concat` (lexer:skipValue( Identifier ) || source:error "expected name after 'getter'");
 
 	return lexer:skipValue( Identifier );
 }
@@ -119,8 +135,8 @@ Block parseFunctionBody( Source source ) {
 			string name = lexer:skipValue( Identifier ) || source:error "expected name after 'where'";
 			Expression value;
 			Typename _type = Flux::Parsing::Type:autoType( position );
-			
-			if lexer:skip( Symbol, "=" ) 
+
+			if lexer:skip( Symbol, "=" )
 				value = Flux::Parsing::Expression:parse( source ) || source:error "expected expression after '='";
 			else
 				source:error "expected '='";

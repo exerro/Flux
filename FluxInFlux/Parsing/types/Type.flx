@@ -2,14 +2,17 @@
 namespace Flux::Parsing;
 
 string Type:serialize()
-	= self.name `concat` (#self.classes == 0 && "" || "<" `concat` (self.classes `concattenate` ", ") `concat` ">");
+	= self.name `concat`
+	  (#self.classes == 0 && "" || "<" `concat` (self.classes `concattenate` ", ") `concat` ">");
 
 ASTNode Type:parse( Source source ) {
 	let lexer = source.lexer;
 	let start = lexer:mark();
 	let position = lexer:get().position;
 
-	string name = Flux::Parsing::parseName( source ) || lexer:skipValue( Keyword, "auto" );
+	string name = Flux::Parsing::parseName( source )
+	           || lexer:skipValue( Keyword, "auto" );
+
 	Type[] classes = [];
 	Type type;
 
@@ -33,7 +36,7 @@ ASTNode Type:parse( Source source ) {
 			repeat
 				parameters[#parameters + 1] = Flux::Parsing::Type:parse( source );
 			while lexer:skip( Symbol, "," );
-			
+
 			if !lexer:skip( Symbol, ")" )
 				source:error "expected ')' after function type parameters";
 		}
@@ -58,7 +61,7 @@ ASTNode Type:parse( Source source ) {
 			}
 		}
 		while lexer:skip( Symbol, "," );
-		
+
 		if !lexer:skip( Symbol, "}" )
 			source:error "expected '}' after struct body";
 

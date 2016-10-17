@@ -1,0 +1,17 @@
+
+// utility functions
+
+template<T>
+string concattenate(T[] elements, null string seperator = "") {
+	string[] s = [];
+
+	foreach i, v in elements
+		s[i] = v:serialize();
+
+	return table.concat( s, seperator );
+}
+
+// string string__match(string str, string pat)
+//	= string["match"]( str, pat );
+
+let string__match = string["match"];

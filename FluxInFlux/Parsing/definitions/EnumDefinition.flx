@@ -6,4 +6,5 @@ namespace Flux::Parsing;
 // class for containing enum definition members/values
 class EnumDefinition extends Flux::Parsing::ASTNode {
 	// TODO
+	void parse() = null;
 }

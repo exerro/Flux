@@ -1,6 +1,19 @@
 
 namespace Flux::Parsing;
 
+class FunctionParameter extends ASTNode {
+	Type _type;
+	string name;
+
+	FunctionParameter(Type _type, string name, null Position position = _type.position) {
+		self._type = _type;
+		self.name = name;
+		self.position = position;
+	}
+
+	FunctionParameter parse(Source source, bool parameterNamesGiven, null FunctionParameter prev);
+}
+
 FunctionParameter FunctionParameter:parse(Source source, bool parameterNamesGiven, null FunctionParameter prev) {
 	let lexer = source.lexer;
 

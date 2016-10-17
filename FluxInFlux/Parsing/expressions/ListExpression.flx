@@ -1,6 +1,21 @@
 
 namespace Flux::Parsing;
 
+class ListExpression extends Flux::Parsing::PrimaryExpression {
+	Expression[] values;
+	Expression[] comprehensions;
+	string[] source_names;
+	Expression[] source_values;
+
+	ListExpression(Expression[] values, Expression[] comprehensions, string[] source_names, Expression[] source_values, Position position) {
+		self.values = values;
+		self.comprehensions = comprehensions;
+		self.source_names = source_names;
+		self.source_values = source_values;
+		self.position = position;
+	}
+}
+
 ASTNode ListExpression:parse(Source source)
 	let position = source.lexer:get().position;
 	then if source.lexer:skip(Symbol, "[") {

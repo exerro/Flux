@@ -1,5 +1,25 @@
 
+import FunctionCall;
+import MethodCall;
+import Index;
+import DotIndex;
+import Cast;
+import OperatorExtends;
+import OperatorImplements;
+import OperatorTypeof;
+
 namespace Flux::Parsing;
+
+class RightUnaryExpression extends Flux::Parsing::PrimaryExpression {
+	Expression value;
+	string op;
+
+	RightUnaryExpression(Expression value, string op, null Position position = value.position) {
+		self.value = value;
+		self.op = op;
+		self.position = position;
+	}
+}
 
 ASTNode RightUnaryExpression:parse( Source source, null Expression expr = Flux::Parsing::PrimaryExpression:parse( source ) ) {
 	let lexer = source.lexer;
@@ -26,7 +46,7 @@ ASTNode RightUnaryExpression:parse( Source source, null Expression expr = Flux::
 		if new_expr expr = new_expr;
 		else break;
 	}
-	
+
 	return expr;
 }
 

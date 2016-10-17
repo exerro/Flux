@@ -1,6 +1,15 @@
 
 namespace Flux::Parsing;
 
+class UsingStatement extends Flux::Parsing::Statement {
+	string name;
+
+	UsingStatement(string name, Position position) {
+		self.name = name;
+		self.position = position;
+	}
+}
+
 UsingStatement UsingStatement:parse(Source source) {
 	let lexer = source.lexer;
 	let position = lexer:get().position;
@@ -12,7 +21,7 @@ UsingStatement UsingStatement:parse(Source source) {
 		return false;
 
 	string name = Flux::Parsing::parseName( source ) || source:error "expected name after 'namespace'";
-	
+
 	if !lexer:skip( Symbol, ";" )
 		source:error "expected ';' after namespace name";
 

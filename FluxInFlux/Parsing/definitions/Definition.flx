@@ -62,11 +62,11 @@ bool Definition:parse(Source source) {
 	Lexer lexer = source.lexer;
 	int start = lexer:mark();
 	// whether we're parsing inside the body of a class/interface
-	bool is_parsing_body = source.context:get_flag "is_parsing_body";
+	bool is_parsing_body = source.file.context:get_flag "is_parsing_body";
 	// whether the function defines a foreign function (used to decide if 'void' is a valid body)
 	bool hasForeignFunction = false;
 	// the classname without namespace
-	string classname = is_parsing_body && source.context.class_name.name:gsub( ".+::", "" );
+	string classname = is_parsing_body && source.file.context.class_name.name:gsub( ".+::", "" );
 	// a list of all definition flags
 	string[] flags = [];
 	// the absolute start position
@@ -85,7 +85,7 @@ bool Definition:parse(Source source) {
 	}
 
 	// inherit public state from class context (public: private: can change it)
-	bool isPublic = source.context:get_flag "is_parsing_body" && source.context:get_flag "class_member_inherited_public_state" || DEFAULT_PUBLIC;
+	bool isPublic = source.file.context:get_flag "is_parsing_body" && source.file.context:get_flag "class_member_inherited_public_state" || DEFAULT_PUBLIC;
 
 	// modify public state if respective keyword found
 	if lexer:skip( Keyword, "public" )
@@ -170,7 +170,7 @@ bool Definition:parse(Source source) {
 		if _class {
 			// if a method is defined in the class, error
 			if isClassDef && lexer:test( Symbol, ":" )
-				if source.context:get_flag "is_class"
+				if source.file.context:get_flag "is_class"
 					source:error "unexpected ':' for method name in class member definition";
 				else
 					source:error "unexpected ':' for method name in interface member definition";
@@ -184,9 +184,9 @@ bool Definition:parse(Source source) {
 
 			// if we're adding a method to a template class
 			if !name:find "[^%w_:]" && lexer:test( Symbol, "<" ) {
-				if source.context:get_flag "is_class"
+				if source.file.context:get_flag "is_class"
 					source:error "unexpected '<' in class member definition";
-				if source.context:get_flag "is_interface"
+				if source.file.context:get_flag "is_interface"
 					source:error "unexpected '<' in interface member definition";
 
 				// jump back and re-read the name as a type
@@ -209,9 +209,9 @@ bool Definition:parse(Source source) {
 			bool parameterNamesGiven = true;
 			bool defaults_started = false;
 
-			if source.context:get_flag "is_class" && !isStatic {
-				parameters[1] = new Flux::Parsing::FunctionParameter(source.context.class_name, "self");
-				parameter_types[1] = source.context.class_name;
+			if source.file.context:get_flag "is_class" && !isStatic {
+				parameters[1] = new Flux::Parsing::FunctionParameter(source.file.context.class_name, "self");
+				parameter_types[1] = source.file.context.class_name;
 			}
 
 			if (name == classname || _class && name == _class.name) && _type.name != "void"
@@ -226,10 +226,10 @@ bool Definition:parse(Source source) {
 				catch ParserException e {}
 
 				lexer:jump( _mark );
-				int n = source.context:get_flag "is_parsing_body" && 1 || 0;
+				int n = source.file.context:get_flag "is_parsing_body" && 1 || 0;
 				Type last_type;
 
-				if !parameterNamesGiven && source.context:get_flag "is_parsing_body" && !isStatic
+				if !parameterNamesGiven && source.file.context:get_flag "is_parsing_body" && !isStatic
 					parameters[1].name = "a";
 
 				repeat { // parse parameters
@@ -281,9 +281,9 @@ bool Definition:parse(Source source) {
 			let definition = new Flux::Parsing::Definition( function_type, _class, def_name, value, isConst, isPublic, isStatic, flags, start );
 
 			if _template
-				source:push( new Flux::Parsing::TemplateDefinition( definition, _template, position ) );
+				source.file:push( new Flux::Parsing::TemplateDefinition( definition, _template, position ) );
 			else
-				source:push( definition );
+				source.file:push( definition );
 
 			// create the overloads for the default parameters, each one calling the 'parent' function
 			if defaults_started {
@@ -316,9 +316,9 @@ bool Definition:parse(Source source) {
 					let definition = new Flux::Parsing::Definition( function_type, _class, def_name, value, true, isPublic, isStatic, [], start );
 
 					if _template
-						source:push( new Flux::Parsing::TemplateDefinition( definition, _template, position ) ); // push the overload
+						source.file:push( new Flux::Parsing::TemplateDefinition( definition, _template, position ) ); // push the overload
 					else
-						source:push( definition ); // push the overload
+						source.file:push( definition ); // push the overload
 				}
 			}
 
@@ -338,7 +338,7 @@ bool Definition:parse(Source source) {
 			source:error "expected '(' for function parameters after void return type";
 		else {
 			value = lexer:skip(Symbol, "=") && (Flux::Parsing::Expression:parse( source ) || source:error "expected definition after '='");
-			source:push( new Flux::Parsing::Definition( _type, null, Flux::Parsing::resolveDefinitionName( source, name ), value, isConst, isPublic, isStatic, flags, start ) );
+			source.file:push( new Flux::Parsing::Definition( _type, null, Flux::Parsing::resolveDefinitionName( source, name ), value, isConst, isPublic, isStatic, flags, start ) );
 		}
 
 		name = null;

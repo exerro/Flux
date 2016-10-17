@@ -46,17 +46,17 @@ bool ClassDefinition:parse(Source source) {
 		_template = new Flux::Parsing::TemplateList([], []);
 
 	// probably remove this? why limit classes to the main body of a file?
-	if !source.context:get_flag "is_root_level"
+	if !source.file.context:get_flag "is_root_level"
 		source:error "invalid location to define class";
 
-	source:pushClassnameContext();
+	source.file:push_context():specialise_\1();
 
 	Type name = Flux::Parsing::Type:parse( source );
 	Type _extends;
 	Type[] container;
 	string[] _implements = [];
 
-	source:popContext();
+	source.file:pop_context();
 
 	name.name = Flux::Parsing::resolveDefinitionName( source, name.name );
 
@@ -71,7 +71,7 @@ bool ClassDefinition:parse(Source source) {
 			source:error "expected class body: cannot declare class declaration abstract";
 
 		lexer:next();
-		source:push( new Flux::Parsing::ClassDeclaration( name, _template, position ) );
+		source.file:push( new Flux::Parsing::ClassDeclaration( name, _template, position ) );
 
 		return true;
 	}
@@ -82,7 +82,7 @@ bool ClassDefinition:parse(Source source) {
 
 		Flux::Parsing::expectSemicolon( source, "end of class type" );
 
-		source:push( new Flux::Parsing::AliasClassDefinition( name, _template, [type], position ) );
+		source.file:push( new Flux::Parsing::AliasClassDefinition( name, _template, [type], position ) );
 
 		return true;
 	}
@@ -98,7 +98,7 @@ bool ClassDefinition:parse(Source source) {
 		if !lexer:skip( Symbol, "]" )
 			source:error "expected ']' after type list";
 
-		source:push( new Flux::Parsing::AliasClassDefinition( name, _template, types, position ) );
+		source.file:push( new Flux::Parsing::AliasClassDefinition( name, _template, types, position ) );
 
 		return true;
 	}
@@ -112,9 +112,9 @@ bool ClassDefinition:parse(Source source) {
 		if !lexer:skip( Symbol, ")" ) source:error "expected ')' to close container";
 	}
 
-	source:pushClassnameContext();
+	source.file:push_context():specialise_\1();
 	_extends = lexer:skip( Keyword, "extends" ) && Flux::Parsing::Type:parse( source );
-	source:popContext();
+	source.file:pop_context();
 
 	if lexer:skip( Keyword, "implements" )
 		repeat {
@@ -126,7 +126,7 @@ bool ClassDefinition:parse(Source source) {
 	if !lexer:skip( Symbol, "{" )
 		source:error "expected '{' for class body";
 
-	source:pushClassContext(name);
+	source.file:push_context():specialise_\1(name);
 	source:pushBlock();
 
 	while !lexer:skip( Symbol, "}" ) {
@@ -134,7 +134,7 @@ bool ClassDefinition:parse(Source source) {
 
 		if (lexer:test( Keyword, "public" ) || lexer:test( Keyword, "private" ))
 			&& lexer:test( Symbol, ":", 1 ) {
-			source.context:setPublic(
+			source.file.context:setPublic(
 				   lexer:skip( Keyword, "public" ) && true
 				|| lexer:skip( Keyword, "private" ) && false );
 			lexer:next();
@@ -143,13 +143,13 @@ bool ClassDefinition:parse(Source source) {
 			Flux::Parsing::Definition:parse( source ) || source:error "expected definition in class body";
 	}
 
-	source:popContext();
+	source.file:pop_context();
 
 	let definitions = source:popBlock();
 
 	ClassMember[] members = [];
 
-	source:push( new Flux::Parsing::ClassDefinition(
+	source.file:push( new Flux::Parsing::ClassDefinition(
 		name, container, _extends, _implements, _template, members, isConst, isFinal, isAbstract, flags, position
 	) );
 
@@ -178,7 +178,7 @@ bool ClassDefinition:parse(Source source) {
 		raw_def._class = name;
 
 		if raw_def.value
-			source:push( definition );
+			source.file:push( definition );
 	}
 
 	return true;

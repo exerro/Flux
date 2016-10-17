@@ -21,7 +21,7 @@ class File {
 	Context[] contexts;
 	Block[] blocks;
 
-	void File(string name, string path) {
+	File(string name, string path) {
 		self.name = name;
 		self.path = path;
 		self.imports = [];

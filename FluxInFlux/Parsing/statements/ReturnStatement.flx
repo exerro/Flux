@@ -16,7 +16,7 @@ bool ReturnStatement:parse(Source source) {
 	let lexer = source.lexer;
 	let position = lexer:get().position;
 
-	if !source.context:get_flag "is_function" && lexer:test( Keyword, "return" )
+	if !source.file.context:get_flag "is_function" && lexer:test( Keyword, "return" )
 		source:error "cannot return from outside function";
 
 	if !lexer:skip( Keyword, "return" )
@@ -26,7 +26,7 @@ bool ReturnStatement:parse(Source source) {
 
 	Flux::Parsing::expectSemicolon( source, "return statement" );
 
-	source:push( new Flux::Parsing::ReturnStatement( expr, position ) );
+	source.file:push( new Flux::Parsing::ReturnStatement( expr, position ) );
 
 	return true;
 }

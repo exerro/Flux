@@ -12,11 +12,11 @@
 	<^ can come later>
 */
 
-namespace Flux::Parsing;
+import Block;
+import Context;
+import types.Type;
 
-template<T>
-const void copyt(T[] t)
-	= throw new IdioticError "Welp, you haven't made copyt() elsewhere, congrats";
+namespace Flux::Parsing;
 
 class Context {
 	bool{string} flags;
@@ -28,7 +28,7 @@ class Context {
 		self.flags = [];
 
 		if parent foreach k, v in parent.flags
-			self.flags[k] = copyt( v );
+			self.flags[k] = v;
 	}
 
 	string resolve_definition_name(string name);

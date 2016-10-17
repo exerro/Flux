@@ -25,9 +25,9 @@ bool TryStatement:parse(Source source) {
 	if !lexer:skip( Keyword, "try" )
 		return false;
 
-	source:pushContext();
+	source.file:push_context();
 	Block block = Flux::Parsing::Block:parse( source );
-	source:popContext();
+	source.file:pop_context();
 	Type[] catch_types = [];
 	string[] catch_names = [];
 	Block[] catch_blocks = [];
@@ -36,9 +36,9 @@ bool TryStatement:parse(Source source) {
 	while lexer:skip( Keyword, "catch" ) {
 		let classname = Flux::Parsing::Type:parse( source );
 		let name = lexer:skipValue "Identifier" || source:error "expected exception name after type";
-		source:pushContext();
+		source.file:push_context();
 		let block = Flux::Parsing::Block:parse( source );
-		source:popContext();
+		source.file:pop_context();
 
 		catch_types[#catch_types + 1] = classname;
 		catch_names[#catch_names + 1] = name;
@@ -49,12 +49,12 @@ bool TryStatement:parse(Source source) {
 		source:error "expected at least one catch after try";
 
 	if lexer:skip( Keyword, "default" ) {
-		source:pushContext();
+		source.file:push_context();
 		_default = Flux::Parsing::Block:parse( source );
-		source:popContext();
+		source.file:pop_context();
 	}
 
-	source:push( new Flux::Parsing::TryStatement(block, catch_types, catch_names, catch_blocks, _default, position) );
+	source.file:push( new Flux::Parsing::TryStatement(block, catch_types, catch_names, catch_blocks, _default, position) );
 
 	return true;
 }

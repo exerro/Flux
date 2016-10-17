@@ -28,12 +28,12 @@ bool IfStatement:parse(Source source) {
 		return false;
 
 	let condition = Flux::Parsing::Expression:parse( source ) || source:error "expected condition after 'if'";
-	source:pushContext();
+	source.file:push_context();
 	let block = Flux::Parsing::Block:parse( source );
-	source:popContext();
+	source.file:pop_context();
 	let elseblock = lexer:skip( Keyword, "else" ) && Flux::Parsing::Block:parse( source );
 
-	source:push( new Flux::Parsing::IfStatement(condition, block, elseblock, position) );
+	source.file:push( new Flux::Parsing::IfStatement(condition, block, elseblock, position) );
 
 	return true;
 }

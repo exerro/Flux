@@ -33,9 +33,9 @@ bool ForLoop:parse(Source source) {
 	if openbracket && !lexer:skip( Symbol, ")" )
 		source:error "expected ')'";
 
-	source:pushLoopContext();
+	source.file:push_context():specialise_loop();
 	let block = Flux::Parsing::Block:parse( source );
-	source:popContext();
+	source.file:pop_context();
 
 	block[#block + 1] = increment;
 
@@ -44,7 +44,7 @@ bool ForLoop:parse(Source source) {
 		new Flux::Parsing::WhileLoop( condition, block )
 	], position );
 
-	source:push( Flux::Parsing::DoStatement( doblock, position ) );
+	source.file:push( Flux::Parsing::DoStatement( doblock, position ) );
 
 	return true;
 }

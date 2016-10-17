@@ -5,7 +5,7 @@ ASTNode Block:parse(Source source) {
 	let lexer = source.lexer;
 	let position = lexer:get().position;
 
-	source:pushBlock();
+	source.file:push_block( position, false );
 
 	if lexer:skip( Symbol, "{" )
 		while !lexer:skip( Symbol, "}" ) {
@@ -17,9 +17,7 @@ ASTNode Block:parse(Source source) {
 	else
 		Flux::Parsing::Statement:parse(source);
 
-	let statements = source:popBlock();
-
-	return new Flux::Parsing::Block( statements, position );
+	return source.file:pop_block();
 }
 
 void Block:push(ASTNode node) {

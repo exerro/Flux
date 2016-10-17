@@ -25,7 +25,7 @@ ASTNode Type:parse( Source source ) {
 
 		type = new Flux::Parsing::Type( name, classes, position );
 	}
-	else if !source.context.isClassname && lexer:skip( Keyword, "function" ) {
+	else if !source.file.context.isClassname && lexer:skip( Keyword, "function" ) {
 		Type returns = Flux::Parsing::Type:parse( source );
 		Type[] parameters = [];
 
@@ -43,7 +43,7 @@ ASTNode Type:parse( Source source ) {
 
 		type = new Flux::Parsing::Type:functionType( position, returns, parameters );
 	}
-	else if !source.context.isClassname && lexer:skip( Keyword, "struct" ) {
+	else if !source.file.context.isClassname && lexer:skip( Keyword, "struct" ) {
 		if !lexer:skip( Symbol, "{" )
 			source:error "expected '{' for struct body";
 
@@ -76,11 +76,11 @@ ASTNode Type:parse( Source source ) {
 	while true {
 		let pos = lexer:get().position;
 
-		if !source.context.isClassname && lexer:skip( Symbol, "[" ) {
+		if !source.file.context.isClassname && lexer:skip( Symbol, "[" ) {
 			if !lexer:skip( Symbol, "]" ) source:error "expected ']' to close list type modifier";
 			type = Flux::Parsing::Type:listType( pos, type );
 		}
-		else if !source.context.isClassname && lexer:skip( Symbol, "{" ) {
+		else if !source.file.context.isClassname && lexer:skip( Symbol, "{" ) {
 			if lexer:skip( Symbol, "}" )
 				type = Flux::Parsing::Type:tableType( pos, type );
 			else {
@@ -93,7 +93,7 @@ ASTNode Type:parse( Source source ) {
 		else if lexer:skip( Symbol, "&" ) {
 			type = Flux::Parsing::Type:referenceType( pos, type );
 		}
-		else if !source.context.isClassname && lexer:skip( Symbol, "?" ) {
+		else if !source.file.context.isClassname && lexer:skip( Symbol, "?" ) {
 			type = Flux::Parsing::Type:nullableType( pos, type );
 		}
 		else break;

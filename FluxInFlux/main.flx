@@ -2,14 +2,13 @@
 import flux;
 
 void main() {
-	new string[] files( ["main"] );
-	new Flux::Parsing::Source source("./Flux/tests");
+	string[] files = [ "main" ];
+	new Flux::Parsing::Source source( "./Flux/tests" );
 
+	if !source:import_project( files )
+		error( "Failed to find '" `concat` files `concat` "' file in " `concat` source.environment["PATH"], 0 );
 
-	if !source:import_project( ["main"] )
-		error( "Failed to find 'main' file in " `concat` source.environment["PATH"], 0 );
-
-	foreach file in source.files_included {
+	foreach k, file in source.files_included {
 		print( "@" `concat` file.name );
 		foreach statement in file.statements {
 			print( statement:serialize() `concat` "\n" );

@@ -21,9 +21,9 @@ bool RepeatLoop:parse(Source source) {
 	if !lexer:skip( Keyword, "repeat" )
 		return false;
 
-	source:pushLoopContext();
+	source.file:push_context():specialise_loop();
 	let block = Flux::Parsing::Block:parse( source );
-	source:popContext();
+	source.file:pop_context();
 
 	Expression condition;
 	bool inverted;
@@ -45,7 +45,7 @@ bool RepeatLoop:parse(Source source) {
 		condition = new Flux::Parsing::ConstantExpression( Flux::Parsing::ConstantType.Boolean, "false" );
 		then inverted = false;
 
-	source:push( new Flux::Parsing::RepeatLoop(condition, block, inverted, position) );
+	source.file:push( new Flux::Parsing::RepeatLoop(condition, block, inverted, position) );
 
 	return true;
 }

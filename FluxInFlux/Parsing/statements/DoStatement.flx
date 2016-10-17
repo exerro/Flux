@@ -26,11 +26,11 @@ bool DoStatement:parse(Source source) {
 	if !lexer:skip( Keyword, "do" )
 		return false;
 
-	source:pushContext();
+	source.file:push_context();
 	let block = Flux::Parsing::Block:parse( source );
-	source:popContext();
+	source.file:pop_context();
 
-	source:push( Flux::Parsing::DoStatement(block, position) );
+	source.file:push( Flux::Parsing::DoStatement(block, position) );
 
 	return true;
 }

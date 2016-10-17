@@ -86,7 +86,7 @@ bool LetStatement:parse(Source source) {
 			);
 		}
 
-		source:push( new Flux::Parsing::Definition(
+		source.file:push( new Flux::Parsing::Definition(
 			Flux::Parsing::Type:autoType( position ),
 			null,
 			Flux::Parsing::resolveDefinitionName( source, name1 ),

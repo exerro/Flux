@@ -38,22 +38,22 @@ bool SwitchStatement:parse(Source source) {
 			this_cases[#this_cases + 1] = Flux::Parsing::Expression:parse( source ) || source:error "expected case expression";
 		while lexer:skip( Symbol, "," );
 
-		source:pushContext();
+		source.file:push_context();
 		cases[#cases + 1] = this_cases;
 		blocks[#blocks + 1] = Flux::Parsing::Block:parse( source );
-		source:popContext();
+		source.file:pop_context();
 	}
 
 	if #cases == 0
 		source:error "expected at least one case to switch";
 
 	if lexer:skip( Keyword, "default" ) {
-		source:pushContext();
+		source.file:push_context();
 		_default = Flux::Parsing::Block:parse( source );
-		source:popContext();
+		source.file:pop_context();
 	}
 
-	source:push( new Flux::Parsing::SwitchStatement(expr, cases, blocks, _default, position) );
+	source.file:push( new Flux::Parsing::SwitchStatement(expr, cases, blocks, _default, position) );
 
 	return true;
 }

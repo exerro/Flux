@@ -20,11 +20,11 @@ bool WhileLoop:parse(Source source) {
 		return false;
 
 	let condition = Flux::Parsing::Expression:parse( source ) || source:error "expected condition after 'while'";
-	source:pushLoopContext();
+	source.file:push_context():specialise_\1();
 	let block = Flux::Parsing::Block:parse( source );
-	source:popContext();
+	source.file:pop_context();
 
-	source:push( new Flux::Parsing::WhileLoop(condition, block, position) );
+	source.file:push( new Flux::Parsing::WhileLoop(condition, block, position) );
 
 	return true;
 }

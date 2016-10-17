@@ -11,12 +11,12 @@ bool BreakStatement:parse(Source source) {
 	let lexer = source.lexer;
 	let position = lexer:get().position;
 
-	if !source.context:get_flag "is_loop" && lexer:test( Keyword, "break" )
+	if !source.file.context:get_flag "is_loop" && lexer:test( Keyword, "break" )
 		source:error "no loop to break";
 
 	if lexer:skip( Keyword, "break" ) {
 		Flux::Parsing::expectSemicolon( source, "break statement" );
-		source:push( new Flux::Parsing::BreakStatement( position ) );
+		source.file:push( new Flux::Parsing::BreakStatement( position ) );
 
 		return true;
 	}

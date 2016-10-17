@@ -116,12 +116,13 @@ string intToName( int n ) {
 	return s;
 }
 
-Block parseFunctionBody( Source source ) {
+Block parseFunctionBody(Source source, bool is_vararg) {
 	let lexer = source.lexer;
 	let position = lexer:get().position;
 
 	Block block;
-	source:pushFunctionContext();
+
+	source.file:push_context():specialise_function( is_vararg );
 
 	if lexer:skip( Symbol, "=" ) {
 		let expr = Flux::Parsing::Expression:parse( source ) || source:error "expected expression after '='";
@@ -151,7 +152,7 @@ Block parseFunctionBody( Source source ) {
 	else
 		block = Flux::Parsing::Block:parse( source );
 
-	source:popContext();
+	source.file:pop_context();
 
 	return block;
 }

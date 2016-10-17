@@ -55,7 +55,7 @@ void Statement:parse(Source source) {
 
 	if expr {
 		Flux::Parsing::expectSemicolon( source, "end of expression" );
-		source:push( expr );
+		source.file:push( expr );
 	}
 	else
 		source:error "unexpected token: expected statement or expression";

@@ -24,16 +24,13 @@ bool ImportStatement:parse(Source source) {
 
 	Flux::Parsing::expectSemicolon(source, "import statement");
 
-	let filename = source:importFile( name, position );
-
-	if filename == "" {
+	if !source:import_file( name, position )
 		source:error( "failed to find file '" `concat` name `concat` "'", position );
-	}
 
 	// add this at some point+
 	// it'll allow per-file dependencies rather than per-project
 	// i.e. when looking up a name in this file, it'll look in all its imports
-	// source:push( new Flux::Parsing::ImportStatement( filename ) );
+	// source.file:push( new Flux::Parsing::ImportStatement( filename ) );
 
 	return true;
 }

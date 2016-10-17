@@ -9,7 +9,6 @@ const string FLUX_INCLUDE_PATH = "Flux;Flux/std";
 class Source {
 	string{string} environment;
 	string[][] current_include_path;
-	string[] current_include_path_root;
 	string[] import_queue;
 	string[] import_queue_names;
 	File{string} files_included;
@@ -23,7 +22,6 @@ class Source {
 			PATH = Flux::Parsing::FLUX_INCLUDE_PATH `concat` ";" `concat` include_path;
 		};
 		self.current_include_path = [];
-		self.current_include_path_root = [];
 		self.import_queue = [];
 		self.import_queue_names = [];
 		self.files_included = {};

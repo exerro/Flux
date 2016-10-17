@@ -14,7 +14,7 @@ UsingStatement UsingStatement:parse(Source source) {
 	let lexer = source.lexer;
 	let position = lexer:get().position;
 
-	if !source.context.isNamespace && lexer:skip( Keyword, "using" )
+	if !source.file.context.isNamespace && lexer:skip( Keyword, "using" )
 		source:error "invalid location for 'using'";
 
 	if !lexer:skip( Keyword, "using" )
@@ -25,7 +25,7 @@ UsingStatement UsingStatement:parse(Source source) {
 	if !lexer:skip( Symbol, ";" )
 		source:error "expected ';' after namespace name";
 
-	source:push( new Flux::Parsing::UsingStatement( name, position ) );
+	source.file:push( new Flux::Parsing::UsingStatement( name, position ) );
 
 	return true;
 }

@@ -18,28 +18,30 @@ Context Source:popContext() {
 }
 
 Context Source:pushRootContext()
-	= self:pushContext():specialiseRoot();
+	= self:pushContext():specialise_root();
 
 Context Source:pushNamespaceContext(string name)
-	= self:pushContext():specialiseNamespace(name);
+	= self:pushContext():specialise_namespace(name);
 
 Context Source:pushClassContext(string name)
-	= self:pushContext():specialiseClass(name);
+	= self:pushContext():specialise_class(name);
 
 Context Source:pushClassnameContext()
-	= self:pushContext():specialiseClassname();
+	= self:pushContext():specialise_classname();
 
 Context Source:pushInterfaceContext(string name)
-	= self:pushContext():specialiseInterface(name);
+	= self:pushContext():specialise_interface(name);
 
 Context Source:pushFunctionContext(bool isVararg)
-	= self:pushContext():specialiseFunction(isVararg);
+	= self:pushContext():specialise_function(isVararg);
 
 Context Source:pushLoopContext()
-	= self:pushContext():specialiseLoop();
+	= self:pushContext():specialise_loop();
 
 Block Source:pushBlock() {
 	ASTNode[] block = [];
+
+	self:pushContext():specialise_block();
 
 	self.blocks[#self.blocks + 1] = block;
 	self.block = block;
@@ -154,9 +156,7 @@ string Source:importFile(string filename, Position position) {
 void Source:parseFileContent(string content, null string source = "string") {
 	let old_lexer = self.lexer;
 	let lexer = new Flux::Parsing::Lexer(content, source);
-	let context = new Flux::Parsing::Context(self);
-
-	context.isNamespace = true;
+	let context = new Flux::Parsing::Context():specialise_root();
 
 	self.lexer = lexer;
 	self.context = context;

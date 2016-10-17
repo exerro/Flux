@@ -11,7 +11,7 @@ bool ContinueStatement:parse(Source source) {
 	let lexer = source.lexer;
 	let position = lexer:get().position;
 
-	if !source.context.isLoop && lexer:test( Keyword, "continue" )
+	if !source.context:get_flag "is_loop" && lexer:test( Keyword, "continue" )
 		source:error "no loop to continue";
 
 	if lexer:skip( Keyword, "continue" ) {

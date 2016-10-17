@@ -11,7 +11,7 @@ bool BreakStatement:parse(Source source) {
 	let lexer = source.lexer;
 	let position = lexer:get().position;
 
-	if !source.context.isLoop && lexer:test( Keyword, "break" )
+	if !source.context:get_flag "is_loop" && lexer:test( Keyword, "break" )
 		source:error "no loop to break";
 
 	if lexer:skip( Keyword, "break" ) {

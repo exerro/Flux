@@ -105,9 +105,6 @@ string parseInstructionOperand( Lexer lexer ) {
 	}
 }
 
-string resolveDefinitionName( Source source, string name )
-	= source.context.isNamespace && source.context.namespace_name && source.context.namespace_name `concat` "::" `concat` name || name;
-
 string intToName( int n ) {
 	string s = Flux::Parsing::letters[n % #Flux::Parsing::letters];
 

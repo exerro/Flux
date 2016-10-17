@@ -46,8 +46,8 @@ bool ClassDefinition:parse(Source source) {
 		_template = new Flux::Parsing::TemplateList([], []);
 
 	// probably remove this? why limit classes to the main body of a file?
-	if !source.context.isNamespace
-		source:error "invalid section to define class";
+	if !source.context:get_flag "is_root_level"
+		source:error "invalid location to define class";
 
 	source:pushClassnameContext();
 

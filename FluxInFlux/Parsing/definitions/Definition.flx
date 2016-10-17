@@ -62,11 +62,11 @@ bool Definition:parse(Source source) {
 	Lexer lexer = source.lexer;
 	int start = lexer:mark();
 	// whether we're parsing inside the body of a class/interface
-	bool isClassDef = source.context.isInterface || source.context.isClass;
+	bool is_parsing_body = source.context:get_flag "is_parsing_body";
 	// whether the function defines a foreign function (used to decide if 'void' is a valid body)
 	bool hasForeignFunction = false;
 	// the classname without namespace
-	string classname = isClassDef && source.context.class_name.name:gsub( ".+::", "" );
+	string classname = is_parsing_body && source.context.class_name.name:gsub( ".+::", "" );
 	// a list of all definition flags
 	string[] flags = [];
 	// the absolute start position
@@ -85,7 +85,7 @@ bool Definition:parse(Source source) {
 	}
 
 	// inherit public state from class context (public: private: can change it)
-	bool isPublic = (source.context.isInterface || source.context.isClass) && source.context.isPublic || DEFAULT_PUBLIC;
+	bool isPublic = source.context:get_flag "is_parsing_body" && source.context:get_flag "class_member_inherited_public_state" || DEFAULT_PUBLIC;
 
 	// modify public state if respective keyword found
 	if lexer:skip( Keyword, "public" )
@@ -170,7 +170,7 @@ bool Definition:parse(Source source) {
 		if _class {
 			// if a method is defined in the class, error
 			if isClassDef && lexer:test( Symbol, ":" )
-				if source.context.isClass
+				if source.context:get_flag "is_class"
 					source:error "unexpected ':' for method name in class member definition";
 				else
 					source:error "unexpected ':' for method name in interface member definition";
@@ -184,9 +184,9 @@ bool Definition:parse(Source source) {
 
 			// if we're adding a method to a template class
 			if !name:find "[^%w_:]" && lexer:test( Symbol, "<" ) {
-				if source.context.isClass
+				if source.context:get_flag "is_class"
 					source:error "unexpected '<' in class member definition";
-				if source.context.isInterface
+				if source.context:get_flag "is_interface"
 					source:error "unexpected '<' in interface member definition";
 
 				// jump back and re-read the name as a type
@@ -209,7 +209,7 @@ bool Definition:parse(Source source) {
 			bool parameterNamesGiven = true;
 			bool defaults_started = false;
 
-			if source.context.isClass && !isStatic {
+			if source.context:get_flag "is_class" && !isStatic {
 				parameters[1] = new Flux::Parsing::FunctionParameter(source.context.class_name, "self");
 				parameter_types[1] = source.context.class_name;
 			}
@@ -226,10 +226,10 @@ bool Definition:parse(Source source) {
 				catch ParserException e {}
 
 				lexer:jump( _mark );
-				int n = source.context.isClass && 1 || 0;
+				int n = source.context:get_flag "is_parsing_body" && 1 || 0;
 				Type last_type;
 
-				if !parameterNamesGiven && source.context.isClass && !isStatic
+				if !parameterNamesGiven && source.context:get_flag "is_parsing_body" && !isStatic
 					parameters[1].name = "a";
 
 				repeat { // parse parameters

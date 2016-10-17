@@ -1,50 +1,48 @@
 
+/* flags include
+
+	is_root_level - are class/interface/enum definitions valid
+	is_function is_vararg_function - is return/... valid
+	is_loop - is break/continue valid
+	is_parsing_classname - are auto/struct etc valid for typenames
+	is_class is_interface - differentiate class/interface bodies
+	is_parsing_body - should definitions be treated as body definitions
+	class_member_inherited_public_state - should a definition be public/private by default
+	<probs some specific expression ones here, like using ',' like in C++>
+	<^ can come later>
+*/
+
 namespace Flux::Parsing;
 
-class Context {
-	bool isLoop = false,
-	     isFunction = false,
-	     isClass = false,
-	     isInterface = false,
-	     isNamespace = false,
-	     isVarargFunction = false,
-		 isPublic = true,
-		 isRoot = false,
-		 isClassname = false;
+template<T>
+const void copyt(T[] t)
+	= throw new IdioticError "Welp, you haven't made copyt() elsewhere, congrats";
 
-	bool[]{string} flag_stacks;
+class Context {
+	bool{string} flags;
 
 	Type class_name;
-	string namespace_name;
+	string namespace_name = "";
 
-	Context(null Context parent)
-		if parent {
-			self.isLoop = parent.isLoop;
-			self.isFunction = parent.isFunction;
-			self.isClass = parent.isClass;
-			self.isInterface = parent.isInterface;
-			self.isNamespace = false;
-			self.isRoot = false;
-			self.isClassname = false;
-			self.class_name = parent.class_name;
-			self.namespace_name = parent.namespace_name;
-			self.isPublic = parent.isPublic;
+	Context(null Context parent) {
+		self.flags = [];
+
+		if parent foreach k, v in parent.flags
+			self.flags[k] = copyt( v );
 	}
 
-	string resolveDefinitionName(string name);
+	string resolve_definition_name(string name);
 
-	void setPublic(bool isPublic);
+	Context specialise_root();
+	Context specialise_classname();
+	Context specialise_namespace(string name);
+	Context specialise_class(Type name);
+	Context specialise_interface(Type name);
+	Context specialise_function(bool isVararg);
+	Context specialise_loop();
+	Context specialise_block();
 
-	Context specialiseRoot();
-	Context specialiseClassname();
-	Context specialiseNamespace(string name);
-	Context specialiseClass(Type name);
-	Context specialiseInterface(Type name);
-	Context specialiseFunction(bool isVararg);
-	Context specialiseLoop();
-
-	void push_flag(string f, bool v);
-	void set_flag(string f, bool v);
-	void pop_flag(string f);
+	void set_flag(string f, null bool v = true);
+	void unset_flag(string f);
 	bool get_flag(string f);
 }

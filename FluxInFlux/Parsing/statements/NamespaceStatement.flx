@@ -16,7 +16,7 @@ bool NamespaceStatement:parse(Source source) {
 	let lexer = source.lexer;
 	let position = lexer:get().position;
 
-	if lexer:test( Keyword, "namespace" ) && !source.context.isNamespace
+	if lexer:test( Keyword, "namespace" ) && !source.context:get_flag "is_root_level"
 		source:error "invalid location for 'namespace'";
 
 	if !lexer:skip( Keyword, "namespace" )

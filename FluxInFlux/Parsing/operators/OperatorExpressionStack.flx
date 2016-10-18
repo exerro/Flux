@@ -21,10 +21,9 @@ void OperatorExpressionStack:push_operator(Operator::Binary op, Position p) {
 	Operator::Binary top = self.operators[#self.operators];
 
 	while top {
-		if top.precedence > op.precedence
-		|| top.precedence == op.precedence
-		&& ( top.symbol != op.symbol
-		||   top.left_assoc ) {
+		if ( top.precedence  > op.precedence )
+		|| ( top.precedence == op.precedence )
+		&& ( top.symbol     != op.symbol || top.left_assoc ) {
 			self:collapse();
 		}
 		else break;

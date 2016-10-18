@@ -1,34 +1,36 @@
 
+import Operators;
+import expressions.BacktickExpression;
+import imports.Source;
+
 namespace Flux::Parsing;
 
+// used for parsing binary operator expressions
 class OperatorExpressionStack {
-	private string[] operators;
-	private OperatorMode[] operator_modes;
-	private int[] operator_precedences;
+	private Operator::Binary[] operators;
 	private Position[] operator_positions;
 	private ASTNode[] operands;
-	private bool last_was_expression;
 
-	OperatorExpression() {
+	OperatorExpressionStack() {
 		self.operators = [];
-		self.operator_types = [];
+		self.operator_precedences = [];
 		self.operator_positions = [];
+		self.operator_left_assoc = [];
 		self.operands = [];
 	}
 
-	private void popOperator();
-	private Expression popOperand();
+	private Operator::Binary pop_operator();
+	private Expression pop_operand();
 
-	bool wasLastBinaryOperator();
-	bool wasLastLeftUnaryOperator();
-	bool wasLastRightUnaryOperator();
-	bool wasLastExpression();
+	private void push_operand(ASTNode e);
+	private void push_operator(Operator::Binary op, Position p);
 
-	void pushOperand(ASTNode e);
-	void pushBinaryOperator(string e, int precedence, Position p);
-	void pushLeftUnaryOperator(string e, int precedence, Position p);
-	void pushRightUnaryOperator(string e, int precedence, Position p);
+	private bool get_term(Source source);
 
-	void collapse();
+	private void collapse();
+
+	bool get_first_term(Source source);
+	bool get_next_term(Source source);
+
 	ASTNode result();
 }

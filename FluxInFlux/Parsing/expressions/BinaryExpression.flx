@@ -1,4 +1,6 @@
 
+import operators.OperatorExpressionStack;
+
 namespace Flux::Parsing;
 
 bool isAssignmentOperator( string op )
@@ -16,69 +18,14 @@ class BinaryExpression extends RightUnaryExpression {
 	}
 }
 
-ASTNode BinaryExpression:parse( Source source ) {
-	let lexer = source.lexer;
-	void collapse();
+ASTNode BinaryExpression:parse(Source source) {
+	new Flux::Parsing::OperatorExpressionStack stack();
 
-	Expression[] operand_stack = [];
-	Position[] operator_positions = [];
-	string[] operator_stack = [];
-	int[] operator_precedences = [];
+	if !stack:get_first_term( source ) return;
 
-	operand_stack[1] = Flux::Parsing::BacktickExpression:parse(source);
+	while stack:get_next_term( source ) {}
 
-	if !operand_stack[1] return;
-
-	void collapse() {
-		let lvalue = operand_stack[#operand_stack - 1],
-		    rvalue = operand_stack[#operand_stack],
-			op = operator_stack[#operator_stack],
-			pos = operator_positions[#operator_positions];
-
-		operand_stack[#operand_stack - 1] = new Flux::Parsing::BinaryExpression( lvalue, rvalue, op, pos );
-		operand_stack[#operand_stack] = null;
-		operator_stack[#operator_stack] = null;
-		operator_positions[#operator_positions] = null;
-		operator_precedences[#operator_precedences] = null;
-	}
-
-	while true {
-		let op_token = lexer:test( Symbol );
-		if op_token && Flux::Parsing::language::binary_operators[op_token.value] lexer:next(); else break;
-
-		let op = op_token.value;
-		let ol = op_token.position.line;
-		let oc = op_token.position.character;
-
-		if op == ">" && lexer:get().position.line == ol && lexer:get().position.character == oc + 1 && lexer:skip( Symbol, ">" ) {
-			op = ">>";
-			precedence = Flux::Parsing::language::binary_operators[op];
-			oc++;
-		}
-
-		if (op == ">" || op == ">>") && lexer:get().position.line == ol && lexer:get().position.character == oc + 1 && lexer:skip( Symbol, "=" ) {
-			op = op `concat` "=";
-			precedence = Flux::Parsing::language::binary_operators[op];
-		}
-
-		let rvalue = Flux::Parsing::BacktickExpression:parse(source)
-			|| source:error( "expected expression after operator '" `concat` op `concat` "'" );
-		let precedence = Flux::Parsing::language::binary_operators[op];
-		let position = op_token.position;
-
-		while operator_precedences[1] && (precedence < operator_precedences[#operator_precedences]
-		      || precedence > 1 && precedence == operator_precedences[#operator_precedences])
-			collapse();
-
-		operand_stack[#operand_stack + 1] = rvalue;
-		operator_stack[#operator_stack + 1] = op;
-		operator_positions[#operator_positions + 1] = position;
-		operator_precedences[#operator_precedences + 1] = precedence;
-	}
-
-	while operator_stack[1] collapse();
-
-	return operand_stack[1];
+	return stack:result();
 }
 
 string BinaryExpression:serialize()

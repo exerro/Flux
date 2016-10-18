@@ -1,26 +1,38 @@
 
-import OperatorExpression;
-import OperatorExpressionStack;
-
 namespace Flux::Parsing::Operator;
 
-enum Mode {
-	UNARY_L, UNARY_R;
-	BINARY;
-	TERNARY_A, TERNARY_B;
+/*private*/ class Binary {
+	bool left_assoc;
+	string symbol;
+	int precedence;
+
+	Binary(string op, int prec, bool lassoc) {
+		self.symbol = op;
+		self.precedence = prec;
+		self.left_assoc = lassoc;
+	}
 }
 
-bool[] left_assocs = [];
-string[] symbols = [];
-Mode[] modes = [];
-int[] precedences = [];
+/*private*/ enum UnaryOpcode {
+	Call, MethodCall;
+	DotIndex, Index;
+	Cast;
+	PlusPlusR, MinusMinusR;
+	PlusPlus, MinusMinus;
+	Unm, Len, Not, BNot, Deref;
+}
 
-function OperatorExpression(Source, OperatorExpressionStack) createSimpleSymbolParser(string symbol);
-function OperatorExpression(Source, OperatorExpressionStack) createSimpleKeywordParser(string keyword);
+bool{string} operators;
+Binary[] binary_operators;
+bool{UnaryOpcode}{UnaryOpcode} unary_precedences;
 
-void register(string op, Mode mode, int precedence, bool left_assoc, function OperatorExpression(Source, OperatorExpressionStack) parse);
+string parse_binary_operator(Source source);
 
-bool is_operator(string op);
-int get_operator_precedence(string op, Mode mode);
+void register_binary(string op, int precedence, bool left_assoc);
+bool is_binary(string op);
+Binary get_binary(string op);
+
+void set_unary_precedence(UnaryOpcode a, UnaryOpcode b);
+bool get_unary_precedence(UnaryOpcode a, UnaryOpcode b);
 
 void init_standard_operators();

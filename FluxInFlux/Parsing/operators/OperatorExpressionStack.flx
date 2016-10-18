@@ -1,41 +1,88 @@
 
 namespace Flux::Parsing;
 
-bool OperatorExpressionStack:wasLastBinaryOperator() = last == BINARY_OPERATOR;
-bool OperatorExpressionStack:wasLastLeftUnaryOperator() = last == LEFT_UNARY_OPERATOR;
-bool OperatorExpressionStack:wasLastRightUnaryOperator() = last == RIGHT_UNARY_OPERATOR;
-bool OperatorExpressionStack:wasLastExpression() = last == EXPRESSION;
-
-void OperatorExpressionStack:popOperator() {
-	self.operators[#self.operators] = null;
-	self.operator_precedences[#self.operator_precedences] = null;
-	self.operator_types[#self.operator_types] = null;
+Operator::Binary OperatorExpressionStack:pop_operator() {
+	self.operator_positions[#self.operator_positions] = null;
+	return table.remove( self.operators, #self.operators );
 }
 
-Expression OperatorExpressionStack:popOperand() {
+Expression OperatorExpressionStack:pop_operand()
+ 	= table.remove( self.operands, #self.operands );
 
+bool OperatorExpressionStack:get_term(Source source) {
+	return Flux::Parsing::BacktickExpression:parse( source );
 }
 
-void OperatorExpressionStack:pushOperand(Expression e) {
+void OperatorExpressionStack:push_operand(ASTNode e) {
 	self.operands[#self.operands + 1] = e;
-	self.last = EXPRESSION;
-}
-void OperatorExpressionStack:pushBinaryOperator(string e, int precedence, Position p) {
-
 }
 
-void OperatorExpressionStack:pushLeftUnaryOperator(string e, int precedence, Position p) {
+void OperatorExpressionStack:push_operator(Operator::Binary op, Position p) {
+	Operator::Binary top = self.operators[#self.operators];
 
+	while top {
+		if top.precedence > op.precedence
+		|| top.precedence == op.precedence
+		&& ( top.symbol != op.symbol
+		||   top.left_assoc ) {
+			self:collapse();
+		}
+		else break;
+
+		top = self.operators[#self.operators];
+	}
+
+	self.operators[#self.operators + 1] = op;
+	self.operator_positions[#self.operator_positions + 1] = p;
 }
 
-void OperatorExpressionStack:pushRightUnaryOperator(string e, int precedence, Position p) {
+bool OperatorExpressionStack:get_first_term(Source source) {
+	let expr = self:get_term( source );
 
+	if expr {
+		self:push_operand( expr );
+		return true;
+	}
+	return false;
 }
+
+bool OperatorExpressionStack:get_next_term(Source source) {
+	Position position = source.lexer:get().position;
+	string operator_s = Flux::Parsing::parseOperator( source.lexer );
+
+	if Flux::Parsing::Operator::is_binary( operator_s ) {
+		Operator::Binary op = Flux::Parsing::Operator::get_binary( operator_s );
+		ASTNode expr = self:get_term( source );
+
+		if !expr
+			source:error( "expected operand after op '" `concat` operator_s `concat` "'" );
+
+		self:push_operator( op, position );
+		self:push_operand( expr );
+
+		return true;
+	}
+	else if operator_s != ""
+		source.lexer:back();
+
+	return false;
+}
+
 
 void OperatorExpressionStack:collapse() {
+	let op       = self:pop_operator().symbol,
+	    rvalue   = self:pop_operand(),
+		lvalue   = self:pop_operand(),
+		position = table.remove( self.operator_positions, #self.operator_positions );
 
+	self:push_operand(
+		new Flux::Parsing::BinaryExpression( lvalue, rvalue, op, position )
+	);
 }
 
 Expression OperatorExpressionStack:result() {
+	while #self.operands > 1
+		self:collapse();
 
+	return self.operands[1];
 }

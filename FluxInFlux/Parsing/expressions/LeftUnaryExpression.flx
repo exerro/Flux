@@ -27,7 +27,7 @@ ASTNode LeftUnaryExpression:parse(Source source) {
 		"~" => "~";
 		"#" => "#";
 		"-" => "-";
-		"^" => "^";
+		"*" => "*";
 	};
 
 	if op == "^" {

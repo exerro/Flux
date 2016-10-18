@@ -1,6 +1,0 @@
-
-namespace Flux::Parsing;
-
-string OperatorExpression:serialize() {
-	return "(" `concat` self.op `concat` " " `concat` (self.operands `concattenate` " ") `concat` ")";
-}

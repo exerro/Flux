@@ -1,4 +1,6 @@
 
+import language;
+
 namespace Flux::Parsing;
 
 char[] letters = [];
@@ -42,13 +44,13 @@ bool tokenSameLineAsLast(Lexer lexer)
 
 string parseOperator(Lexer lexer) {
 	let symbol = lexer:test( Symbol );
-	if !symbol return;
+	if !symbol return "";
 
 	let op = symbol.value;
 
-	if Flux::Parsing::operators[op]
+	if Flux::Parsing::language::operators[op]
 		lexer:next();
-	else return;
+	else return "";
 
 	if op == ">" && Flux::Parsing::tokenFollowsLast( lexer ) && lexer:skip( Symbol, ">" )
 		op = ">>";
@@ -79,9 +81,11 @@ string parseMethodName(Source source) {
 			if !lexer:skip( Symbol, "]" ) source:error "expected ']' after '['";
 			return lexer:skip( Symbol, "=" ) && "[]=" || "[]";
 		}
-		else
-			return Flux::Parsing::parseOperator( lexer )
-				|| source:error( "expected operator after 'operator'", symbol && symbol.position );
+		else {
+			string op = Flux::Parsing::parseOperator( lexer );
+			return op != "" && op
+			    || source:error( "expected operator after 'operator'", symbol && symbol.position );
+		}
 	}
 	else if lexer:skip( Keyword, "setter" )
 		return "setter " `concat` (lexer:skipValue( Identifier ) || source:error "expected name after 'setter'");
@@ -159,7 +163,7 @@ Block parseFunctionBody(Source source, bool is_vararg) {
 
 string serializeExpression(Expression e)
 	=  e typeof Flux::Parsing::ConstantExpression && e:serialize()
-	|| e typeof Flux::Parsing::Reference && e:serialize()
+	|| e typeof Flux::Parsing::ReferenceExpression && e:serialize()
 	|| e typeof Flux::Parsing::FunctionCall && e:serialize()
 	|| e typeof Flux::Parsing::MethodCall && e:serialize()
 	|| e typeof Flux::Parsing::Index && e:serialize()

@@ -21,33 +21,23 @@ class RightUnaryExpression extends Flux::Parsing::PrimaryExpression {
 	}
 }
 
-ASTNode RightUnaryExpression:parse( Source source, null Expression expr = Flux::Parsing::PrimaryExpression:parse( source ) ) {
+ASTNode RightUnaryExpression:parse( Source source, Expression expr ) {
 	let lexer = source.lexer;
 
-	while true {
-		Expression new_expr;
-
-		if lexer:test( Symbol, "++" ) || lexer:test( Symbol, "--" ) {
-			let token = lexer:next();
-
-			new_expr = new Flux::Parsing::RightUnaryExpression( expr, token.value, token.position );
-		}
-		else new_expr =
-			Flux::Parsing::FunctionCall:parse( source, expr )
-			|| Flux::Parsing::MethodCall:parse( source, expr )
-			|| Flux::Parsing::Index:parse( source, expr )
-			|| Flux::Parsing::DotIndex:parse( source, expr )
-			|| Flux::Parsing::Cast:parse( source, expr )
-			|| Flux::Parsing::OperatorImplements:parse( source, expr )
-			|| Flux::Parsing::OperatorTypeof:parse( source, expr )
-			|| Flux::Parsing::OperatorExtends:parse( source, expr )
-		;
-
-		if new_expr expr = new_expr;
-		else break;
+	if lexer:test( Symbol, "++" ) || lexer:test( Symbol, "--" ) {
+		let token = lexer:next();
+		return new Flux::Parsing::RightUnaryExpression( expr, token.value, token.position );
 	}
-
-	return expr;
+	else
+		return Flux::Parsing::FunctionCall:parse( source, expr )
+    	    || Flux::Parsing::MethodCall:parse( source, expr )
+		    || Flux::Parsing::Index:parse( source, expr )
+		    || Flux::Parsing::DotIndex:parse( source, expr )
+		    || Flux::Parsing::Cast:parse( source, expr )
+		    || Flux::Parsing::OperatorImplements:parse( source, expr )
+		    || Flux::Parsing::OperatorTypeof:parse( source, expr )
+		    || Flux::Parsing::OperatorExtends:parse( source, expr );
+	}
 }
 
 string RightUnaryExpression:serialize()

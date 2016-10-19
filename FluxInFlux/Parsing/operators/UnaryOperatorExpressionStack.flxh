@@ -1,0 +1,30 @@
+
+import Operators;
+import expressions.LeftUnaryExpression;
+import expressions.RightUnaryExpression;
+import expressions.PrimaryExpression;
+
+namespace Flux::Parsing;
+
+class UnaryOperatorExpressionStack {
+	string[] left_operator_cache;
+	UnaryOpcode[] left_opcode_cache;
+	Position[] left_operator_positions;
+	ASTNode term;
+
+	UnaryOperatorExpressionStack() {
+		self.left_opcode_cache = [];
+		self.left_opcode_cache = [];
+		self.left_operator_positions = [];
+	}
+
+	private:
+	void get_top_left_opcode();
+	void combine_left_operator();
+
+	public:
+	void parse_left_unary_operators(Source source);
+	void parse_term(Source source);
+	void parse_right_unary_operators(Source source);
+	ASTNode result();
+}

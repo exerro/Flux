@@ -14,43 +14,8 @@ class LeftUnaryExpression extends Flux::Parsing::PrimaryExpression {
 	}
 }
 
-ASTNode LeftUnaryExpression:parse(Source source) {
-	let lexer = source.lexer;
-
-	if !lexer:test(Symbol)
-		return Flux::Parsing::RightUnaryExpression:parse(source);
-
-	let op = match lexer:get().value {
-		"++" => "++";
-		"--" => "--";
-		"!" => "!";
-		"~" => "~";
-		"#" => "#";
-		"-" => "-";
-		"*" => "*";
-	};
-
-	if op == "^" {
-		let position = lexer:next().position;
-		let primary = Flux::Parsing::PrimaryExpression:parse( source );
-
-		if primary {
-			return Flux::Parsing::RightUnaryExpression:parse( source, new Flux::Parsing::LeftUnaryExpression( primary, op, position ) );
-		}
-		else {
-			let lvalue = Flux::Parsing::LeftUnaryExpression:parse( source );
-			return new Flux::Parsing::LeftUnaryExpression( lvalue, op, position );
-		}
-	}
-	else if op {
-		let position = lexer:next().position;
-		let lvalue = Flux::Parsing::LeftUnaryExpression:parse(source);
-
-		return new Flux::Parsing::LeftUnaryExpression( lvalue, op, position );
-	}
-	else
-		return Flux::Parsing::OperatorTypeof:parse(source) || Flux::Parsing::RightUnaryExpression:parse(source);
-}
+// no parse() method required
+// handled by operators.UnaryOperatorExpressionStack
 
 string LeftUnaryExpression:serialize()
 	= self.op `concat` value

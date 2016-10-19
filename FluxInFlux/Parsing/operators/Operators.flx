@@ -39,18 +39,27 @@ bool get_unary_precedence(UnaryOpcode a, UnaryOpcode b) {
 	return false;
 }
 
-void register_unary_symbol(string symbol, UnaryOpcode code)
+void register_unary_symbol(string symbol, UnaryOpcode code, bool is_left)
 	Flux::Parsing::Operator::unary_symbols[symbol] = code;
+	Flux::Parsing::Operator::unary_is_left[code] = is_left;
 
-void register_unary_string(string string, UnaryOpcode code)
+void register_unary_string(string string, UnaryOpcode code, bool is_left)
 	Flux::Parsing::Operator::unary_strings[string] = code;
+	Flux::Parsing::Operator::unary_is_left[code] = is_left;
 
-void get_unary_opcode(Source source) {
+UnaryOpcode get_unary_opcode(Source source) {
 	if lexer:test( Keyword )
-		return Flux::Parsing::Operator::unary_strings[lexer:get().value] || 0;
+		return Flux::Parsing::Operator::unary_strings[lexer:get().value]
+		    || Flux::Parsing::Operator::UnaryOpcode.None;
 	else if lexer:test( Symbol )
-		return Flux::Parsing::Operator::unary_symbols[lexer:get().value] || 0;
+		return Flux::Parsing::Operator::unary_symbols[lexer:get().value]
+		    || Flux::Parsing::Operator::UnaryOpcode.None;
+
+	return Flux::Parsing::Operator::UnaryOpcode.None;
 }
+
+bool is_unary_left_operator(UnaryOpcode opcode)
+	= Flux::Parsing::Operator::unary_is_left[opcode];
 
 void init_standard_operators() {
 	Flux::Parsing::Operator::operators = [];
@@ -58,6 +67,7 @@ void init_standard_operators() {
 	Flux::Parsing::Operator::unary_precedences = {};
 	Flux::Parsing::Operator::unary_strings = {};
 	Flux::Parsing::Operator::unary_symbols = {};
+	Flux::Parsing::Operator::unary_is_left = {};
 	// binary equality operators
 	Flux::Parsing::Operator::register_binary( "=", 1, false );
 
@@ -107,27 +117,140 @@ void init_standard_operators() {
 	Flux::Parsing::Operator::register_binary( "%", 11, true );
 	Flux::Parsing::Operator::register_binary( "**", 12, false );
 
-	Flux::Parsing::Operator::register_unary_symbol( "++", Flux::Parsing::Operator::UnaryOpcode.PlusPlus );
-	Flux::Parsing::Operator::register_unary_symbol( "--", Flux::Parsing::Operator::UnaryOpcode.MinusMinus );
-	Flux::Parsing::Operator::register_unary_symbol( "#", Flux::Parsing::Operator::UnaryOpcode.Len );
-	Flux::Parsing::Operator::register_unary_symbol( "!", Flux::Parsing::Operator::UnaryOpcode.Not );
-	Flux::Parsing::Operator::register_unary_symbol( "~", Flux::Parsing::Operator::UnaryOpcode.BNot );
-	Flux::Parsing::Operator::register_unary_symbol( "-", Flux::Parsing::Operator::UnaryOpcode.Unm );
-	Flux::Parsing::Operator::register_unary_symbol( "+", Flux::Parsing::Operator::UnaryOpcode.Unp );
-	Flux::Parsing::Operator::register_unary_symbol( "*", Flux::Parsing::Operator::UnaryOpcode.Deref );
+	Flux::Parsing::Operator::register_unary_symbol( "++", Flux::Parsing::Operator::UnaryOpcode.PlusPlus, true );
+	Flux::Parsing::Operator::register_unary_symbol( "--", Flux::Parsing::Operator::UnaryOpcode.MinusMinus, true );
+	Flux::Parsing::Operator::register_unary_symbol( "#", Flux::Parsing::Operator::UnaryOpcode.Len, true );
+	Flux::Parsing::Operator::register_unary_symbol( "!", Flux::Parsing::Operator::UnaryOpcode.Not, true );
+	Flux::Parsing::Operator::register_unary_symbol( "~", Flux::Parsing::Operator::UnaryOpcode.BNot, true );
+	Flux::Parsing::Operator::register_unary_symbol( "-", Flux::Parsing::Operator::UnaryOpcode.Unm, true );
+	Flux::Parsing::Operator::register_unary_symbol( "+", Flux::Parsing::Operator::UnaryOpcode.Unp, true );
+	Flux::Parsing::Operator::register_unary_symbol( "*", Flux::Parsing::Operator::UnaryOpcode.Deref, true );
 
-	Flux::Parsing::Operator::register_unary_symbol( "(", Flux::Parsing::Operator::UnaryOpcode.Call );
-    Flux::Parsing::Operator::register_unary_symbol( ":", Flux::Parsing::Operator::UnaryOpcode.MethodCall );
+	Flux::Parsing::Operator::register_unary_symbol( "(", Flux::Parsing::Operator::UnaryOpcode.Call, false );
+    Flux::Parsing::Operator::register_unary_symbol( ":", Flux::Parsing::Operator::UnaryOpcode.MethodCall, false );
 
-	Flux::Parsing::Operator::register_unary_symbol( ".", Flux::Parsing::Operator::UnaryOpcode.DotIndex );
-	Flux::Parsing::Operator::register_unary_symbol( "[", Flux::Parsing::Operator::UnaryOpcode.Index );
+	Flux::Parsing::Operator::register_unary_symbol( ".", Flux::Parsing::Operator::UnaryOpcode.DotIndex, false );
+	Flux::Parsing::Operator::register_unary_symbol( "[", Flux::Parsing::Operator::UnaryOpcode.Index, false );
 
-	Flux::Parsing::Operator::register_unary_symbol( "->", Flux::Parsing::Operator::UnaryOpcode.Cast );
+	Flux::Parsing::Operator::register_unary_symbol( "->", Flux::Parsing::Operator::UnaryOpcode.Cast, false );
 
-	Flux::Parsing::Operator::register_unary_string( "extends", Flux::Parsing::Operator::UnaryOpcode.Extends );
-	Flux::Parsing::Operator::register_unary_string( "implements", Flux::Parsing::Operator::UnaryOpcode.Implements );
-	Flux::Parsing::Operator::register_unary_string( "typeof", Flux::Parsing::Operator::UnaryOpcode.Typeof );
+	Flux::Parsing::Operator::register_unary_string( "extends", Flux::Parsing::Operator::UnaryOpcode.Extends, false );
+	Flux::Parsing::Operator::register_unary_string( "implements", Flux::Parsing::Operator::UnaryOpcode.Implements, false );
+	Flux::Parsing::Operator::register_unary_string( "typeof", Flux::Parsing::Operator::UnaryOpcode.Typeof, true );
 
+	/*
+
+		"++",			Flux::Parsing::Operator::UnaryOpcode.PlusPlus
+		"--",			Flux::Parsing::Operator::UnaryOpcode.MinusMinus
+		"#",			Flux::Parsing::Operator::UnaryOpcode.Len
+		"!",			Flux::Parsing::Operator::UnaryOpcode.Not
+		"~",			Flux::Parsing::Operator::UnaryOpcode.BNot
+		"-",			Flux::Parsing::Operator::UnaryOpcode.Unm
+		"+",			Flux::Parsing::Operator::UnaryOpcode.Unp
+		"*",			Flux::Parsing::Operator::UnaryOpcode.Deref
+
+		"("				Flux::Parsing::Operator::UnaryOpcode.Call
+	    ":"				Flux::Parsing::Operator::UnaryOpcode.MethodCall
+		"."				Flux::Parsing::Operator::UnaryOpcode.DotIndex
+		"["				Flux::Parsing::Operator::UnaryOpcode.Index
+		"->"			Flux::Parsing::Operator::UnaryOpcode.Cast
+		"extends"		Flux::Parsing::Operator::UnaryOpcode.Extends
+		"implements"	Flux::Parsing::Operator::UnaryOpcode.Implements
+		"typeof"		Flux::Parsing::Operator::UnaryOpcode.Typeof
+
+	*/
+
+	// set up right unary operators to have higher precedence than left ones
+
+	let operator_opcode = Flux::Parsing::Operator::UnaryOpcode;
+	let set_unary_precedence = Flux::Parsing::Operator::set_unary_precedence;
+
+	set_unary_precedence( operator_opcode.Call, operator_opcode.PlusPlus );
+	set_unary_precedence( operator_opcode.Call, operator_opcode.MinusMinus );
+	set_unary_precedence( operator_opcode.Call, operator_opcode.Len );
+	set_unary_precedence( operator_opcode.Call, operator_opcode.Not );
+	set_unary_precedence( operator_opcode.Call, operator_opcode.BNot );
+	set_unary_precedence( operator_opcode.Call, operator_opcode.Unm );
+	set_unary_precedence( operator_opcode.Call, operator_opcode.Unp );
+	set_unary_precedence( operator_opcode.Call, operator_opcode.Deref );
+
+	set_unary_precedence( operator_opcode.MethodCall, operator_opcode.PlusPlus );
+	set_unary_precedence( operator_opcode.MethodCall, operator_opcode.MinusMinus );
+	set_unary_precedence( operator_opcode.MethodCall, operator_opcode.Len );
+	set_unary_precedence( operator_opcode.MethodCall, operator_opcode.Not );
+	set_unary_precedence( operator_opcode.MethodCall, operator_opcode.BNot );
+	set_unary_precedence( operator_opcode.MethodCall, operator_opcode.Unm );
+	set_unary_precedence( operator_opcode.MethodCall, operator_opcode.Unp );
+	set_unary_precedence( operator_opcode.MethodCall, operator_opcode.Deref );
+
+	set_unary_precedence( operator_opcode.DotIndex, operator_opcode.PlusPlus );
+	set_unary_precedence( operator_opcode.DotIndex, operator_opcode.MinusMinus );
+	set_unary_precedence( operator_opcode.DotIndex, operator_opcode.Len );
+	set_unary_precedence( operator_opcode.DotIndex, operator_opcode.Not );
+	set_unary_precedence( operator_opcode.DotIndex, operator_opcode.BNot );
+	set_unary_precedence( operator_opcode.DotIndex, operator_opcode.Unm );
+	set_unary_precedence( operator_opcode.DotIndex, operator_opcode.Unp );
+	set_unary_precedence( operator_opcode.DotIndex, operator_opcode.Deref );
+
+	set_unary_precedence( operator_opcode.Index, operator_opcode.PlusPlus );
+	set_unary_precedence( operator_opcode.Index, operator_opcode.MinusMinus );
+	set_unary_precedence( operator_opcode.Index, operator_opcode.Len );
+	set_unary_precedence( operator_opcode.Index, operator_opcode.Not );
+	set_unary_precedence( operator_opcode.Index, operator_opcode.BNot );
+	set_unary_precedence( operator_opcode.Index, operator_opcode.Unm );
+	set_unary_precedence( operator_opcode.Index, operator_opcode.Unp );
+	set_unary_precedence( operator_opcode.Index, operator_opcode.Deref );
+
+	set_unary_precedence( operator_opcode.Cast, operator_opcode.PlusPlus );
+	set_unary_precedence( operator_opcode.Cast, operator_opcode.MinusMinus );
+	set_unary_precedence( operator_opcode.Cast, operator_opcode.Len );
+	set_unary_precedence( operator_opcode.Cast, operator_opcode.Not );
+	set_unary_precedence( operator_opcode.Cast, operator_opcode.BNot );
+	set_unary_precedence( operator_opcode.Cast, operator_opcode.Unm );
+	set_unary_precedence( operator_opcode.Cast, operator_opcode.Unp );
+	set_unary_precedence( operator_opcode.Cast, operator_opcode.Deref );
+
+	set_unary_precedence( operator_opcode.Extends, operator_opcode.PlusPlus );
+	set_unary_precedence( operator_opcode.Extends, operator_opcode.MinusMinus );
+	set_unary_precedence( operator_opcode.Extends, operator_opcode.Len );
+	set_unary_precedence( operator_opcode.Extends, operator_opcode.Not );
+	set_unary_precedence( operator_opcode.Extends, operator_opcode.BNot );
+	set_unary_precedence( operator_opcode.Extends, operator_opcode.Unm );
+	set_unary_precedence( operator_opcode.Extends, operator_opcode.Unp );
+	set_unary_precedence( operator_opcode.Extends, operator_opcode.Deref );
+
+	set_unary_precedence( operator_opcode.Implements, operator_opcode.PlusPlus );
+	set_unary_precedence( operator_opcode.Implements, operator_opcode.MinusMinus );
+	set_unary_precedence( operator_opcode.Implements, operator_opcode.Len );
+	set_unary_precedence( operator_opcode.Implements, operator_opcode.Not );
+	set_unary_precedence( operator_opcode.Implements, operator_opcode.BNot );
+	set_unary_precedence( operator_opcode.Implements, operator_opcode.Unm );
+	set_unary_precedence( operator_opcode.Implements, operator_opcode.Unp );
+	set_unary_precedence( operator_opcode.Implements, operator_opcode.Deref );
+
+	set_unary_precedence( operator_opcode.Typeof, operator_opcode.PlusPlus );
+	set_unary_precedence( operator_opcode.Typeof, operator_opcode.MinusMinus );
+	set_unary_precedence( operator_opcode.Typeof, operator_opcode.Len );
+	set_unary_precedence( operator_opcode.Typeof, operator_opcode.Not );
+	set_unary_precedence( operator_opcode.Typeof, operator_opcode.BNot );
+	set_unary_precedence( operator_opcode.Typeof, operator_opcode.Unm );
+	set_unary_precedence( operator_opcode.Typeof, operator_opcode.Unp );
+	set_unary_precedence( operator_opcode.Typeof, operator_opcode.Deref );
+
+	// x++ rather than ++x
+	set_unary_precedence( operator_opcode.operator_opcode.PlusPlus, operator_opcode.Len );
+	set_unary_precedence( operator_opcode.operator_opcode.PlusPlus, operator_opcode.Not );
+	set_unary_precedence( operator_opcode.operator_opcode.PlusPlus, operator_opcode.BNot );
+	set_unary_precedence( operator_opcode.operator_opcode.PlusPlus, operator_opcode.Unm );
+	set_unary_precedence( operator_opcode.operator_opcode.PlusPlus, operator_opcode.Unp );
+	set_unary_precedence( operator_opcode.operator_opcode.PlusPlus, operator_opcode.Deref );
+
+	set_unary_precedence( operator_opcode.operator_opcode.MinusMinus, operator_opcode.Len );
+	set_unary_precedence( operator_opcode.operator_opcode.MinusMinus, operator_opcode.Not );
+	set_unary_precedence( operator_opcode.operator_opcode.MinusMinus, operator_opcode.BNot );
+	set_unary_precedence( operator_opcode.operator_opcode.MinusMinus, operator_opcode.Unm );
+	set_unary_precedence( operator_opcode.operator_opcode.MinusMinus, operator_opcode.Unp );
+	set_unary_precedence( operator_opcode.operator_opcode.MinusMinus, operator_opcode.Deref );
 	// set up operator precedence
 
 }

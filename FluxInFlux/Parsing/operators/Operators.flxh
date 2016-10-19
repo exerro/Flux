@@ -20,6 +20,7 @@ namespace Flux::Parsing::Operator;
 	PlusPlus, MinusMinus;
 	Unm, Unp, Len, Not, BNot, Deref;
 	Extends, Implements, Typeof;
+	None;
 }
 
 bool{string} operators;
@@ -27,6 +28,7 @@ Binary[] binary_operators;
 bool{UnaryOpcode}{UnaryOpcode} unary_precedences;
 UnaryOpcode{string} unary_symbols;
 UnaryOpcode{string} unary_strings;
+bool{UnaryOpcode} unary_is_left;
 
 string parse_binary_operator(Source source);
 
@@ -34,9 +36,10 @@ void register_binary(string op, int precedence, bool left_assoc);
 bool is_binary(string op);
 Binary get_binary(string op);
 
-void register_unary_symbol(string symbol, UnaryOpcode code);
-void register_unary_string(string symbol, UnaryOpcode code);
-void get_unary_opcode(Source source, bool is_left);
+void register_unary_symbol(string symbol, UnaryOpcode code, bool is_left);
+void register_unary_string(string symbol, UnaryOpcode code, bool is_left);
+UnaryOpcode get_unary_opcode(Source source);
+bool is_unary_left_operator(UnaryOpcode opcode);
 
 void set_unary_precedence(UnaryOpcode a, UnaryOpcode b);
 bool get_unary_precedence(UnaryOpcode a, UnaryOpcode b);

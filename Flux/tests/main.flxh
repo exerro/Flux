@@ -1,4 +1,4 @@
 
 import libfolder.test;
 
-if x = 1 + 2 + 3 {"main.flxh"}
+if (x = 1 + 2 + 3) {"main.flxh"}

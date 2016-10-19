@@ -50,11 +50,11 @@ void register_unary_string(string string, UnaryOpcode code, bool is_left) {
 }
 
 UnaryOpcode get_unary_opcode(Source source) {
-	if lexer:test( Keyword )
-		return Flux::Parsing::Operator::unary_strings[lexer:get().value]
+	if source.lexer:test( Keyword )
+		return Flux::Parsing::Operator::unary_strings[source.lexer:get().value]
 		    || Flux::Parsing::Operator::UnaryOpcode.None;
-	else if lexer:test( Symbol )
-		return Flux::Parsing::Operator::unary_symbols[lexer:get().value]
+	else if source.lexer:test( Symbol )
+		return Flux::Parsing::Operator::unary_symbols[source.lexer:get().value]
 		    || Flux::Parsing::Operator::UnaryOpcode.None;
 
 	return Flux::Parsing::Operator::UnaryOpcode.None;

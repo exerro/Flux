@@ -14,7 +14,7 @@ class UnaryOperatorExpressionStack {
 
 	UnaryOperatorExpressionStack() {
 		self.left_opcode_cache = [];
-		self.left_opcode_cache = [];
+		self.left_operator_cache = [];
 		self.left_operator_positions = [];
 	}
 
@@ -24,7 +24,7 @@ class UnaryOperatorExpressionStack {
 
 	public:
 	void parse_left_unary_operators(Source source);
-	void parse_term(Source source);
+	bool parse_term(Source source);
 	void parse_right_unary_operators(Source source);
 	ASTNode result();
 }

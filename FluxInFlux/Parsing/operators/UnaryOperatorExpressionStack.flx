@@ -10,7 +10,7 @@ void UnaryOperatorExpressionStack:combine_left_operator() {
 
 	self.left_opcode_cache[#self.left_opcode_cache] = null;
 
-	self.term = new LeftUnaryExpression( self.value, op, pos );
+	self.term = new LeftUnaryExpression( self.term, op, pos );
 }
 
 // parse and store all left unary operators
@@ -30,18 +30,32 @@ void UnaryOperatorExpressionStack:parse_left_unary_operators(Source source) {
 	}
 }
 
-void UnaryOperatorExpressionStack:parse_term(Source source) {
+bool UnaryOperatorExpressionStack:parse_term(Source source) {
 	self.term = Flux::Parsing::PrimaryExpression:parse( source );
+
+	if !self.term {
+		if #self.left_operator_cache > 0
+			source:error( "expected expression after operator "
+				`concat` self.left_operator_cache[#self.left_operator_cache] );
+		return false;
+	}
+	return true;
 }
 
 void UnaryOperatorExpressionStack:parse_right_unary_operators(Source source) {
 	UnaryOpcode opcode = Flux::Parsing::Operator::get_unary_opcode( source );
 
 	while opcode != Flux::Parsing::Operator::UnaryOpcode.None {
-		while Flux::Parsing::Operator::get_unary_precedence( self:get_top_left_opcode(), opcode )
+		while Flux::Parsing::Operator::get_unary_precedence( self:get_top_left_opcode(), opcode ) {
 			self:combine_left_operator();
+		}
 
-		self.term = Flux::Parsing::RightUnaryExpression:parse( source, self.term );
+		ASTNode expr = Flux::Parsing::RightUnaryExpression:parse( source, self.term );
+
+		if expr
+			self.term = expr;
+		else
+			break;
 	}
 }
 

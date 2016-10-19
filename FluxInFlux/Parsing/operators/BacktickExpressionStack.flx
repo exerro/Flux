@@ -1,0 +1,102 @@
+
+namespace Flux::Parsing;
+
+ASTNode BacktickExpressionStack:get_term(Source source) {
+	new Flux::Parsing::UnaryOperatorExpressionStack stack();
+
+	stack:parse_left_unary_operators( source );
+
+	if stack:parse_term( source ) {
+		stack:parse_right_unary_operators( source );
+
+		return stack:result();
+	}
+
+	return null;
+}
+
+string BacktickExpressionStack:parse_operator(Source source)
+	= source.lexer:skipValue( Backtick ) || "";
+
+void BacktickExpressionStack:update_term(string op, Position pos)
+	if self.needs_merge
+		self.active_term = new Flux::Parsing::BacktickExpression( false, [self.active_term], op, pos );
+	else
+		self.term = new Flux::Parsing::BacktickExpression( false, [self.term], op, pos );
+
+void BacktickExpressionStack:merge_terms() {
+	self.term = new Flux::Parsing::BacktickExpression( false, [self.term, self.active_term], self.binary_op, self.binary_op_pos );
+	self.needs_merge = false;
+}
+
+bool BacktickExpressionStack:get_initial_term(Source source) {
+	string[] left_operators = [];
+	Position[] positions = [];
+	Position position = source.lexer:get().position;
+	string op = self:parse_operator( source );
+
+	while op != "" {
+		left_operators[#left_operators + 1] = op;
+		positions[#positions + 1] = position;
+		position = source.lexer:get().position;
+		op = self:parse_operator( source );
+	}
+
+	self.term = self:get_term( source );
+
+	if !self.term {
+		if #left_operators > 0
+			source:error( "expected expression after operator `"
+				`concat` left_operators[#left_operators] `concat` "`" );
+
+		return false;
+	}
+
+	for (int i = #left_operators, i > 0, i--)
+		self.term = new Flux::Parsing::BacktickExpression( true, [self.term], op, pos );
+
+	return true;
+}
+
+bool BacktickExpressionStack:get_following_term(Source source) {
+	string[] operators = [];
+	Position[] positions = [];
+	Position position = source.lexer:get().position;
+	string op = self:parse_operator( source );
+
+	while op != "" {
+		operators[#operators + 1] = op;
+		positions[#positions + 1] = position;
+		position = source.lexer:get().position;
+		op = self:parse_operator( source );
+	}
+
+	if #operators > 0 {
+		ASTNode term = self:get_term();
+		int op_limit = term != null && #operators - 1 || #operators;
+
+		for (int i = 1, i <= op_limit, i++)
+			self:update_term( operators[i], positions[i] );
+
+		if term {
+			if self.needs_merge
+				self:merge_terms();
+
+			self.binary_op = operators[#operators];
+			self.binary_op_pos = positions[#positions];
+			self.active_term = term;
+			self.needs_merge = true;
+		}
+
+		return term != null;
+	}
+
+	return false;
+}
+
+ASTNode BacktickExpressionStack:result() {
+	if self.needs_merge
+		self:merge_terms();
+
+	return self.term;
+}

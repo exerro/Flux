@@ -70,6 +70,7 @@ void init_standard_operators() {
 	Flux::Parsing::Operator::unary_strings = {};
 	Flux::Parsing::Operator::unary_symbols = {};
 	Flux::Parsing::Operator::unary_is_left = {};
+
 	// binary equality operators
 	Flux::Parsing::Operator::register_binary( "=", 1, false );
 
@@ -145,95 +146,91 @@ void init_standard_operators() {
 	let UnaryOpcode = Flux::Parsing::Operator::UnaryOpcode;
 	let set_unary_precedence = Flux::Parsing::Operator::set_unary_precedence;
 
-	if !UnaryOpcode
-		throw new WTF_is_happening "UnaryOpcode isn't a thing";
+	set_unary_precedence( UnaryOpcode.Call, UnaryOpcode.PlusPlus ); // ++f() -> ++(f())
+	set_unary_precedence( UnaryOpcode.Call, UnaryOpcode.MinusMinus ); // --f() -> --(f())
+	set_unary_precedence( UnaryOpcode.Call, UnaryOpcode.Len ); // #f() -> #(f())
+	set_unary_precedence( UnaryOpcode.Call, UnaryOpcode.Not ); // !f() -> !(f())
+	set_unary_precedence( UnaryOpcode.Call, UnaryOpcode.BNot ); // ~f() -> ~(f())
+	set_unary_precedence( UnaryOpcode.Call, UnaryOpcode.Unm ); // -f() -> -(f())
+	set_unary_precedence( UnaryOpcode.Call, UnaryOpcode.Unp ); // +f() -> +(f())
+	set_unary_precedence( UnaryOpcode.Call, UnaryOpcode.Deref ); // *f() -> *(f())
 
-	set_unary_precedence( UnaryOpcode.Call, UnaryOpcode.PlusPlus );
-	set_unary_precedence( UnaryOpcode.Call, UnaryOpcode.MinusMinus );
-	set_unary_precedence( UnaryOpcode.Call, UnaryOpcode.Len );
-	set_unary_precedence( UnaryOpcode.Call, UnaryOpcode.Not );
-	set_unary_precedence( UnaryOpcode.Call, UnaryOpcode.BNot );
-	set_unary_precedence( UnaryOpcode.Call, UnaryOpcode.Unm );
-	set_unary_precedence( UnaryOpcode.Call, UnaryOpcode.Unp );
-	set_unary_precedence( UnaryOpcode.Call, UnaryOpcode.Deref );
+	set_unary_precedence( UnaryOpcode.MethodCall, UnaryOpcode.PlusPlus ); // ++x:f() -> ++(x:f())
+	set_unary_precedence( UnaryOpcode.MethodCall, UnaryOpcode.MinusMinus ); // --x:f() -> --(x:f())
+	set_unary_precedence( UnaryOpcode.MethodCall, UnaryOpcode.Len ); // #x:f() -> #(x:f())
+	set_unary_precedence( UnaryOpcode.MethodCall, UnaryOpcode.Not ); // !x:f() -> !(x:f())
+	set_unary_precedence( UnaryOpcode.MethodCall, UnaryOpcode.BNot ); // ~x:f() -> ~(x:f())
+	set_unary_precedence( UnaryOpcode.MethodCall, UnaryOpcode.Unm ); // -x:f() -> -(x:f())
+	set_unary_precedence( UnaryOpcode.MethodCall, UnaryOpcode.Unp ); // +x:f() -> +(x:f())
+	set_unary_precedence( UnaryOpcode.MethodCall, UnaryOpcode.Deref ); // *x:f() -> *(x:f())
 
-	set_unary_precedence( UnaryOpcode.MethodCall, UnaryOpcode.PlusPlus );
-	set_unary_precedence( UnaryOpcode.MethodCall, UnaryOpcode.MinusMinus );
-	set_unary_precedence( UnaryOpcode.MethodCall, UnaryOpcode.Len );
-	set_unary_precedence( UnaryOpcode.MethodCall, UnaryOpcode.Not );
-	set_unary_precedence( UnaryOpcode.MethodCall, UnaryOpcode.BNot );
-	set_unary_precedence( UnaryOpcode.MethodCall, UnaryOpcode.Unm );
-	set_unary_precedence( UnaryOpcode.MethodCall, UnaryOpcode.Unp );
-	set_unary_precedence( UnaryOpcode.MethodCall, UnaryOpcode.Deref );
+	set_unary_precedence( UnaryOpcode.DotIndex, UnaryOpcode.PlusPlus ); // ++a.b -> ++(a.b)
+	set_unary_precedence( UnaryOpcode.DotIndex, UnaryOpcode.MinusMinus ); // --a.b -> --(a.b)
+	set_unary_precedence( UnaryOpcode.DotIndex, UnaryOpcode.Len ); // #a.b -> #(a.b)
+	set_unary_precedence( UnaryOpcode.DotIndex, UnaryOpcode.Not ); // !a.b -> !(a.b)
+	set_unary_precedence( UnaryOpcode.DotIndex, UnaryOpcode.BNot ); // ~a.b -> ~(a.b)
+	set_unary_precedence( UnaryOpcode.DotIndex, UnaryOpcode.Unm ); // -a.b -> -(a.b)
+	set_unary_precedence( UnaryOpcode.DotIndex, UnaryOpcode.Unp ); // +a.b -> +(a.b)
+	set_unary_precedence( UnaryOpcode.DotIndex, UnaryOpcode.Deref ); // *a.b -> *(a.b)
 
-	set_unary_precedence( UnaryOpcode.DotIndex, UnaryOpcode.PlusPlus );
-	set_unary_precedence( UnaryOpcode.DotIndex, UnaryOpcode.MinusMinus );
-	set_unary_precedence( UnaryOpcode.DotIndex, UnaryOpcode.Len );
-	set_unary_precedence( UnaryOpcode.DotIndex, UnaryOpcode.Not );
-	set_unary_precedence( UnaryOpcode.DotIndex, UnaryOpcode.BNot );
-	set_unary_precedence( UnaryOpcode.DotIndex, UnaryOpcode.Unm );
-	set_unary_precedence( UnaryOpcode.DotIndex, UnaryOpcode.Unp );
-	set_unary_precedence( UnaryOpcode.DotIndex, UnaryOpcode.Deref );
+	set_unary_precedence( UnaryOpcode.Index, UnaryOpcode.PlusPlus ); // ++x[i] -> ++(x[i])
+	set_unary_precedence( UnaryOpcode.Index, UnaryOpcode.MinusMinus ); // --x[i] -> --(x[i])
+	set_unary_precedence( UnaryOpcode.Index, UnaryOpcode.Len ); // #x[i] -> #(x[i])
+	set_unary_precedence( UnaryOpcode.Index, UnaryOpcode.Not ); // !x[i] -> !(x[i])
+	set_unary_precedence( UnaryOpcode.Index, UnaryOpcode.BNot ); // ~x[i] -> ~(x[i])
+	set_unary_precedence( UnaryOpcode.Index, UnaryOpcode.Unm ); // -x[i] -> -(x[i])
+	set_unary_precedence( UnaryOpcode.Index, UnaryOpcode.Unp ); // +x[i] -> +(x[i])
+	set_unary_precedence( UnaryOpcode.Index, UnaryOpcode.Deref ); // *x[i] -> *(x[i])
 
-	set_unary_precedence( UnaryOpcode.Index, UnaryOpcode.PlusPlus );
-	set_unary_precedence( UnaryOpcode.Index, UnaryOpcode.MinusMinus );
-	set_unary_precedence( UnaryOpcode.Index, UnaryOpcode.Len );
-	set_unary_precedence( UnaryOpcode.Index, UnaryOpcode.Not );
-	set_unary_precedence( UnaryOpcode.Index, UnaryOpcode.BNot );
-	set_unary_precedence( UnaryOpcode.Index, UnaryOpcode.Unm );
-	set_unary_precedence( UnaryOpcode.Index, UnaryOpcode.Unp );
-	set_unary_precedence( UnaryOpcode.Index, UnaryOpcode.Deref );
+	set_unary_precedence( UnaryOpcode.Cast, UnaryOpcode.PlusPlus ); // ++x->T -> ++(x->T)
+	set_unary_precedence( UnaryOpcode.Cast, UnaryOpcode.MinusMinus ); // --x->T -> --(x->T)
+	set_unary_precedence( UnaryOpcode.Cast, UnaryOpcode.Len ); // #x->T -> #(x->T)
+	set_unary_precedence( UnaryOpcode.Cast, UnaryOpcode.Not ); // !x->T -> !(x->T)
+	set_unary_precedence( UnaryOpcode.Cast, UnaryOpcode.BNot ); // ~x->T -> ~(x->T)
+	set_unary_precedence( UnaryOpcode.Cast, UnaryOpcode.Unm ); // -x->T -> -(x->T)
+	set_unary_precedence( UnaryOpcode.Cast, UnaryOpcode.Unp ); // +x->T -> +(x->T)
+	set_unary_precedence( UnaryOpcode.Cast, UnaryOpcode.Deref ); // *x->T -> *(x->T)
 
-	set_unary_precedence( UnaryOpcode.Cast, UnaryOpcode.PlusPlus );
-	set_unary_precedence( UnaryOpcode.Cast, UnaryOpcode.MinusMinus );
-	set_unary_precedence( UnaryOpcode.Cast, UnaryOpcode.Len );
-	set_unary_precedence( UnaryOpcode.Cast, UnaryOpcode.Not );
-	set_unary_precedence( UnaryOpcode.Cast, UnaryOpcode.BNot );
-	set_unary_precedence( UnaryOpcode.Cast, UnaryOpcode.Unm );
-	set_unary_precedence( UnaryOpcode.Cast, UnaryOpcode.Unp );
-	set_unary_precedence( UnaryOpcode.Cast, UnaryOpcode.Deref );
+	set_unary_precedence( UnaryOpcode.Extends, UnaryOpcode.PlusPlus ); // ++x typeof T -> ++(x typeof T)
+	set_unary_precedence( UnaryOpcode.Extends, UnaryOpcode.MinusMinus ); // --x typeof T -> --(x typeof T)
+	set_unary_precedence( UnaryOpcode.Extends, UnaryOpcode.Len ); // #x typeof T -> #(x typeof T)
+	set_unary_precedence( UnaryOpcode.Extends, UnaryOpcode.Not ); // !x typeof T -> !(x typeof T)
+	set_unary_precedence( UnaryOpcode.Extends, UnaryOpcode.BNot ); // ~x typeof T -> ~(x typeof T)
+	set_unary_precedence( UnaryOpcode.Extends, UnaryOpcode.Unm ); // -x typeof T -> -(x typeof T)
+	set_unary_precedence( UnaryOpcode.Extends, UnaryOpcode.Unp ); // +x typeof T -> +(x typeof T)
+	set_unary_precedence( UnaryOpcode.Extends, UnaryOpcode.Deref ); // *x typeof T -> *(x typeof T)
 
-	set_unary_precedence( UnaryOpcode.Extends, UnaryOpcode.PlusPlus );
-	set_unary_precedence( UnaryOpcode.Extends, UnaryOpcode.MinusMinus );
-	set_unary_precedence( UnaryOpcode.Extends, UnaryOpcode.Len );
-	set_unary_precedence( UnaryOpcode.Extends, UnaryOpcode.Not );
-	set_unary_precedence( UnaryOpcode.Extends, UnaryOpcode.BNot );
-	set_unary_precedence( UnaryOpcode.Extends, UnaryOpcode.Unm );
-	set_unary_precedence( UnaryOpcode.Extends, UnaryOpcode.Unp );
-	set_unary_precedence( UnaryOpcode.Extends, UnaryOpcode.Deref );
+	set_unary_precedence( UnaryOpcode.Implements, UnaryOpcode.PlusPlus );  // ++x implements T -> ++(x implements T)
+	set_unary_precedence( UnaryOpcode.Implements, UnaryOpcode.MinusMinus );  // --x implements T -> --(x implements T)
+	set_unary_precedence( UnaryOpcode.Implements, UnaryOpcode.Len );  // #x implements T -> #(x implements T)
+	set_unary_precedence( UnaryOpcode.Implements, UnaryOpcode.Not );  // !x implements T -> !(x implements T)
+	set_unary_precedence( UnaryOpcode.Implements, UnaryOpcode.BNot );  // ~x implements T -> ~(x implements T)
+	set_unary_precedence( UnaryOpcode.Implements, UnaryOpcode.Unm );  // -x implements T -> -(x implements T)
+	set_unary_precedence( UnaryOpcode.Implements, UnaryOpcode.Unp );  // +x implements T -> +(x implements T)
+	set_unary_precedence( UnaryOpcode.Implements, UnaryOpcode.Deref );  // *x implements T -> *(x implements T)
 
-	set_unary_precedence( UnaryOpcode.Implements, UnaryOpcode.PlusPlus );
-	set_unary_precedence( UnaryOpcode.Implements, UnaryOpcode.MinusMinus );
-	set_unary_precedence( UnaryOpcode.Implements, UnaryOpcode.Len );
-	set_unary_precedence( UnaryOpcode.Implements, UnaryOpcode.Not );
-	set_unary_precedence( UnaryOpcode.Implements, UnaryOpcode.BNot );
-	set_unary_precedence( UnaryOpcode.Implements, UnaryOpcode.Unm );
-	set_unary_precedence( UnaryOpcode.Implements, UnaryOpcode.Unp );
-	set_unary_precedence( UnaryOpcode.Implements, UnaryOpcode.Deref );
-
-	set_unary_precedence( UnaryOpcode.Typeof, UnaryOpcode.PlusPlus );
-	set_unary_precedence( UnaryOpcode.Typeof, UnaryOpcode.MinusMinus );
-	set_unary_precedence( UnaryOpcode.Typeof, UnaryOpcode.Len );
-	set_unary_precedence( UnaryOpcode.Typeof, UnaryOpcode.Not );
-	set_unary_precedence( UnaryOpcode.Typeof, UnaryOpcode.BNot );
-	set_unary_precedence( UnaryOpcode.Typeof, UnaryOpcode.Unm );
-	set_unary_precedence( UnaryOpcode.Typeof, UnaryOpcode.Unp );
-	set_unary_precedence( UnaryOpcode.Typeof, UnaryOpcode.Deref );
+	set_unary_precedence( UnaryOpcode.Typeof, UnaryOpcode.PlusPlus );  // ++x implements T -> ++(x implements T)
+	set_unary_precedence( UnaryOpcode.Typeof, UnaryOpcode.MinusMinus );  // --x implements T -> --(x implements T)
+	set_unary_precedence( UnaryOpcode.Typeof, UnaryOpcode.Len );  // #x implements T -> #(x implements T)
+	set_unary_precedence( UnaryOpcode.Typeof, UnaryOpcode.Not );  // !x implements T -> !(x implements T)
+	set_unary_precedence( UnaryOpcode.Typeof, UnaryOpcode.BNot );  // ~x implements T -> ~(x implements T)
+	set_unary_precedence( UnaryOpcode.Typeof, UnaryOpcode.Unm );  // -x implements T -> -(x implements T)
+	set_unary_precedence( UnaryOpcode.Typeof, UnaryOpcode.Unp );  // +x implements T -> +(x implements T)
+	set_unary_precedence( UnaryOpcode.Typeof, UnaryOpcode.Deref );  // *x implements T -> *(x implements T)
 
 	// x++ rather than ++x
-	set_unary_precedence( UnaryOpcode.PlusPlus, UnaryOpcode.Len );
-	set_unary_precedence( UnaryOpcode.PlusPlus, UnaryOpcode.Not );
-	set_unary_precedence( UnaryOpcode.PlusPlus, UnaryOpcode.BNot );
-	set_unary_precedence( UnaryOpcode.PlusPlus, UnaryOpcode.Unm );
-	set_unary_precedence( UnaryOpcode.PlusPlus, UnaryOpcode.Unp );
-	set_unary_precedence( UnaryOpcode.PlusPlus, UnaryOpcode.Deref );
+	set_unary_precedence( UnaryOpcode.PlusPlus, UnaryOpcode.Len ); // #x++ -> #(x++)
+	set_unary_precedence( UnaryOpcode.PlusPlus, UnaryOpcode.Not ); // !x++ -> !(x++)
+	set_unary_precedence( UnaryOpcode.PlusPlus, UnaryOpcode.BNot ); // ~x++ -> ~(x++)
+	set_unary_precedence( UnaryOpcode.PlusPlus, UnaryOpcode.Unm ); // -x++ -> -(x++)
+	set_unary_precedence( UnaryOpcode.PlusPlus, UnaryOpcode.Unp ); // +x++ -> +(x++)
+	set_unary_precedence( UnaryOpcode.PlusPlus, UnaryOpcode.Deref ); // *x++ -> *(x++)
 
-	set_unary_precedence( UnaryOpcode.MinusMinus, UnaryOpcode.Len );
-	set_unary_precedence( UnaryOpcode.MinusMinus, UnaryOpcode.Not );
-	set_unary_precedence( UnaryOpcode.MinusMinus, UnaryOpcode.BNot );
-	set_unary_precedence( UnaryOpcode.MinusMinus, UnaryOpcode.Unm );
-	set_unary_precedence( UnaryOpcode.MinusMinus, UnaryOpcode.Unp );
-	set_unary_precedence( UnaryOpcode.MinusMinus, UnaryOpcode.Deref );
-	// set up operator precedence
+	set_unary_precedence( UnaryOpcode.MinusMinus, UnaryOpcode.Len ); // #x-- -> #(x--)
+	set_unary_precedence( UnaryOpcode.MinusMinus, UnaryOpcode.Not ); // !x-- -> !(x--)
+	set_unary_precedence( UnaryOpcode.MinusMinus, UnaryOpcode.BNot ); // ~x-- -> ~(x--)
+	set_unary_precedence( UnaryOpcode.MinusMinus, UnaryOpcode.Unm ); // -x-- -> -(x--)
+	set_unary_precedence( UnaryOpcode.MinusMinus, UnaryOpcode.Unp ); // +x-- -> +(x--)
+	set_unary_precedence( UnaryOpcode.MinusMinus, UnaryOpcode.Deref ); // *x-- -> *(x--)
 
 }

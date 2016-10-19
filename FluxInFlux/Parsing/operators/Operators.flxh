@@ -13,7 +13,7 @@ namespace Flux::Parsing::Operator;
 	}
 }
 
-/*private*/ enum UnaryOpcode {
+enum UnaryOpcode {
 	Call, MethodCall;
 	DotIndex, Index;
 	Cast;

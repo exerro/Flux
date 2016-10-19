@@ -37,7 +37,6 @@ ASTNode RightUnaryExpression:parse( Source source, Expression expr ) {
 		    || Flux::Parsing::OperatorImplements:parse( source, expr )
 		    || Flux::Parsing::OperatorTypeof:parse( source, expr )
 		    || Flux::Parsing::OperatorExtends:parse( source, expr );
-	}
 }
 
 string RightUnaryExpression:serialize()

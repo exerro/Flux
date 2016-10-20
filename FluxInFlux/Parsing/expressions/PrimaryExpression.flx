@@ -6,28 +6,31 @@
 // ! Haven't I already done these?
 
 import ConstantExpression;
-import ReferenceExpression;
-import ThrowExpression;
-import ListExpression;
-import TableExpression;
 import FunctionExpression;
-import NewExpression;
+import ListExpression;
 import MatchExpression;
+import NewExpression;
+import ReferenceExpression;
+import TableExpression;
+import ThrowExpression;
+import VarargExpression;
 
 namespace Flux::Parsing;
 
 class PrimaryExpression extends Flux::Parsing::Expression {
 
 }
+
 ASTNode PrimaryExpression:parse( Source source )
 	 = expr && (lexer:skip(Symbol, ")") || source:error "expected ')' after expression") && expr
 	|| Flux::Parsing::ConstantExpression:parse( source )
-	|| Flux::Parsing::ReferenceExpression:parse( source )
-	|| Flux::Parsing::ThrowExpression:parse( source )
-	|| Flux::Parsing::ListExpression:parse( source )
-	|| Flux::Parsing::TableExpression:parse( source )
 	|| Flux::Parsing::FunctionExpression:parse( source )
+	|| Flux::Parsing::ListExpression:parse( source )
 	|| Flux::Parsing::MatchExpression:parse( source )
 	|| Flux::Parsing::NewExpression:parse( source )
+	|| Flux::Parsing::ReferenceExpression:parse( source )
+	|| Flux::Parsing::TableExpression:parse( source )
+	|| Flux::Parsing::ThrowExpression:parse( source )
+	|| Flux::Parsing::VarargExpression:parse( source )
 	where lexer = source.lexer
 	where expr = lexer:skip(Symbol, "(") && (Flux::Parsing::Expression:parse(source) || source:error "expected expression after '('");

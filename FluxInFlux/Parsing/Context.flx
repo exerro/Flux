@@ -38,9 +38,9 @@ Context Context:specialise_classname() {
 	return self;
 }
 
-Context Context:specialise_function(bool isVararg) {
+Context Context:specialise_function(bool is_vararg) {
 	self:set_flag "is_function";
-	self:set_flag( "is_vararg_function", isVararg );
+	self:set_flag( "is_vararg_function", is_vararg );
 	self:unset_flag "is_loop";
 	self:unset_flag "is_root_level";
 	return self;

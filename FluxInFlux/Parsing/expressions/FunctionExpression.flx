@@ -1,4 +1,6 @@
 
+import definitions.FunctionParameter;
+
 namespace Flux::Parsing;
 
 class FunctionExpression extends PrimaryExpression {
@@ -21,6 +23,7 @@ ASTNode FunctionExpression:parse( Source source ) {
 	if lexer:skip( Keyword, "function" ) {
 		Type returns = lexer:skip( Symbol, "->" ) && Flux::Parsing::Type:parse( source ) || Flux::Parsing::Type:autoType( position );
 		FunctionParameter[] parameters = [];
+		bool is_vararg = false;
 
 		if !lexer:skip( Symbol, "(" ) source:error "expected '(' for function parameters";
 
@@ -28,15 +31,20 @@ ASTNode FunctionExpression:parse( Source source ) {
 			FunctionParameter parameter;
 
 			repeat {
-				parameter = Flux::Parsing::FunctionParameter:parse( source, parameter );
+				parameter = Flux::Parsing::FunctionParameter:parse( source, true, parameter );
 				parameters[#parameters + 1] = parameter;
+
+				if parameter.name == "..." && lexer:test( Symbol, "," )
+					source:error( "unexpected ',' after vararg (...) parameter" );
 			}
 			while lexer:skip( Symbol, "," );
+
+			is_vararg = parameter.name == "...";
 
 			if !lexer:skip( Symbol, ")" ) source:error "expected ')' to close function parameters";
 		}
 
-		Block body = Flux::Parsing::parseFunctionBody( source );
+		Block body = Flux::Parsing::parseFunctionBody( source, is_vararg );
 
 		return new Flux::Parsing::FunctionExpression( parameters, returns, body, position );
 	}

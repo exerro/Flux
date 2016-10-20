@@ -21,7 +21,7 @@ string resolveDefinitionName(Source source, string name);
 
 string intToName(int n);
 
-Block parseFunctionBody(Source source);
+Block parseFunctionBody(Source source, bool is_vararg);
 
 string serializeExpression(Expression e);
 

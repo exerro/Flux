@@ -1,0 +1,25 @@
+
+import PrimaryExpression;
+
+namespace Flux::Parsing;
+
+class VarargExpression extends PrimaryExpression {
+	VarargExpression(Position pos) {
+		self.position = pos;
+	}
+}
+
+ASTNode VarargExpression:parse(Source source) {
+	Position position = source.lexer:get().position;
+
+	if source.lexer:test( Symbol, "..." ) {
+		if source.file.context:get_flag "is_vararg_function"
+			source.lexer:next();
+		else
+			source:error( "invalid use of vararg (...) term: not in vararg function" );
+
+		return new Flux::Parsing::VarargExpression( position );
+	}
+}
+
+string VarargExpression:serialize() = "...";

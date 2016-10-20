@@ -1,11 +1,6 @@
 
 import libfolder.test;
 
-if (x = 1 + 2 + 3) {"main.flxh"}
-
-1 + 2 * 3 ** 4 ** 5 - 2;
--f();
-*x:f();
-*x[i];
-*a().b.c.d;
-`left` thing1 `boop` `right1` `binary` thing2 `right2`;
+function -> T0(T1 p1, T2 ...) {
+	return ...;
+};

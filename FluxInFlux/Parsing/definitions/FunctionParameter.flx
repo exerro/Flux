@@ -2,11 +2,11 @@
 namespace Flux::Parsing;
 
 class FunctionParameter extends ASTNode {
-	Type _type;
+	Type type;
 	string name;
 
-	FunctionParameter(Type _type, string name, null Position position = _type.position) {
-		self._type = _type;
+	FunctionParameter(Type type, string name, null Position position = type.position) {
+		self.type = type;
 		self.name = name;
 		self.position = position;
 	}
@@ -15,27 +15,36 @@ class FunctionParameter extends ASTNode {
 }
 
 FunctionParameter FunctionParameter:parse(Source source, bool parameterNamesGiven, null FunctionParameter prev) {
-	let lexer = source.lexer;
-
+	Lexer lexer = source.lexer;
 	Type type;
 
 	try {
 		type = Flux::Parsing::Type:parse(source);
 	}
 	catch ParserException e {
-		if parameterNamesGiven && e != "expected typename"
-			throw new ParserException(e);
+		if parameterNamesGiven && !e:find "expected typename"
+			throw new ParserException( e );
 	}
 
-	let name = parameterNamesGiven && lexer:skipValue( Identifier );
+	string name = parameterNamesGiven && lexer:skipValue( Identifier );
+
+	if !name && lexer:test( Symbol, "..." ) {
+		if !type && !prev
+			source:error( "expected type before '...'" );
+
+		name = lexer:next().value;
+	}
 
 	if name == null || type == null {
 		if type != null && prev != null && #type.classes == 0 {
 			name = type.name;
-			type = prev._type;
+			type = prev.type;
+		}
+		else if type == null && name != null && prev != null {
+			type = prev.type;
 		}
 		else if !parameterNamesGiven {
-			type = type || prev._type;
+			type = type || prev.type;
 		}
 		else if type != null {
 			source:error "expected name after type";
@@ -49,4 +58,4 @@ FunctionParameter FunctionParameter:parse(Source source, bool parameterNamesGive
 }
 
 string FunctionParameter:serialize()
-	= self._type:serialize() `concat` " " `concat` self.name;
+	= self.type:serialize() `concat` " " `concat` self.name;

@@ -1,0 +1,24 @@
+
+import expressions.TernaryExpression;
+
+namespace Flux::Parsing;
+
+class TernaryOperatorParser {
+	ASTNode[] conditions;
+	ASTNode[] case_trues;
+	Position[] positions;
+	ASTNode final_case;
+
+	TernaryOperatorParser() {
+		self.conditions = [];
+		self.case_trues = [];
+		self.positions = [];
+	}
+
+	private:
+	ASTNode get_term(Source source);
+	void collect_top_expression();
+
+	public:
+	ASTNode parse(Source source);
+}

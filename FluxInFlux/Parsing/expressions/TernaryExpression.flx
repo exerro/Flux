@@ -1,0 +1,23 @@
+
+namespace Flux::Parsing;
+
+class TernaryExpression extends ASTNode {
+	ASTNode condition;
+	ASTNode[] values;
+
+	TernaryExpression(ASTNode condition, ASTNode[] values, Position position) {
+		self.condition = condition;
+		self.values = values;
+		self.position = position;
+	}
+}
+
+// no need to define a parse method
+
+string TernaryExpression:serialize()
+	= Flux::Parsing::serializeExpression( self.values[1] )
+		`concat` " if " `concat`
+		`concat` Flux::Parsing::serializeExpression( self.condition )
+		`concat` (#self.values == 2
+		    && " else " `concat` Flux::Parsing::serializeExpression( self.values[2] )
+		    || "");

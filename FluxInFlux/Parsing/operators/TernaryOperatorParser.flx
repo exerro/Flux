@@ -1,0 +1,47 @@
+
+namespace Flux::Parsing;
+
+ASTNode TernaryOperatorParser:get_term(Source source) {
+	return Flux::Parsing::BinaryExpression:parse( source );
+}
+
+void TernaryOperatorParser:collect_top_expression() {
+	ASTNode condition = table.remove( self.conditions, #self.conditions );
+	ASTNode case_true = table.remove( self.case_trues, #self.case_trues );
+	Position position = table.remove( self.positions, #self.positions );
+
+	if self.final_case
+		self.final_case = new Flux::Parsing::TernaryExpression( condition, [case_true, self.final_case], position );
+	else
+		self.final_case = new Flux::Parsing::TernaryExpression( condition, [case_true], position );
+}
+
+ASTNode TernaryOperatorParser:parse(Source source) {
+	ASTNode case_true = self:get_term( source );
+	bool isnt_first = false;
+
+	if !case_true || !source.lexer:test( Keyword, "if" )
+		return case_true;
+
+	repeat {
+		case_true = !isnt_first && (isnt_first = true) && case_true || self:get_term( source )
+			|| source:error( "expected expression after 'else'" );
+
+		if source.lexer:test( Keyword, "if" ) {
+			self.positions[#self.positions + 1] = source.lexer:next().position;
+			self.case_trues[#self.case_trues + 1] = case_true;
+			self.conditions[#self.conditions + 1] = self:get_term( source )
+				|| source:error( "expected expression after 'if'" );
+		}
+		else {
+			self.final_case = case_true;
+			break;
+		}
+	}
+	while source.lexer:skip( Keyword, "else" );
+
+	while #self.conditions > 0
+		self:collect_top_expression();
+
+	return self.final_case;
+}

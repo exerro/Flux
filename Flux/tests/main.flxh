@@ -2,5 +2,11 @@
 import libfolder.test;
 
 function -> T0(T1 p1, T2 ...) {
-	return ...;
+	if true
+		return ...;
 };
+
+print( 5 );
+print( 5 if true else 3 );
+print( 5 if false );
+print( 8 if c8 else 3 if c3 else 5 );

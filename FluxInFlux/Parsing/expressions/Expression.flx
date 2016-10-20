@@ -4,6 +4,7 @@ import RightUnaryExpression;
 import LeftUnaryExpression;
 import BacktickExpression;
 import BinaryExpression;
+import operators.TernaryOperatorParser;
 
 namespace Flux::Parsing;
 
@@ -12,7 +13,6 @@ class Expression extends ASTNode {
 }
 
 ASTNode Expression:parse(Source source) {
-	// parse binary expression
-	let term = Flux::Parsing::BinaryExpression:parse(source);
-	return term;
+	new Flux::Parsing::TernaryOperatorParser expr();
+	return expr:parse( source );
 }

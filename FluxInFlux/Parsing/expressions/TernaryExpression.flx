@@ -3,11 +3,13 @@ namespace Flux::Parsing;
 
 class TernaryExpression extends ASTNode {
 	ASTNode condition;
-	ASTNode[] values;
+	ASTNode case_true;
+	ASTNode case_false;
 
-	TernaryExpression(ASTNode condition, ASTNode[] values, Position position) {
+	TernaryExpression(ASTNode condition, case_true, case_false, Position position) {
 		self.condition = condition;
-		self.values = values;
+		self.case_true = case_true;
+		self.case_false = case_false;
 		self.position = position;
 	}
 }
@@ -15,9 +17,8 @@ class TernaryExpression extends ASTNode {
 // no need to define a parse method
 
 string TernaryExpression:serialize()
-	= Flux::Parsing::serializeExpression( self.values[1] )
-		`concat` " if " `concat`
+	= Flux::Parsing::serializeExpression( self.case_true )
+		`concat` " if "
 		`concat` Flux::Parsing::serializeExpression( self.condition )
-		`concat` (#self.values == 2
-		    && " else " `concat` Flux::Parsing::serializeExpression( self.values[2] )
-		    || "");
+		`concat` " else "
+		`concat` Flux::Parsing::serializeExpression( self.case_false );

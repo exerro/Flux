@@ -10,10 +10,13 @@ void TernaryOperatorParser:collect_top_expression() {
 	ASTNode case_true = table.remove( self.case_trues, #self.case_trues );
 	Position position = table.remove( self.positions, #self.positions );
 
-	if self.final_case
-		self.final_case = new Flux::Parsing::TernaryExpression( condition, [case_true, self.final_case], position );
-	else
-		self.final_case = new Flux::Parsing::TernaryExpression( condition, [case_true], position );
+	if self.final_case {
+		self.final_case = new Flux::Parsing::TernaryExpression( condition, case_true, self.final_case, position );
+	}
+	else {
+		let null_obj = new Flux::Parsing::ConstantExpression( Flux::Parsing::ConstantType.Null, "null", position );
+		self.final_case = new Flux::Parsing::TernaryExpression( condition, case_true, null_obj, position );
+	}
 }
 
 ASTNode TernaryOperatorParser:parse(Source source) {

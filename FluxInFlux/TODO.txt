@@ -1,8 +1,7 @@
 
 Parsing
-	[ ]	Vararg functions
-	[ ]	Add `A if C else B` syntax
 	[ ]	Add preprocessor instruction support
+	[ ] Definitions and stuff :'(
 	[ ] Add some sort of foreign function/variable/class interface
 		`extern<some_func> int f() void;`
 		`extern<some_class> class C {}`

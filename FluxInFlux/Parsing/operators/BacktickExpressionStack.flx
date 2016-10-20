@@ -53,7 +53,7 @@ bool BacktickExpressionStack:get_initial_term(Source source) {
 	}
 
 	for (int i = #left_operators, i > 0, i--)
-		self.term = new Flux::Parsing::BacktickExpression( true, [self.term], op, pos );
+		self.term = new Flux::Parsing::BacktickExpression( true, [self.term], left_operators[i], positions[i] );
 
 	return true;
 }
@@ -72,7 +72,7 @@ bool BacktickExpressionStack:get_following_term(Source source) {
 	}
 
 	if #operators > 0 {
-		ASTNode term = self:get_term();
+		ASTNode term = self:get_term( source );
 		int op_limit = term != null && #operators - 1 || #operators;
 
 		for (int i = 1, i <= op_limit, i++)

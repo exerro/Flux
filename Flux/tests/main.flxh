@@ -1,4 +1,11 @@
 
-import libfolder.test;
+// import libfolder.test;
 
-if (x = 1 + 2 + 3) {"main.flxh"}
+// if (x = 1 + 2 + 3) {"main.flxh"}
+
+1 + 2 * 3 ** 4 ** 5 - 2;
+-f();
+*x:f();
+*x[i];
+*a().b.c.d;
+`left` thing1 `boop` `right1` `binary` thing2 `right2`;

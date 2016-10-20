@@ -10,7 +10,7 @@ void UnaryOperatorExpressionStack:combine_left_operator() {
 
 	self.left_opcode_cache[#self.left_opcode_cache] = null;
 
-	self.term = new LeftUnaryExpression( self.term, op, pos );
+	self.term = new Flux::Parsing::LeftUnaryExpression( self.term, op, pos );
 }
 
 // parse and store all left unary operators
@@ -19,8 +19,8 @@ void UnaryOperatorExpressionStack:parse_left_unary_operators(Source source) {
 
 	while opcode != Flux::Parsing::Operator::UnaryOpcode.None
 	   && Flux::Parsing::Operator::is_unary_left_operator( opcode ) {
-		string op = lexer:get().value;
-		Position pos = lexer:next().position;
+		string op = source.lexer:get().value;
+		Position pos = source.lexer:next().position;
 
 		self.left_operator_cache[#self.left_operator_cache + 1] = op;
 		self.left_opcode_cache[#self.left_opcode_cache + 1] = opcode;
@@ -46,7 +46,10 @@ void UnaryOperatorExpressionStack:parse_right_unary_operators(Source source) {
 	UnaryOpcode opcode = Flux::Parsing::Operator::get_unary_opcode( source );
 
 	while opcode != Flux::Parsing::Operator::UnaryOpcode.None {
+		print( self:get_top_left_opcode(), opcode );
+
 		while Flux::Parsing::Operator::get_unary_precedence( self:get_top_left_opcode(), opcode ) {
+			print( "Combining" );
 			self:combine_left_operator();
 		}
 
@@ -56,6 +59,8 @@ void UnaryOperatorExpressionStack:parse_right_unary_operators(Source source) {
 			self.term = expr;
 		else
 			break;
+
+		opcode = Flux::Parsing::Operator::get_unary_opcode( source );
 	}
 }
 

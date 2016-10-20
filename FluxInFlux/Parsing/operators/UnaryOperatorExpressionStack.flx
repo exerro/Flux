@@ -46,10 +46,7 @@ void UnaryOperatorExpressionStack:parse_right_unary_operators(Source source) {
 	UnaryOpcode opcode = Flux::Parsing::Operator::get_unary_opcode( source );
 
 	while opcode != Flux::Parsing::Operator::UnaryOpcode.None {
-		print( self:get_top_left_opcode(), opcode );
-
 		while Flux::Parsing::Operator::get_unary_precedence( self:get_top_left_opcode(), opcode ) {
-			print( "Combining" );
 			self:combine_left_operator();
 		}
 

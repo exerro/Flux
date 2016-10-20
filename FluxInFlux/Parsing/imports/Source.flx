@@ -69,8 +69,9 @@ bool Source:import_file(string name) {
 				self:close_file();
 
 				if Flux::is_file( file_path `concat` ".flx" ) {
-					self.import_queue[#self.import_queue + 1] = file_path;
-					self.import_queue_names[#self.import_queue_names + 1] = name;
+					self:setup_file( name, file_path, ".flx" );
+					self:parse_content();
+					self:close_file();
 				}
 			}
 
@@ -96,16 +97,6 @@ bool Source:import_project(string[] files) {
 			return false;
 
 		table.remove( files, 1 );
-	}
-
-	while self.import_queue[1] {
-		let file = table.remove( self.import_queue, 1 );
-
-		table.remove( self.import_queue_names, 1 );
-
-		self:setup_file( self.import_queue_names[i], file, ".flx" );
-		self:parse_content();
-		self:close_file();
 	}
 
 	return true;

@@ -9,7 +9,7 @@ import operators.TernaryOperatorParser;
 namespace Flux::Parsing;
 
 class Expression extends ASTNode {
-
+	static ASTNode parse(Source source);
 }
 
 ASTNode Expression:parse(Source source) {

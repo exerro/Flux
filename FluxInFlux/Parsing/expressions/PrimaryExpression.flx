@@ -18,7 +18,7 @@ import VarargExpression;
 namespace Flux::Parsing;
 
 class PrimaryExpression extends Flux::Parsing::Expression {
-
+	static ASTNode parse(Source source);
 }
 
 ASTNode PrimaryExpression:parse( Source source )

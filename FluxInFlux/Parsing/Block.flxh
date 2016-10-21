@@ -20,4 +20,6 @@ class Block (ASTNode) extends Flux::Parsing::ASTNode {
 	}
 
 	void push(ASTNode node);
+
+	static ASTNode parse(Source source);
 }

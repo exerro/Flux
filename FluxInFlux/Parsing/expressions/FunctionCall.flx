@@ -12,6 +12,8 @@ class FunctionCall extends RightUnaryExpression {
 		self.parameters = parameters;
 		self.position = position;
 	}
+
+	static ASTNode parse(Source source);
 }
 
 ASTNode FunctionCall:parse( Source source, Expression value ) {

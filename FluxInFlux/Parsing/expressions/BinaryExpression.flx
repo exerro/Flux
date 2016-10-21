@@ -16,6 +16,8 @@ class BinaryExpression extends RightUnaryExpression {
 		self.op = op;
 		self.position = position;
 	}
+
+	static ASTNode parse(Source source);
 }
 
 ASTNode BinaryExpression:parse(Source source) {

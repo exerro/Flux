@@ -10,6 +10,8 @@ class OperatorTypeof extends RightUnaryExpression {
 		self.type = type;
 		self.position = position;
 	}
+
+	static ASTNode parse(Source source);
 }
 
 ASTNode OperatorTypeof:parse( Source source, null Expression value )

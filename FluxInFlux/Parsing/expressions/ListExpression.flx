@@ -14,6 +14,8 @@ class ListExpression extends Flux::Parsing::PrimaryExpression {
 		self.source_values = source_values;
 		self.position = position;
 	}
+
+	static ASTNode parse(Source source);
 }
 
 ASTNode ListExpression:parse(Source source)
@@ -33,7 +35,7 @@ ASTNode ListExpression:parse(Source source)
 			if lexer:skip( Keyword, "where" )
 				repeat {
 					let expr = Flux::Parsing::Expression:parse( source )
-						       || source:error "expected expression for comprehension";
+						    || source:error "expected expression for comprehension";
 
 					if lexer:skip( Symbol, "=>" ) {
 						source_values[#source_values + 1] = expr;

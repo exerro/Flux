@@ -12,6 +12,8 @@ class NewExpression extends PrimaryExpression {
 		self.parameters = parameters;
 		self.position = position;
 	}
+
+	static ASTNode parse(Source source);
 }
 
 ASTNode NewExpression:parse( Source source ) {

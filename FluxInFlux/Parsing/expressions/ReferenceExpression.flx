@@ -8,6 +8,8 @@ class ReferenceExpression extends Flux::Parsing::PrimaryExpression {
 		self.name = name;
 		self.position = position;
 	}
+
+	static ASTNode parse(Source source);
 }
 
 ASTNode ReferenceExpression:parse(Source source)

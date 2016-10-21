@@ -10,6 +10,8 @@ class DotIndex extends RightUnaryExpression {
 		self.index = index;
 		self.position = position;
 	}
+
+	static ASTNode parse(Source source);
 }
 
 ASTNode DotIndex:parse( Source source, Expression value )

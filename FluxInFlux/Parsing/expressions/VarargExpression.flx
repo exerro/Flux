@@ -7,6 +7,8 @@ class VarargExpression extends PrimaryExpression {
 	VarargExpression(Position pos) {
 		self.position = pos;
 	}
+
+	static ASTNode parse(Source source);
 }
 
 ASTNode VarargExpression:parse(Source source) {

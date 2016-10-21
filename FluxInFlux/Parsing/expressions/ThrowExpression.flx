@@ -8,6 +8,8 @@ class ThrowExpression extends Flux::Parsing::PrimaryExpression {
 		self.value = value;
 		self.position = position;
 	}
+
+	static ASTNode parse(Source source);
 }
 
 ASTNode ThrowExpression:parse(Source source)

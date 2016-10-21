@@ -8,6 +8,4 @@ class ASTNode {
 
 	string serialize()
 		= "<Serialization of class isn't implemented>";
-
-	static ASTNode parse( Source source );
 }

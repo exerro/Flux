@@ -19,6 +19,8 @@ class RightUnaryExpression extends Flux::Parsing::PrimaryExpression {
 		self.op = op;
 		self.position = position;
 	}
+
+	static ASTNode parse(Source source);
 }
 
 ASTNode RightUnaryExpression:parse( Source source, Expression expr ) {

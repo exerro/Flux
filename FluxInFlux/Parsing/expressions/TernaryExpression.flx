@@ -14,8 +14,6 @@ class TernaryExpression extends ASTNode {
 	}
 }
 
-// no need to define a parse method
-
 string TernaryExpression:serialize()
 	= Flux::Parsing::serializeExpression( self.case_true )
 		`concat` " if "

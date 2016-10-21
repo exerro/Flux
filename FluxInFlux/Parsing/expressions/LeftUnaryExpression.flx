@@ -14,9 +14,6 @@ class LeftUnaryExpression extends Flux::Parsing::PrimaryExpression {
 	}
 }
 
-// no parse() method required
-// handled by operators.UnaryOperatorExpressionStack
-
 string LeftUnaryExpression:serialize()
 	= self.op `concat` value
 	where value = Flux::Parsing::serializeExpression(self.value);

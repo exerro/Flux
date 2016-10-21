@@ -10,6 +10,8 @@ class TableExpression extends Flux::Parsing::PrimaryExpression {
 		self.values = values;
 		self.position = position;
 	}
+
+	static ASTNode parse(Source source);
 }
 
 ASTNode TableExpression:parse(Source source)

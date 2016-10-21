@@ -10,6 +10,8 @@ class Index extends RightUnaryExpression {
 		self.index = index;
 		self.position = position;
 	}
+
+	static ASTNode parse(Source source);
 }
 
 ASTNode Index:parse( Source source, Expression value ) {

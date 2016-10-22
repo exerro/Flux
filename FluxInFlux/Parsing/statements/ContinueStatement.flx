@@ -16,7 +16,7 @@ bool ContinueStatement:parse(Source source) {
 
 	if lexer:skip( Keyword, "continue" ) {
 		Flux::Parsing::expectSemicolon( source, "continue statement" );
-		source.file:push( new Flux::Parsing::BreakStatement( position ) );
+		source.file:push( new Flux::Parsing::ContinueStatement( position ) );
 
 		return true;
 	}

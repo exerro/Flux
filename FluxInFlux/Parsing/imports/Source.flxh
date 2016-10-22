@@ -10,7 +10,7 @@ class Source {
 	string{string} environment;
 	string[][] current_include_path;
 	File{string} files_included;
-	File[] files;
+	File[] active_files;
 
 	Lexer lexer;
 	File file;
@@ -23,12 +23,17 @@ class Source {
 		self.import_queue = [];
 		self.import_queue_names = [];
 		self.files_included = {};
-		self.files = [];
+		self.active_files = [];
 	}
 
+	private:
 	void setup_file(string name, string path, string extension);
 	void parse_content();
 	void close_file();
+
+	public:
+	// sets a 'global'
+	void set_environment_variable(string index, string value);
 
 	bool import_file(string name);
 	bool import_project(string[] files);

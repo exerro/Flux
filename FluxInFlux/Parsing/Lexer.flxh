@@ -15,16 +15,19 @@ class Lexer {
 	int position = 1;
 	string text = "";
 
-	string source = "string";
+	string source_name_name = "string";
 	int character = 1, line = 1;
 	string strline = "";
+
+	Source source;
 
 	Token[] buffer = [];
 	int buffer_position = 1;
 
-	Lexer(string text, null string source = "string") {
-		self.source = source;
+	Lexer(string text, string source_name, Source source) {
+		self.source_name = source_name;
 		self.text = text;
+		self.source = source;
 		self.buffer = [];
 	}
 
@@ -35,14 +38,14 @@ class Lexer {
 
 	Token consumePattern(TokenType type, string pattern);
 
-	Token consumeInstruction();
-	Token consumeString(); // String, Character
-	Token consumeBacktick(); // Backtick
-	Token consumeWord(); // Identifier, Keyword, Boolean, Null
-	Token consumeNumber(); // Float, Integer, Byte
-	Token consumeHexadecimal(); // Hexadecimal
-	Token consumeBinary(); // Binary
-	Token consumeSymbol(); // Symbol
+	void consumeInstruction();
+	void consumeString(); // String, Character
+	void consumeBacktick(); // Backtick
+	void consumeWord(); // Identifier, Keyword, Boolean, Null
+	void consumeNumber(); // Float, Integer, Byte
+	void consumeHexadecimal(); // Hexadecimal
+	void consumeBinary(); // Binary
+	void consumeSymbol(); // Symbol
 
 	void skipWhitespace();
 	void skipComment();

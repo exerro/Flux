@@ -10,11 +10,11 @@ string getline( string text, int line ) {
 Position Lexer:getPosition(null int n = 0) {
 	let character = self.character;
 	self.character += n;
-	return new Flux::Position( self.source, self.line, character, self.strline );
+	return new Flux::Position( self.source_name, self.line, character, self.strline );
 }
 
 bool Lexer:isEOF()
-	= self:test(Flux::Parsing::TokenType.EOF) && true || false;
+	= self:test( Flux::Parsing::TokenType.EOF ) && true || false;
 
 void Lexer:error(string err, null Position position = self:getPosition())
 	= throw new LexerException(src `concat` '[' `concat` line `concat` ']: ' `concat` err `concat` "\n\t"
@@ -35,15 +35,15 @@ Token Lexer:consumePattern(TokenType type, string pattern) {
 	return new Flux::Parsing::Token( type, value, self:getPosition( #value ) );
 }
 
-Token Lexer:consumeInstruction() {
+void Lexer:consumeInstruction() {
 	let value = string__match( self.text, "^@([%w_%-]+)", self.position );
 
 	self.position += #value + 1;
 
-	return new Flux::Parsing::Token( Flux::Parsing::TokenType.Instruction, value, self:getPosition( #value + 1 ) );
+	self.buffer[#self.buffer + 1] = new Flux::Parsing::Token( Flux::Parsing::TokenType.Instruction, value, self:getPosition( #value + 1 ) );
 }
 
-Token Lexer:consumeString() {
+void Lexer:consumeString() {
 	let s = {};
 	let pos = self:getPosition( 1 );
 	let opening = self.text:sub( self.position, self.position );
@@ -72,12 +72,14 @@ Token Lexer:consumeString() {
 			self.character = 1;
 		}
 
-		else if char == opening // the closing string tag
+		else if char == opening { // the closing string tag
 			self.position = i + 1;
-			then if opening == "'" && #s == 1
-				return new Flux::Parsing::Token( Flux::Parsing::TokenType.Character, table.concat( s ), pos );
+			if opening == "'" && #s == 1
+				self.buffer[#self.buffer + 1] = new Flux::Parsing::Token( Flux::Parsing::TokenType.Character, table.concat( s ), pos );
 			else
-				return new Flux::Parsing::Token( Flux::Parsing::TokenType.String, table.concat( s ), pos );
+				self.buffer[#self.buffer + 1] = new Flux::Parsing::Token( Flux::Parsing::TokenType.String, table.concat( s ), pos );
+			return;
+		}
 
 		else // any other character
 			s[#s + 1] = char;
@@ -87,7 +89,7 @@ Token Lexer:consumeString() {
 
 }
 
-Token Lexer:consumeBacktick() {
+void Lexer:consumeBacktick() {
 	let content = string__match( self.text, "`([^\n]-)`", self.position );
 	let len = #content;
 
@@ -112,10 +114,10 @@ Token Lexer:consumeBacktick() {
 
 	self.position += len + 2;
 
-	return Token( "Backtick", content, self:getPosition( len + 2 ) );
+	self.buffer[#self.buffer + 1] = Token( "Backtick", content, self:getPosition( len + 2 ) );
 }
 
-Token Lexer:consumeWord() {
+void Lexer:consumeWord() {
 	let token = self:consumePattern( Flux::Parsing::TokenType.Identifier, "[%w_]+" );
 
 	if Flux::Parsing::language::keywords[token.value]
@@ -124,40 +126,48 @@ Token Lexer:consumeWord() {
 	else if token.value == "true" || token.value == "false"
 		token.type = Flux::Parsing::TokenType.Boolean;
 
-	return token;
+	self.buffer[#self.buffer + 1] = token;
 }
 
-Token Lexer:consumeNumber()
+void Lexer:consumeNumber() {
+	self.buffer[#self.buffer + 1]
 	 = self:consumePattern( Flux::Parsing::TokenType.Float, "%d*%.%d+e[%+%-]?%d+" )
 	|| self:consumePattern( Flux::Parsing::TokenType.Float, "%d*%.%d+" )
 	|| self:consumePattern( Flux::Parsing::TokenType.Byte, "%d+e[%+%-]?%d+b" )
 	|| self:consumePattern( Flux::Parsing::TokenType.Byte, "%d+b" )
 	|| self:consumePattern( Flux::Parsing::TokenType.Integer, "%d+e[%+%-]?%d+" )
 	|| self:consumePattern( Flux::Parsing::TokenType.Integer, "%d+" );
+}
 
-Token Lexer:consumeHexadecimal()
-	= self:consumePattern( Flux::Parsing::TokenType.Hexadecimal, "0x%x+" );
+void Lexer:consumeHexadecimal() {
+	self.buffer[#self.buffer + 1] = self:consumePattern( Flux::Parsing::TokenType.Hexadecimal, "0x%x+" );
+}
 
-Token Lexer:consumeBinary()
-	= self:consumePattern( Flux::Parsing::TokenType.Binary, "0b[01]+" );
+void Lexer:consumeBinary() {
+	self.buffer[#self.buffer + 1] = self:consumePattern( Flux::Parsing::TokenType.Binary, "0b[01]+" );
+}
 
-Token Lexer:consumeSymbol() {
+void Lexer:consumeSymbol() {
 	let position = self.position;
 	let s3 = self.text:sub( position, position + 2 );
 	let s2 = self.text:sub( position, position + 1 );
 	let s1 = self.text:sub( position, position );
 
-	if Flux::Parsing::language::symbols[s3]
+	if Flux::Parsing::language::symbols[s3] {
 		self.position += 3;
-		then return new Flux::Parsing::Token( Flux::Parsing::TokenType.Symbol, s3, self:getPosition( 3 ) );
-	else if Flux::Parsing::language::symbols[s2]
+		self.buffer[#self.buffer + 1] = new Flux::Parsing::Token( Flux::Parsing::TokenType.Symbol, s3, self:getPosition( 3 ) );
+	}
+	else if Flux::Parsing::language::symbols[s2] {
 		self.position += 2;
-		then return new Flux::Parsing::Token( Flux::Parsing::TokenType.Symbol, s2, self:getPosition( 2 ) );
-	else if Flux::Parsing::language::symbols[s1]
+		self.buffer[#self.buffer + 1] = new Flux::Parsing::Token( Flux::Parsing::TokenType.Symbol, s2, self:getPosition( 2 ) );
+	}
+	else if Flux::Parsing::language::symbols[s1] {
 		self.position += 1;
-		then return new Flux::Parsing::Token( Flux::Parsing::TokenType.Symbol, s1, self:getPosition( 1 ) );
-	else
+		self.buffer[#self.buffer + 1] = new Flux::Parsing::Token( Flux::Parsing::TokenType.Symbol, s1, self:getPosition( 1 ) );
+	}
+	else {
 		return self:error( table.concat({ "unexpected symbol '", s1, "'" }) );
+	}
 }
 
 void Lexer:skipWhitespace() {
@@ -167,7 +177,7 @@ void Lexer:skipWhitespace() {
 }
 
 void Lexer:skipComment() {
-	if self.text:find( "^//", self.position ) {
+	if self.text:sub( self.position, self.position + 1 ) == "//" {
 		self.line++;
 		self.strline = Flux::Parsing::getline( self.text, self.line );
 		self.character = 1;
@@ -198,53 +208,50 @@ void Lexer:skipNewline() {
 }
 
 void Lexer:consume() {
-	if self.text:find( "^\n", self.position )
+	// skip comments and whitespace
+	if self.text:find( "^\n", self.position ) {
 		self:skipNewline();
-		then return self:consume();
-
-	else if self.text:find( "^/[%*/]", self.position )
+		return;
+	}
+	else if self.text:sub( self.position, self.position + 1 ) == "//"
+	     || self.text:sub( self.position, self.position + 1 ) == "/*" {
 		self:skipComment();
-		then return self:consume();
-
-	else if self.text:find( "^%s", self.position )
+		return;
+	}
+	else if self.text:find( "^%s", self.position ) {
 		self:skipWhitespace();
-		then return self:consume();
-
-	Token token;
+		return;
+	}
 
 	if self.position > #self.text
-		token = Token.EOF( self:getPosition() );
+		self.buffer[#self.buffer + 1] = Token.EOF( self:getPosition() );
 
 	else if self.text:find( "^@[%w_%-]", self.position )
-		token = self:consumeInstruction();
+		self:consumeInstruction();
 
 	else if self.text:find( "^[\"']", self.position )
-		token = self:consumeString();
+		self:consumeString();
 
 	else if self.text:find( "^0x%x+", self.position )
-		token = self:consumeHexadecimal();
+		self:consumeHexadecimal();
 
 	else if self.text:find( "^0b[01]+", self.position )
-		token = self:consumeBinary();
+		self:consumeBinary();
 
 	else if self.text:find( "^%d+b?%W", self.position ) || self.text:find( "^%d+b?$", self.position )
 		|| self.text:find( "^%d+e[%+%-]?%d+b?%W", self.position ) || self.text:find( "^%d+e[%+%-]?%d+b?$", self.position )
 		|| self.text:find( "^%d*%.%d+%W", self.position ) || self.text:find( "^%d*%.%d+$", self.position )
 		|| self.text:find( "^%d*%.%d+e[%+%-]?%d+%W", self.position ) || self.text:find( "^%d*%.%d+e[%+%-]?%d+$", self.position )
-		token = self:consumeNumber();
+		self:consumeNumber();
 
 	else if self.text:find( "^[%w_]+", self.position )
-		token = self:consumeWord();
+		self:consumeWord();
 
 	else if self.text:sub( self.position, self.position ) == "`"
-		token = self:consumeBacktick();
+		self:consumeBacktick();
 
 	else
-		token = self:consumeSymbol();
-
-	self.buffer[#self.buffer + 1] = token;
-
-	return token;
+		self:consumeSymbol();
 }
 
 int Lexer:mark()

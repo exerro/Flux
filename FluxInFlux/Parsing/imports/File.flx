@@ -1,8 +1,8 @@
 
 namespace Flux::Parsing;
 
-void File:initialise_lexer(string source) {
-	self.lexer = new Flux::Parsing::Lexer( source, self.name );
+void File:initialise_lexer(string source_text) {
+	self.lexer = new Flux::Parsing::Lexer( source_text, self.name, self.source );
 	self.context = new Flux::Parsing::Context():specialise_root();
 
 	self.contexts[1] = self.context;

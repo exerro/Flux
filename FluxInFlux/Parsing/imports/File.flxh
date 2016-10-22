@@ -11,9 +11,12 @@ class File {
 	string name;
 	string path;
 
+	Source source;
+
 	File[] imports;
 
 	Type[] types;
+	ASTNode[] declarations;
 	ASTNode[] statements;
 
 	Lexer lexer;
@@ -21,14 +24,22 @@ class File {
 	Context[] contexts;
 	Block[] blocks;
 
-	File(string name, string path) {
+	string{string} environment;
+
+	File(string name, string path, Source source) {
 		self.name = name;
 		self.path = path;
+		self.source = source;
 		self.imports = [];
 		self.types = [];
+		self.declarations = [];
 		self.statements = [];
 		self.contexts = [];
 		self.blocks = [];
+		self.environment = {};
+
+		foreach k, v in source.environment
+			self.environment[k] = v;
 	}
 
 	void initialise_lexer(string source);

@@ -4,12 +4,10 @@ namespace Flux::Parsing;
 class RepeatLoop extends Flux::Parsing::Statement {
 	Expression condition;
 	Block block;
-	bool inverted;
 
-	RepeatLoop(Expression condition, Block block, bool inverted, null Position position = condition.position) {
+	RepeatLoop(Expression condition, Block block, null Position position = condition.position) {
 		self.condition = condition;
 		self.block = block;
-		self.inverted = inverted;
 		self.position = position;
 	}
 }
@@ -30,25 +28,39 @@ bool RepeatLoop:parse(Source source) {
 
 	if lexer:skip( Keyword, "until" ) {
 		condition = Flux::Parsing::Expression:parse( source ) || source:error "expected condition after 'until'";
-		inverted = false;
+		inverted = true;
 	}
-
 	else if lexer:skip( Keyword, "while" ) {
 		condition = Flux::Parsing::Expression:parse( source ) || source:error "expected condition after 'while'";
-		inverted = true;
+		inverted = false;
+	}
+	else {
+		condition = new Flux::Parsing::ConstantExpression( Flux::Parsing::ConstantType.Boolean, "true", position );
+		inverted = false;
 	}
 
 	if !Flux::Parsing::parseSemicolon(lexer)
 		source:error "expected ';' after condition";
 
-	else
-		condition = new Flux::Parsing::ConstantExpression( Flux::Parsing::ConstantType.Boolean, "false" );
-		then inverted = false;
+	if inverted {
+		new Flux::Parsing::Block break_block( false, position );
+		new Flux::Parsing::BreakStatement break_statement( position );
+		new Flux::Parsing::IfStatement if_break_block( condition, break_block, null, position );
+		new Flux::Parsing::ConstantExpression true_constant( Flux::Parsing::ConstantType.Boolean, "true", position );
 
-	source.file:push( new Flux::Parsing::RepeatLoop(condition, block, inverted, position) );
+		break_block:push( break_statement );
+		block:push( if_break_block );
+
+		source.file:push( new Flux::Parsing::RepeatLoop( true_constant, block, position ) );
+	}
+	else {
+		source.file:push( new Flux::Parsing::RepeatLoop( condition, block, position ) );
+	}
 
 	return true;
 }
 
 string RepeatLoop:serialize()
-	= "repeat " `concat` self.block:serialize() `concat` (self.inverted && "\nwhile " || "\nuntil ") `concat` self.condition:serialize() `concat`;
+	= "repeat " `concat` self.block:serialize()
+	`concat` "\nwhile "
+	`concat` Flux::Parsing::serializeExpression( self.condition ) `concat` ";";

@@ -24,7 +24,7 @@ import UsingStatement;
 namespace Flux::Parsing;
 
 class Statement extends Flux::Parsing::ASTNode {
-	static ASTNode parse(Source source);
+	static bool parse(Source source);
 }
 
 void Statement:parse(Source source) {

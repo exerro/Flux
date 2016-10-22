@@ -11,7 +11,7 @@ class Block (ASTNode) extends Flux::Parsing::ASTNode {
 	// int operator#() = self:__len__();
 	// void push(ASTNode node) = self:__set__(#self + 1, node);
 
-	Block(bool isVoid, null Position position = nodes[1] && nodes[1].position, null ASTNode nodes = [], null Position position) {
+	Block(bool isVoid, null Position position = nodes && nodes[1] && nodes[1].position, null ASTNode nodes = []) {
 		foreach i, node in nodes
 			self[i] = node;
 
@@ -19,7 +19,7 @@ class Block (ASTNode) extends Flux::Parsing::ASTNode {
 		self.isVoid = isVoid;
 	}
 
-	void push(ASTNode node);
+	void push(ASTNode node, int position);
 
 	static ASTNode parse(Source source);
 }

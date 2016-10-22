@@ -20,8 +20,8 @@ ASTNode Block:parse(Source source) {
 	return source.file:pop_block();
 }
 
-void Block:push(ASTNode node) {
-	self[#self + 1] = node;
+void Block:push(ASTNode node, null int pos = #self + 1) {
+	table.insert( self, pos, node );
 }
 
 string Block:serialize()

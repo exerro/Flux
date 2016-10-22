@@ -1,8 +1,12 @@
 
+import RepeatLoop;
+import DoStatement;
+
 namespace Flux::Parsing;
 
-class ForLoop extends Flux::Parsing::Statement {}
-	// Note, this won't exist in the AST as it creates a while loop
+class ForLoop {
+	static bool parse(Source source);
+}
 
 bool ForLoop:parse(Source source) {
 	let lexer = source.lexer;
@@ -37,16 +41,19 @@ bool ForLoop:parse(Source source) {
 	let block = Flux::Parsing::Block:parse( source );
 	source.file:pop_context();
 
-	block[#block + 1] = increment;
+	block:push( increment );
 
-	let doblock = new Flux::Parsing::Block( [
-		new Flux::Parsing::Definition( type, null, name, value, false, false, false ),
-		new Flux::Parsing::WhileLoop( condition, block )
-	], position );
+	new Flux::Parsing::Block break_block( false, position );
+	new Flux::Parsing::BreakStatement break_statement( position );
+	new Flux::Parsing::IfStatement sub_block( condition, block, break_block, position );
+	new Flux::Parsing::ConstantExpression true_constant( Flux::Parsing::ConstantType.Boolean, "true", position );
+	new Flux::Parsing::ConstantExpression definition( Flux::Parsing::ConstantType.String, "definition of " `concat` name, position ); // this is temporary until definitions are fixed
+		// new Flux::Parsing::Definition( type, null, name, value, false, false, false )
+	new Flux::Parsing::RepeatLoop repeat_loop( true_constant, sub_block, position );
+		new Flux::Parsing::Block do_block( false, position, [definition, repeat_loop] );
 
-	source.file:push( Flux::Parsing::DoStatement( doblock, position ) );
+	break_block:push( break_statement );
+	source.file:push( new Flux::Parsing::DoStatement( do_block, position ) );
 
 	return true;
 }
-
-// no need for serialize() as it's never added to the AST

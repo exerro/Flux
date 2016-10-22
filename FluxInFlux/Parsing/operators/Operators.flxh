@@ -23,12 +23,12 @@ enum UnaryOpcode {
 	None;
 }
 
-bool{string} operators;
-Binary[] binary_operators;
-bool{UnaryOpcode}{UnaryOpcode} unary_precedences;
-UnaryOpcode{string} unary_symbols;
-UnaryOpcode{string} unary_strings;
-bool{UnaryOpcode} unary_is_left;
+bool{string} operators = {};
+Binary[] binary_operators = [];
+bool{UnaryOpcode}{UnaryOpcode} unary_precedences = {};
+UnaryOpcode{string} unary_symbols = {};
+UnaryOpcode{string} unary_strings = {};
+bool{UnaryOpcode} unary_is_left = {};
 
 string parse_binary_operator(Source source);
 

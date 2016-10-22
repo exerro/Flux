@@ -1,13 +1,17 @@
 
 namespace Flux::Parsing::Operator;
 
-Binary[] binary_operators;
-bool{UnaryOpcode}{UnaryOpcode} unary_precedences;
-
 void register_binary(string op, int precedence, bool left_assoc) {
 	Flux::Parsing::Operator::binary_operators
 	[#Flux::Parsing::Operator::binary_operators + 1]
 		= new Flux::Parsing::Operator::Binary( op, precedence, left_assoc );
+
+	// print( "Registering binary operator '" `concat` op `concat` "'" );
+
+	if op:sub( 1, 1 ) != ">" || #op == 1
+		Flux::Parsing::language::symbols[op] = true;
+
+	Flux::Parsing::Operator::operators[op] = true;
 }
 
 bool is_binary(string op) {
@@ -42,11 +46,16 @@ bool get_unary_precedence(UnaryOpcode a, UnaryOpcode b) {
 void register_unary_symbol(string symbol, UnaryOpcode code, bool is_left) {
 	Flux::Parsing::Operator::unary_symbols[symbol] = code;
 	Flux::Parsing::Operator::unary_is_left[code] = is_left;
+
+	Flux::Parsing::language::symbols[symbol] = true;
+	Flux::Parsing::Operator::operators[symbol] = true;
 }
 
 void register_unary_string(string string, UnaryOpcode code, bool is_left) {
 	Flux::Parsing::Operator::unary_strings[string] = code;
 	Flux::Parsing::Operator::unary_is_left[code] = is_left;
+
+	Flux::Parsing::Operator::operators[string] = true;
 }
 
 UnaryOpcode get_unary_opcode(Source source) {
@@ -66,13 +75,6 @@ bool is_unary_left_operator(UnaryOpcode opcode)
 	= Flux::Parsing::Operator::unary_is_left[opcode];
 
 void init_standard_operators() {
-	Flux::Parsing::Operator::operators = [];
-	Flux::Parsing::Operator::binary_operators = [];
-	Flux::Parsing::Operator::unary_precedences = {};
-	Flux::Parsing::Operator::unary_strings = {};
-	Flux::Parsing::Operator::unary_symbols = {};
-	Flux::Parsing::Operator::unary_is_left = {};
-
 	// binary equality operators
 	Flux::Parsing::Operator::register_binary( "=", 1, false );
 
@@ -236,3 +238,12 @@ void init_standard_operators() {
 	set_unary_precedence( UnaryOpcode.Deref, UnaryOpcode.MinusMinus ); // *x-- -> (*x)--
 
 }
+
+let _ = (function() {
+	Flux::Parsing::Operator::operators = [];
+	Flux::Parsing::Operator::binary_operators = [];
+	Flux::Parsing::Operator::unary_precedences = {};
+	Flux::Parsing::Operator::unary_strings = {};
+	Flux::Parsing::Operator::unary_symbols = {};
+	Flux::Parsing::Operator::unary_is_left = {};
+})();

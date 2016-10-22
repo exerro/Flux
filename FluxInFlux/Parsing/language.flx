@@ -1,186 +1,84 @@
 
 namespace Flux::Parsing::language;
 
-bool{string} keywords = [];
-int {string} binary_operators = [];
-bool{string} unary_operators = [];
-bool{string} operators = [];
-bool{string} symbols = [];
-bool{string} valid_native_operators = [];
+bool{string} keywords = {
+	["import"] = true;
 
-string keyword_str, operator_str, symbol_str;
+	["namespace"] = true;
+	["using"] = true;
+	["class"] = true, ["extends"] = true, ["implements"] = true;
+	["interface"] = true, ["implements"] = true;
+	["enum"] = true;
+	["struct"] = true;
 
-int precedence = 0;
+	["final"] = true, ["abstract"] = true;
+	["public"] = true, ["private"] = true, ["static"] = true;
+	["setter"] = true, ["getter"] = true;
+	["operator"] = true;
 
-let _ = (function() {
-	Flux::Parsing::language::valid_native_operators = {
-		["and"] = true, ["or"] = true;
+	["if"] = true, ["else"] = true;
+	["while"] = true;
+	["repeat"] = true, ["until"] = true, ["while"] = true;
+	["do"] = true;
+	["for"] = true;
+	["foreach"] = true, ["in"] = true;
 
-		["andeq"] = true, ["oreq"] = true;
+	["switch"] = true, ["case"] = true, ["default"] = true;
+	["try"] = true, ["catch"] = true, ["default"] = true;
+	["new"] = true;
+	["return"] = true, ["break"] = true, ["continue"] = true;
+	["let"] = true, ["const"] = true, ["where"] = true;
+	["template"] = true, ["const"] = true, ["auto"] = true, ["void"] = true;
 
-		["add"] = true, ["sub"] = true;
-		["mul"] = true, ["div"] = true;
-		["mod"] = true, ["pow"] = true;
+	["throw"] = true;
+	["typeof"] = true;
+	["function"] = true;
+	["lambda"] = true;
+	["match"] = true;
 
-		["addeq"] = true, ["subeq"] = true;
-		["muleq"] = true, ["diveq"] = true;
-		["modeq"] = true, ["poweq"] = true;
+	["null"] = true;
+};
 
-		["blshift"] = true, ["brshift"] = true;
-		["band"] = true, ["bor"] = true, ["bxor"] = true;
+bool{string} symbols = {
+	["("] = true, [")"] = true;
+	["{"] = true, ["}"] = true;
+	["["] = true, ["]"] = true;
+	["=>"] = true;
+	["->"] = true;
+	["."] = true, [":"] = true;
+	[","] = true, [";"] = true;
+	["..."] = true;
+	["::"] = true;
+	["?"] = true;
+};
 
-		["blshifteq"] = true, ["brshifteq"] = true;
-		["bandeq"] = true, ["boreq"] = true, ["bxoreq"] = true;
+bool{string} valid_native_operators = {
+	["and"] = true, ["or"] = true;
 
-		["gt"] = true, ["gte"] = true;
-		["lt"] = true, ["lte"] = true;
-		["eq"] = true, ["neq"] = true;
+	["andeq"] = true, ["oreq"] = true;
 
-		["unm"] = true;
-		["bnot"] = true;
-		["len"] = true;
-		["not"] = true;
+	["add"] = true, ["sub"] = true;
+	["mul"] = true, ["div"] = true;
+	["mod"] = true, ["pow"] = true;
 
-		["concat"] = true;
-	};
+	["addeq"] = true, ["subeq"] = true;
+	["muleq"] = true, ["diveq"] = true;
+	["modeq"] = true, ["poweq"] = true;
 
-	Flux::Parsing::language::keyword_str = "
+	["blshift"] = true, ["brshift"] = true;
+	["band"] = true, ["bor"] = true, ["bxor"] = true;
 
-	import
+	["blshifteq"] = true, ["brshifteq"] = true;
+	["bandeq"] = true, ["boreq"] = true, ["bxoreq"] = true;
 
-	namespace
-	using
-	class extends implements
-	interface implements
-	enum
-	struct
+	["gt"] = true, ["gte"] = true;
+	["lt"] = true, ["lte"] = true;
+	["eq"] = true, ["neq"] = true;
 
-	final abstract
-	public private static
-	setter getter
-	operator
+	["unm"] = true;
+	["bnot"] = true;
+	["len"] = true;
+	["not"] = true;
 
-	if else
-	while
-	repeat until while
-	do
-	for
-	foreach in
-
-	switch case default
-	try catch default
-	new
-	return break continue
-	let const where
-	template const auto void
-
-	throw
-	typeof
-	function
-	lambda
-	match
-
-	null
-	";
-
-	// the operator '>>', '>=' and '>>=' aren't listed below as they would interfere with templates:
-	// 'vector<Buffer<T>>'
-	// note the '>>' on the end
-
-	Flux::Parsing::language::operator_str = "
-	++ -- # ! ~
-
-	= += -= *= /= %= **= &= |= ^= <<= &&= ||=
-
-	||
-	&&
-	> < <= == !=
-	..
-	|
-	&
-	^
-	<<
-	+ -
-	* / %
-	**
-
-	";
-
-	Flux::Parsing::language::symbol_str = "
-	( )
-	{ }
-	[ ]
-
-	=>
-	->
-
-	. :
-	,
-	;
-
-	...
-	::
-	?
-
-	";
-
-	do { // register the keywords
-		let text = Flux::Parsing::language::keyword_str;
-		let found = [text:find "%w+"];
-
-		while found[1]
-			Flux::Parsing::language::keywords[text:sub( found[1], found[2] )] = true;
-			then found = [text:find( "%w+", found[2] + 1 )];
-	}
-
-	do { // register the operators
-		let text = Flux::Parsing::language::operator_str;
-		let found = [text:find "[^\n]+"];
-
-		while found[1] {
-			let line = text:sub( found[1], found[2] );
-			let found_line = [line:find "%S+"];
-
-			while found_line[1] {
-				let op = line:sub( found_line[1], found_line[2] );
-
-				Flux::Parsing::language::symbols[op] = true;
-				Flux::Parsing::language::operators[op] = true;
-
-				switch Flux::Parsing::language::precedence;
-				case 0
-					Flux::Parsing::language::unary_operators[op] = true;
-				default
-					Flux::Parsing::language::binary_operators[op] = Flux::Parsing::language::precedence;
-
-				found_line = [line:find( "%S+", found_line[2] + 1 )];
-			}
-
-			Flux::Parsing::language::precedence++;
-			found = [text:find( "[^\n]+", found[2] + 1 )];
-		}
-	}
-
-	do { // register the other symbols
-		let text = Flux::Parsing::language::symbol_str;
-		let found = [text:find "%S+"];
-
-		while found[1]
-			Flux::Parsing::language::symbols[text:sub( found[1], found[2] )] = true;
-			then found = [text:find( "%S+", found[2] + 1 )];
-	}
-
-	// add precedences for the operators that couldn't be listed
-	Flux::Parsing::language::binary_operators[">>"] = Flux::Parsing::language::binary_operators["<<"];
-	Flux::Parsing::language::binary_operators[">="] = Flux::Parsing::language::binary_operators["<="];
-	Flux::Parsing::language::binary_operators[">>="] = Flux::Parsing::language::binary_operators["<<="];
-	Flux::Parsing::language::operators[">>"] = true;
-	Flux::Parsing::language::operators[">="] = true;
-	Flux::Parsing::language::operators[">>="] = true;
-	Flux::Parsing::language::operators["->"] = true;
-
-	// define '-' and '^' as an unary operator as well as binary
-	Flux::Parsing::language::unary_operators["-"] = true;
-	Flux::Parsing::language::unary_operators["^"] = true;
-
-})();
+	["concat"] = true;
+};

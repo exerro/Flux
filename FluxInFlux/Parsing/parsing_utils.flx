@@ -1,5 +1,6 @@
 
 import language;
+import operators.Operators;
 
 namespace Flux::Parsing;
 
@@ -10,8 +11,6 @@ void expectSemicolon(Source source, null string location);
 
 bool tokenFollowsLast(Lexer lexer);
 bool tokenSameLineAsLast(Lexer lexer);
-
-string parseOperator(Lexer lexer);
 
 string parseName(Source source);
 string parseMethodName(Source source);
@@ -41,25 +40,6 @@ bool tokenSameLineAsLast(Lexer lexer)
 	= a.position.line == b.position.line && a.position.source == b.position.source
 	where a = lexer:peek( -1 )
 	where b = lexer:get();
-
-string parseOperator(Lexer lexer) {
-	let symbol = lexer:test( Symbol );
-	if !symbol return "";
-
-	let op = symbol.value;
-
-	if Flux::Parsing::language::operators[op]
-		lexer:next();
-	else return "";
-
-	if op == ">" && Flux::Parsing::tokenFollowsLast( lexer ) && lexer:skip( Symbol, ">" )
-		op = ">>";
-
-	if (op == ">" || op == ">>") && Flux::Parsing::tokenFollowsLast(lexer) && lexer:skip( Symbol, "=" )
-		op = op == ">" && ">=" || ">>=";
-
-	return op;
-}
 
 string parseName(Source source) {
 	let name = source.lexer:skipValue(Identifier);

@@ -30,7 +30,7 @@ bool DoStatement:parse(Source source) {
 	let block = Flux::Parsing::Block:parse( source );
 	source.file:pop_context();
 
-	source.file:push( Flux::Parsing::DoStatement(block, position) );
+	source.file:push( new Flux::Parsing::DoStatement( block, position ) );
 
 	return true;
 }

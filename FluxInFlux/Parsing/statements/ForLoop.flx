@@ -43,10 +43,10 @@ bool ForLoop:parse(Source source) {
 
 	block:push( increment );
 
+	new Flux::Parsing::ConstantExpression true_constant( Flux::Parsing::ConstantType.Boolean, "true", position );
 	new Flux::Parsing::Block break_block( false, position );
 	new Flux::Parsing::BreakStatement break_statement( position );
-	new Flux::Parsing::IfStatement sub_block( condition, block, break_block, position );
-	new Flux::Parsing::ConstantExpression true_constant( Flux::Parsing::ConstantType.Boolean, "true", position );
+	new Flux::Parsing::SwitchStatement sub_block( condition, [[true_constant]], [block], break_block, position );
 	new Flux::Parsing::ConstantExpression definition( Flux::Parsing::ConstantType.String, "definition of " `concat` name, position ); // this is temporary until definitions are fixed
 		// new Flux::Parsing::Definition( type, null, name, value, false, false, false )
 	new Flux::Parsing::RepeatLoop repeat_loop( true_constant, sub_block, position );

@@ -45,8 +45,8 @@ bool RepeatLoop:parse(Source source) {
 	if inverted {
 		new Flux::Parsing::Block break_block( false, position );
 		new Flux::Parsing::BreakStatement break_statement( position );
-		new Flux::Parsing::IfStatement if_break_block( condition, break_block, null, position );
 		new Flux::Parsing::ConstantExpression true_constant( Flux::Parsing::ConstantType.Boolean, "true", position );
+		new Flux::Parsing::SwitchStatement if_break_block( condition, [[true_constant]], [break_block], null, position );
 
 		break_block:push( break_statement );
 		block:push( if_break_block );

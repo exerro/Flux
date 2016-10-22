@@ -4,3 +4,19 @@
 for (int i = 0; i < 7; i++) {
 	print( i );
 }
+
+if a == b {
+	print "Hello!";
+}
+else
+	print "Bye!";
+
+repeat something; until true;
+repeat something; while false;
+repeat something;
+
+nope;
+while true
+	something;
+
+/*void freeze()*/ do repeat nothing; //where nothing = 0;

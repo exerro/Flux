@@ -5,20 +5,13 @@
 // !! 		thing();
 // !! else other(); <- for the first or second if statement?
 // !! can lead to confusing problems so make it error, if possible
+// !!                                                  ^^^^^^^^^^^
+// !!                                         don't think it is :/
 
 namespace Flux::Parsing;
 
-class IfStatement extends Flux::Parsing::Statement {
-	Expression condition;
-	Block block;
-	Block elseblock;
-
-	IfStatement(Expression condition, Block block, null Block elseblock, null Position position = condition.position) {
-		self.condition = condition;
-		self.block = block;
-		self.elseblock = elseblock;
-		self.position = position;
-	}
+class IfStatement {
+	static bool parse(Source source);
 }
 
 bool IfStatement:parse(Source source) {
@@ -32,13 +25,11 @@ bool IfStatement:parse(Source source) {
 	source.file:push_context();
 	let block = Flux::Parsing::Block:parse( source );
 	source.file:pop_context();
-	let elseblock = lexer:skip( Keyword, "else" ) && Flux::Parsing::Block:parse( source );
+	let else_block = lexer:skip( Keyword, "else" ) && Flux::Parsing::Block:parse( source );
 
-	source.file:push( new Flux::Parsing::IfStatement(condition, block, elseblock, position) );
+	new Flux::Parsing::ConstantExpression true_constant( Flux::Parsing::ConstantType.Boolean, "true", position );
+
+	source.file:push( new Flux::Parsing::SwitchStatement( condition, [[true_constant]], [block], else_block, position ) );
 
 	return true;
 }
-
-string IfStatement:serialize()
-	= "if " `concat` self.condition:serialize() `concat` " " `concat` self.block:serialize() `concat`
-		(self.elseblock && "\nelse " `concat` self.elseblock:serialize() || "");

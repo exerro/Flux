@@ -56,6 +56,8 @@ UnaryOpcode get_unary_opcode(Source source) {
 	else if source.lexer:test( Symbol )
 		return Flux::Parsing::Operator::unary_symbols[source.lexer:get().value]
 		    || Flux::Parsing::Operator::UnaryOpcode.None;
+	else if source.lexer:test( String )
+		return Flux::Parsing::Operator::UnaryOpcode.Call;
 
 	return Flux::Parsing::Operator::UnaryOpcode.None;
 }

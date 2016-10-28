@@ -1,0 +1,35 @@
+
+import TemplatedName;
+import Declaration;
+import imports.Source;
+
+// private class TypedName = struct { TemplatedName type, string name };
+
+// determines whether a definition follows
+bool is_definition(Source source);
+
+// parses an unknown definition
+void parse(Source source);
+
+// parses a class or interface definition
+void parse_class(Source source, bool is_interface, TemplateList _template, bool{string} modifiers);
+
+// parses an enum definition
+void parse_enum(Source source, bool{string} modifiers);
+
+// parses a generic definition
+void parse_definition(Source source);
+
+// parses a method definition i.e. int x:f() or float y<T>:g()
+void parse_method_definition(Source source, bool{string} modifiers, TypedName name);
+void parse_function_definition(Source source, bool{string} modifiers, TypedName name);
+void parse_var_definition(Source source, bool{string} modifiers, TypedName name);
+
+// parses a template list before a definition
+TemplateList parse_template_begin(Source source);
+
+// parses the modifier keywords
+bool{string} parse_modifiers(Source source); // public, private, static, abstract, final
+
+// parses the beginning type of a generic definition
+TypedName parse_initial_type_and_name(Source source);

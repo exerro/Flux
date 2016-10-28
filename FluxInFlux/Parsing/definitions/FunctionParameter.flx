@@ -24,7 +24,7 @@ FunctionParameter FunctionParameter:parse(Source source, bool parameterNamesGive
 	TemplatedName type;
 
 	try {
-		type = Flux::Parsing::types:parse(source);
+		type = Flux::Parsing::types::parse(source);
 	}
 	catch ParserException e {
 		if parameterNamesGiven && !e:find "expected typename"

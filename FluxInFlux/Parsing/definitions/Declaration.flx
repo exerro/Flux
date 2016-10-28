@@ -1,22 +1,38 @@
 
+import ASTNode;
 import TemplatedName;
+import TemplateList;
 
 namespace Flux::Parsing;
 
+/*
+template<T>
+const public int f(float v) {
+	return 10 + math::floor( v );
+}
+*/
+
+// stores function and variable declarations/definitions
 class Declaration {
-	bool is_public;
-	bool is_static;
-
+	TemplatedName type;
+	string name;
 	Position position;
-	TemplatedName name;
 
-	Definition value;
+	bool is_const;
+	bool is_public;
 
-	Declaration(string name, Position position, bool is_public, is_static, Definition value) {
+	TemplateList _template;
+
+	ASTNode definition;
+
+	Declaration(TemplatedName type, string name, Position position, bool is_const, is_public, is_static, TemplateList _template, ASTNode definition) {
+		self.type = type;
 		self.name = name;
 		self.position = position;
+		self.is_const = is_const;
 		self.is_public = is_public;
 		self.is_static = is_static;
-		self.value = value;
+		self._template = _template;
+		self.definition = definition;
 	}
 }

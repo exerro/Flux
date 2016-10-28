@@ -1,5 +1,6 @@
 
 import TemplatedName;
+import types;
 
 namespace Flux::Parsing;
 
@@ -36,7 +37,7 @@ bool TryStatement:parse(Source source) {
 	Block[] _default;
 
 	while lexer:skip( Keyword, "catch" ) {
-		let classname = Flux::Parsing::types:parse( source );
+		let classname = Flux::Parsing::types::parse( source );
 		let name = lexer:skipValue "Identifier" || source:error "expected exception name after type";
 		source.file:push_context();
 		let block = Flux::Parsing::Block:parse( source );

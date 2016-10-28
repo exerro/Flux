@@ -20,7 +20,7 @@ ASTNode OperatorExtends:parse( Source source, Expression value )
 	= type && new Flux::Parsing::OperatorExtends( value, type, position )
 	where lexer = source.lexer
 	where position = lexer:get().position
-	where type = lexer:skip( Keyword, "extends" ) && Flux::Parsing::types:parse(source);
+	where type = lexer:skip( Keyword, "extends" ) && Flux::Parsing::types::parse(source);
 
 string OperatorExtends:serialize()
 	= Flux::Parsing::serializeExpression( self.value ) `concat` " extends " `concat` self._type:serialize();

@@ -1,5 +1,6 @@
 
 import TemplatedName;
+import types;
 
 namespace Flux::Parsing;
 
@@ -22,7 +23,7 @@ bool NewStatement:parse(Source source) {
 	string name;
 
 	try {
-		_type = Flux::Parsing::types:parse( source );
+		_type = Flux::Parsing::types::parse( source );
 	}
 	catch ParserException e {
 		lexer:jump( start );

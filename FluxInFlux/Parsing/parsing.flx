@@ -27,5 +27,6 @@ import imports.Source;
 import Block;
 import statements.Statement;
 import expressions.Expression;
+import definitions.definitions;
 import definitions_old.Definition;
 import types;

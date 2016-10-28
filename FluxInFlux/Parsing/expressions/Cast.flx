@@ -20,7 +20,7 @@ ASTNode Cast:parse( Source source, Expression value )
 	= type && new Flux::Parsing::Cast( value, type, position )
 	where lexer = source.lexer
 	where position = lexer:get().position
-	where type = lexer:skip( Symbol, "->" ) && Flux::Parsing::types:parse(source);
+	where type = lexer:skip( Symbol, "->" ) && Flux::Parsing::types::parse(source);
 
 string Cast:serialize()
 	= Flux::Parsing::serializeExpression( self.value ) `concat` " -> " `concat` self._type:serialize();

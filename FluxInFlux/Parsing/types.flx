@@ -64,7 +64,7 @@ TemplatedName parse(Source source) {
 
 		if lexer:skip( Symbol, "<" ) {
 			repeat
-				classes[#classes + 1] = Flux::Parsing::types:parse( source );
+				classes[#classes + 1] = Flux::Parsing::types::parse( source );
 			while lexer:skip( Symbol, "," );
 
 			if !lexer:skip( Symbol, ">" )
@@ -74,7 +74,7 @@ TemplatedName parse(Source source) {
 		type = new Flux::Parsing::TemplatedName( name, _template, position );
 	}
 	else if !source.file.context.isClassname && lexer:skip( Keyword, "function" ) {
-		TemplatedName returns = Flux::Parsing::types:parse( source );
+		TemplatedName returns = Flux::Parsing::types::parse( source );
 		TemplatedName[] parameters = [];
 
 		if !lexer:skip( Symbol, "(" )
@@ -82,14 +82,14 @@ TemplatedName parse(Source source) {
 
 		if !lexer:skip( Symbol, ")" ) {
 			repeat
-				parameters[#parameters + 1] = Flux::Parsing::types:parse( source );
+				parameters[#parameters + 1] = Flux::Parsing::types::parse( source );
 			while lexer:skip( Symbol, "," );
 
 			if !lexer:skip( Symbol, ")" )
 				source:error "expected ')' after function type parameters";
 		}
 
-		type = Flux::Parsing::types:function_type( position, returns, parameters );
+		type = Flux::Parsing::types::function_type( position, returns, parameters );
 	}
 	else if !source.file.context.isClassname && lexer:skip( Keyword, "struct" ) {
 		if !lexer:skip( Symbol, "{" )
@@ -104,7 +104,7 @@ TemplatedName parse(Source source) {
 				names[#names + 1] = lexer:next().value;
 			}
 			else {
-				classes[#classes + 1] = Flux::Parsing::types:parse( source );
+				classes[#classes + 1] = Flux::Parsing::types::parse( source );
 				names[#names + 1] = lexer:skipValue( Identifier ) || source:error "expected struct member name";
 			}
 		}
@@ -113,7 +113,7 @@ TemplatedName parse(Source source) {
 		if !lexer:skip( Symbol, "}" )
 			source:error "expected '}' after struct body";
 
-		type = Flux::Parsing::types:struct_type( position, names, classes );
+		type = Flux::Parsing::types::struct_type( position, names, classes );
 	}
 	else
 		source:error "expected typename";
@@ -123,23 +123,23 @@ TemplatedName parse(Source source) {
 
 		if !source.file.context.isClassname && lexer:skip( Symbol, "[" ) {
 			if !lexer:skip( Symbol, "]" ) source:error "expected ']' to close list type modifier";
-			type = Flux::Parsing::types:list_type( pos, type );
+			type = Flux::Parsing::types::list_type( pos, type );
 		}
 		else if !source.file.context.isClassname && lexer:skip( Symbol, "{" ) {
 			if lexer:skip( Symbol, "}" )
-				type = Flux::Parsing::types:table_type( pos, type, Flux::Parsing::types::void_type( pos ) );
+				type = Flux::Parsing::types::table_type( pos, type, Flux::Parsing::types::void_type( pos ) );
 			else {
-				let index = Flux::Parsing::types:parse( source );
+				let index = Flux::Parsing::types::parse( source );
 				if !lexer:skip( Symbol, "}" ) source:error "expected '}' to close array type modifier";
 
-				type = Flux::Parsing::types:table_type( pos, type, index );
+				type = Flux::Parsing::types::table_type( pos, type, index );
 			}
 		}
 		else if lexer:skip( Symbol, "&" ) {
-			type = Flux::Parsing::types:reference_type( pos, type );
+			type = Flux::Parsing::types::reference_type( pos, type );
 		}
 		else if !source.file.context.isClassname && lexer:skip( Symbol, "?" ) {
-			type = Flux::Parsing::types:nullable_type( pos, type );
+			type = Flux::Parsing::types::nullable_type( pos, type );
 		}
 		else break;
 	}

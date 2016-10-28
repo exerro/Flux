@@ -21,7 +21,7 @@ ASTNode OperatorTypeof:parse( Source source, null Expression value )
 	where lexer = source.lexer
 	where position = lexer:get().position
 	where isCalled = lexer:skip( Keyword, "typeof" )
-	where type = value && isCalled && Flux::Parsing::types:parse(source)
+	where type = value && isCalled && Flux::Parsing::types::parse(source)
 	where value = value || isCalled && Flux::Parsing::LeftUnaryExpression:parse(source);
 
 string OperatorTypeof:serialize()

@@ -2,6 +2,7 @@
 import TemplatedName;
 import RepeatLoop;
 import DoStatement;
+import types;
 
 namespace Flux::Parsing;
 
@@ -24,7 +25,7 @@ bool ForLoop:parse(Source source) {
 	Expression condition;
 	Expression increment;
 
-	type = Flux::Parsing::types:parse( source );
+	type = Flux::Parsing::types::parse( source );
 	name = lexer:skipValue( Identifier ) || source:error "expected name after type";
 	value = lexer:skip( Symbol, "=" )
 		&& (Flux::Parsing::Expression:parse( source ) || source:error "expected expression after '='")

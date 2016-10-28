@@ -1,0 +1,46 @@
+
+namespace Flux::Parsing;
+
+class TemplateList {
+	string[] names;
+	Type[][] classes;
+
+	TemplateList(string[] names, Type[][] classes) {
+		self.names = names;
+		self.classes = classes;
+	}
+}
+
+TemplateList TemplateList:parse( Source source ) {
+	Lexer lexer = source.lexer;
+	string[] names = [];
+	Type[][] classes = [];
+
+	repeat {
+		names[#names + 1] = lexer:skipValue( Identifier ) || source:error "expected template type name";
+		Type[] classes_local = [];
+
+		if lexer:skip( Symbol, "[" ) {
+			repeat
+				classes_local[#classes_local + 1] = Flux::Parsing::Type:parse( source );
+			while lexer:skip( Symbol, "," );
+
+			if !lexer:skip( Symbol, "]" ) source:error "expected ']'";
+		}
+
+		classes[#classes + 1] = classes_local;
+	}
+	while lexer:skip( Symbol, "," );
+
+	return new Flux::Parsing::TemplateList( names, classes );
+}
+
+string TemplateList:serialize() {
+	string[] s = [];
+
+	foreach i, name in self.names {
+		s[i] = name `concat` (#self.classes[i] > 0 && " [" `concat` (self.classes[i] `concattenate` ", ") `concat` "]" || "");
+	}
+
+	return table.concat( s, ", " );
+}

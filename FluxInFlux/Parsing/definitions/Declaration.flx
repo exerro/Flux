@@ -1,0 +1,22 @@
+
+import TemplatedName;
+
+namespace Flux::Parsing;
+
+class Declaration {
+	bool is_public;
+	bool is_static;
+
+	Position position;
+	TemplatedName name;
+
+	Definition value;
+
+	Declaration(string name, Position position, bool is_public, is_static, Definition value) {
+		self.name = name;
+		self.position = position;
+		self.is_public = is_public;
+		self.is_static = is_static;
+		self.value = value;
+	}
+}

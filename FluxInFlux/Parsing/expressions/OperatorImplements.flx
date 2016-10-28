@@ -1,11 +1,13 @@
 
+import TemplatedName;
+
 namespace Flux::Parsing;
 
 class OperatorImplements extends RightUnaryExpression {
 	Expression value;
-	Type type;
+	TemplatedName type;
 
-	OperatorImplements( Expression value, Type type, null Position position = value.position ) {
+	OperatorImplements( Expression value, TemplatedName type, null Position position = value.position ) {
 		self.value = value;
 		self.type = type;
 		self.position = position;
@@ -18,7 +20,7 @@ ASTNode OperatorImplements:parse( Source source, Expression value )
 	= type && new Flux::Parsing::OperatorImplements( value, type, position )
 	where lexer = source.lexer
 	where position = lexer:get().position
-	where type = lexer:skip( Keyword, "implements" ) && Flux::Parsing::Type:parse(source);
+	where type = lexer:skip( Keyword, "implements" ) && Flux::Parsing::types:parse(source);
 
 string OperatorImplements:serialize()
 	= Flux::Parsing::serializeExpression( self.value ) `concat` " extends " `concat` self._type:serialize();

@@ -1,8 +1,8 @@
 
 import Context;
 import Lexer;
-import types.Type;
-import definitions.Definition;
+import TemplatedName;
+// import definitions.Definition;
 import ASTNode;
 
 namespace Flux::Parsing;
@@ -15,7 +15,7 @@ class File {
 
 	File[] imports;
 
-	Type[] types;
+	TemplatedName[] types;
 	ASTNode[] declarations;
 	ASTNode[] statements;
 
@@ -46,7 +46,7 @@ class File {
 
 	void add_import(File file);
 
-	void define_type(Type t);
+	void define_type(TemplatedName t);
 	void push(ASTNode node);
 
 	Context push_context();

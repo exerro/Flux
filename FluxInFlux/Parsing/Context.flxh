@@ -14,14 +14,14 @@
 
 import Block;
 import Context;
-import types.Type;
+import TemplatedName;
 
 namespace Flux::Parsing;
 
 class Context {
 	bool{string} flags;
 
-	Type class_name;
+	string class_name;
 	string namespace_name = "";
 
 	Context(null Context parent) {
@@ -36,8 +36,8 @@ class Context {
 	Context specialise_root();
 	Context specialise_classname();
 	Context specialise_namespace(string name);
-	Context specialise_class(Type name);
-	Context specialise_interface(Type name);
+	Context specialise_class(string name);
+	Context specialise_interface(string name);
 	Context specialise_function(bool isVararg);
 	Context specialise_loop();
 	Context specialise_block();

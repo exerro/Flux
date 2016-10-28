@@ -1,14 +1,15 @@
 
+import TemplatedName;
 import definitions.FunctionParameter;
 
 namespace Flux::Parsing;
 
 class FunctionExpression extends PrimaryExpression {
 	FunctionParameter[] parameters;
-	Type returns;
+	TemplatedName returns;
 	Block body;
 
-	FunctionExpression( FunctionParameter[] parameters, Type returns, Block body, null Position position = returns.position ) {
+	FunctionExpression( FunctionParameter[] parameters, TemplatedName returns, Block body, null Position position = returns.position ) {
 		self.parameters = parameters;
 		self.returns = returns;
 		self.body = body;
@@ -23,7 +24,7 @@ ASTNode FunctionExpression:parse( Source source ) {
 	let position = lexer:get().position;
 
 	if lexer:skip( Keyword, "function" ) {
-		Type returns = lexer:skip( Symbol, "->" ) && Flux::Parsing::Type:parse( source ) || Flux::Parsing::Type:autoType( position );
+		TemplatedName returns = lexer:skip( Symbol, "->" ) && Flux::Parsing::types:parse( source ) || Flux::Parsing::types:auto_type( position );
 		FunctionParameter[] parameters = [];
 		bool is_vararg = false;
 
@@ -51,14 +52,14 @@ ASTNode FunctionExpression:parse( Source source ) {
 		return new Flux::Parsing::FunctionExpression( parameters, returns, body, position );
 	}
 	else if lexer:skip( Keyword, "lambda" ) {
-		Type returns = Flux::Parsing::Type:autoType( position );
+		TemplatedName returns = Flux::Parsing::types:auto_type( position );
 		FunctionParameter[] parameters = [];
 		Position position;
 
 		while !lexer:skip( Symbol, "=>" ) {
 			let pos = lexer:get().position;
 			let name = lexer:skipValue( Identifier ) || source:error "expected parameter name";
-			let ptype = lexer:skip( Symbol, "->" ) && Flux::Parsing::Type:parse( source ) || Flux::Parsing::Type:autoType( pos );
+			let ptype = lexer:skip( Symbol, "->" ) && Flux::Parsing::types:parse( source ) || Flux::Parsing::types:auto_type( pos );
 
 			parameters[#parameters + 1] = new Flux::Parsing::FunctionParameter(ptype, name, false, pos);
 			position = lexer:get().position;

@@ -1,11 +1,13 @@
 
+import TemplatedName;
+
 namespace Flux::Parsing;
 
 class OperatorTypeof extends RightUnaryExpression {
 	Expression value;
-	Type type;
+	TemplatedName type;
 
-	OperatorTypeof( Expression value, null Type type, null Position position = value.position ) {
+	OperatorTypeof( Expression value, null TemplatedName type, null Position position = value.position ) {
 		self.value = value;
 		self.type = type;
 		self.position = position;
@@ -19,7 +21,7 @@ ASTNode OperatorTypeof:parse( Source source, null Expression value )
 	where lexer = source.lexer
 	where position = lexer:get().position
 	where isCalled = lexer:skip( Keyword, "typeof" )
-	where type = value && isCalled && Flux::Parsing::Type:parse(source)
+	where type = value && isCalled && Flux::Parsing::types:parse(source)
 	where value = value || isCalled && Flux::Parsing::LeftUnaryExpression:parse(source);
 
 string OperatorTypeof:serialize()

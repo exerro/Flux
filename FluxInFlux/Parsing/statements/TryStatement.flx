@@ -1,14 +1,16 @@
 
+import TemplatedName;
+
 namespace Flux::Parsing;
 
 class TryStatement extends Flux::Parsing::Statement {
 	Block block;
-	Type[] catch_types;
+	TemplatedName[] catch_types;
 	string[] catch_names;
 	Block[] catch_blocks;
 	Block _default;
 
-	TryStatement(Block block, Type[] catch_types, string[] catch_names, Block[] catch_blocks, null Block _default, null Position position = block.position) {
+	TryStatement(Block block, TemplatedName[] catch_types, string[] catch_names, Block[] catch_blocks, null Block _default, null Position position = block.position) {
 		self.block = block;
 		self.catch_types = catch_types;
 		self.catch_names = catch_names;
@@ -28,13 +30,13 @@ bool TryStatement:parse(Source source) {
 	source.file:push_context();
 	Block block = Flux::Parsing::Block:parse( source );
 	source.file:pop_context();
-	Type[] catch_types = [];
+	TemplatedName[] catch_types = [];
 	string[] catch_names = [];
 	Block[] catch_blocks = [];
 	Block[] _default;
 
 	while lexer:skip( Keyword, "catch" ) {
-		let classname = Flux::Parsing::Type:parse( source );
+		let classname = Flux::Parsing::types:parse( source );
 		let name = lexer:skipValue "Identifier" || source:error "expected exception name after type";
 		source.file:push_context();
 		let block = Flux::Parsing::Block:parse( source );

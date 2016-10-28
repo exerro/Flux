@@ -1,4 +1,6 @@
 
+import TemplatedName;
+
 namespace Flux::Parsing;
 
 class NewStatement {
@@ -15,12 +17,12 @@ bool NewStatement:parse(Source source) {
 
 	let isConst = lexer:skip( Keyword, "const" ) && true || false;
 
-	Type _type;
+	TemplatedName _type;
 	Expression[] parameters = [];
 	string name;
 
 	try {
-		_type = Flux::Parsing::Type:parse( source );
+		_type = Flux::Parsing::types:parse( source );
 	}
 	catch ParserException e {
 		lexer:jump( start );

@@ -1,30 +1,25 @@
 
-import TemplatedName;
-import types;
-
 namespace Flux::Parsing;
 
-class FunctionParameter {
-	TemplatedName type;
+class FunctionParameter extends ASTNode {
+	Type type;
 	string name;
 
-	FunctionParameter(TemplatedName type, string name, null Position position = type.position) {
+	FunctionParameter(Type type, string name, null Position position = type.position) {
 		self.type = type;
 		self.name = name;
 		self.position = position;
 	}
 
 	FunctionParameter parse(Source source, bool parameterNamesGiven, null FunctionParameter prev);
-
-	string serialize();
 }
 
 FunctionParameter FunctionParameter:parse(Source source, bool parameterNamesGiven, null FunctionParameter prev) {
 	Lexer lexer = source.lexer;
-	TemplatedName type;
+	Type type;
 
 	try {
-		type = Flux::Parsing::types:parse(source);
+		type = Flux::Parsing::Type:parse(source);
 	}
 	catch ParserException e {
 		if parameterNamesGiven && !e:find "expected typename"

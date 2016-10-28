@@ -276,7 +276,7 @@ bool Definition:parse(Source source) {
 			}
 
 			let value = body && new Flux::Parsing::FunctionExpression( parameters, _type, body, start );
-			let function_type = new Flux::Parsing::Type:functionType( start, _type, parameter_types );
+			let function_type = Flux::Parsing::Type:function_type( start, _type, parameter_types );
 			let def_name = _class && name || Flux::Parsing::resolveDefinitionName( source, name );
 			let definition = new Flux::Parsing::Definition( function_type, _class, def_name, value, isConst, isPublic, isStatic, flags, start );
 
@@ -311,7 +311,7 @@ bool Definition:parse(Source source) {
 					let function_ref = new Flux::Parsing::ReferenceExpression( def_name, start ); // reference to main function
 					let function_call = new Flux::Parsing::FunctionCall( function_ref, call_parameters ); // calling the main function
 					let body = new Flux::Parsing::Block( [new Flux::Parsing::ReturnStatement( function_call )], start ); // block containing return of above
-					let function_type = new Flux::Parsing::Type:functionType( start, _type, partial_parameter_types ); // type of overload
+					let function_type = Flux::Parsing::types:function_type( start, _type, partial_parameter_types ); // type of overload
 					let value = new Flux::Parsing::FunctionExpression( partial_parameters, _type, body, start ); // the function value containing the call to main function
 					let definition = new Flux::Parsing::Definition( function_type, _class, def_name, value, true, isPublic, isStatic, [], start );
 

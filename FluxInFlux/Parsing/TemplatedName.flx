@@ -1,0 +1,56 @@
+
+namespace Flux::Parsing;
+
+class TemplatedName {
+	string name;
+	TemplatedName[] _template;
+	Position position;
+
+	TemplatedName(string name, TemplatedName[] _template, Position position) {
+		self.name = name;
+		self._template = _template;
+		self.position = position;
+	}
+
+	string serialize();
+	string tostring();
+
+	static TemplatedName parse(Source source);
+}
+
+string TemplatedName:serialize()
+	= self.name `concat` "<"
+	`concat` (self._template `concattenate` ", ")
+	`concat` ">";
+
+string TemplatedName:tostring()
+	= self.name `concat` "<"
+	`concat` (self._template `concattenate` ", ")
+	`concat` ">";
+
+TemplatedName TemplatedName:parse(Source source) {
+	Position position = source.lexer:get().position;
+	string name = source.lexer:skipValue( Identifier );
+
+	if name {
+		TemplatedName[] _template;
+
+		if source.lexer:skip( Symbol, "<" ) {
+			string prev = "<";
+
+			repeat {
+				_template[#_template + 1] = TemplatedName:parse( source )
+					|| source:error( "expected name after '" `concat` prev `concat` "'" );
+				prev = ",";
+			}
+			while source.lexer:skip( Symbol, "," );
+
+			if !source.lexer:skip( Symbol, ">" )
+				source:error "expected '>' to end template list";
+		}
+
+		return new Flux::Parsing::TemplatedName( name, _template, position );
+	}
+
+	return null;
+}

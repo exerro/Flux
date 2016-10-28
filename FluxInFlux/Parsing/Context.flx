@@ -15,7 +15,7 @@ Context Context:specialise_namespace(string name) {
 	return self;
 }
 
-Context Context:specialise_class(Type name) {
+Context Context:specialise_class(string name) {
 	self:set_flag "is_class";
 	self:set_flag "is_parsing_body";
 	self:set_flag "class_member_inherited_public_state";
@@ -24,7 +24,7 @@ Context Context:specialise_class(Type name) {
 	return self;
 }
 
-Context Context:specialise_interface(Type name) {
+Context Context:specialise_interface(string name) {
 	self:set_flag "is_namespace";
 	self:set_flag "is_parsing_body";
 	self:unset_flag "class_member_inherited_public_state";

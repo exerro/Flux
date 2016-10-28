@@ -12,7 +12,7 @@ void File:add_import(File file) {
 	self.imports[#self.imports + 1] = file;
 }
 
-void File:define_type(Type type) {
+void File:define_type(TemplatedName type) {
 	self.types[#self.types + 1] = type;
 }
 

@@ -1,13 +1,14 @@
 
+import TemplatedName;
 import ConstantType;
 
 namespace Flux::Parsing;
 
 class NewExpression extends PrimaryExpression {
-	Type _type;
+	TemplatedName _type;
 	Expression[] parameters;
 
-	NewExpression( Type _type, Expression[] parameters, null Position position = _type.position ) {
+	NewExpression(TemplatedName _type, Expression[] parameters, null Position position = _type.position) {
 		self._type = _type;
 		self.parameters = parameters;
 		self.position = position;
@@ -23,7 +24,7 @@ ASTNode NewExpression:parse( Source source ) {
 
 	if !lexer:skip( Keyword, "new" ) return;
 
-	let type = Flux::Parsing::Type:parse( source );
+	let type = Flux::Parsing::types:parse( source );
 
 	if lexer:skip( Symbol, "(" ) {
 		if !lexer:skip( Symbol, ")" ) {

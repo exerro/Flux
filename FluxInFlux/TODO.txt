@@ -5,6 +5,7 @@ Parsing
 	[ ] Add some sort of foreign function/variable/class interface
 		`extern<some_func> int f() void;`
 		`extern<some_class> class C {}`
+	[ ] Notes at top of LetStatement.flx
 
 Type checking
 	Haha nope.

@@ -1,4 +1,5 @@
 
+import TemplatedName;
 import RepeatLoop;
 import DoStatement;
 
@@ -17,13 +18,13 @@ bool ForLoop:parse(Source source) {
 
 	let openbracket = lexer:skip( Symbol, "(" ) && true || false;
 
-	Type type;
+	TemplatedName type;
 	string name;
 	Expression value;
 	Expression condition;
 	Expression increment;
 
-	type = Flux::Parsing::Type:parse( source );
+	type = Flux::Parsing::types:parse( source );
 	name = lexer:skipValue( Identifier ) || source:error "expected name after type";
 	value = lexer:skip( Symbol, "=" )
 		&& (Flux::Parsing::Expression:parse( source ) || source:error "expected expression after '='")

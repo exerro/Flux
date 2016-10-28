@@ -1,7 +1,7 @@
 
 Parsing
-	[ ]	Add preprocessor instruction support
 	[ ] Definitions and stuff :'(
+	[ ]	Add preprocessor instruction support
 	[ ] Add some sort of foreign function/variable/class interface
 		`extern<some_func> int f() void;`
 		`extern<some_class> class C {}`

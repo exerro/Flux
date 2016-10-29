@@ -29,8 +29,10 @@ void Statement:parse(Source source) {
 	let lexer = source.lexer;
 
 	if Flux::Parsing::is_definition( source ) {
-		print( "Type is " `concat` Flux::Parsing::types::parse( source ):serialize() );
-		return;
+		let modifiers = Flux::Parsing::parse_modifiers( source );
+		let type_name = Flux::Parsing::parse_initial_type_and_name( source );
+
+		return Flux::Parsing::parse_var_definition( source, modifiers, type_name );
 	}
 
 	if Flux::Parsing::NamespaceStatement:parse( source )

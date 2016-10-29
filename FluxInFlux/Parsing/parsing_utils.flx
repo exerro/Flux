@@ -28,8 +28,28 @@ bool parseSemicolon(Lexer lexer)
 	= ((lexer:skip(Symbol, ";") || lexer:test(Symbol, ";", -1)) || lexer:test(Symbol, "}")) && true || false;
 
 void expectSemicolon(Source source, null string location)
-	if !Flux::Parsing::parseSemicolon( source.lexer )
-		source:error( "expected ';'" `concat` (location && " at " `concat` location || "") );
+	if !Flux::Parsing::parseSemicolon( source.lexer ) {
+		Position position = source.lexer:get().position;
+		string src = position.source;
+		int line = position.line;
+		string strline = position.strline:gsub( "\t", " " );
+		string char_pointer = (" "):rep( position.character - 1 ) `concat` "^";
+
+		if !strline:sub( 1, position.character - 1 ):find "%S" && source.lexer:peek( -1 ) {
+			position = source.lexer:peek( -1 ).position;
+
+			src = position.source;
+			line = position.line;
+			strline = position.strline:gsub( "\t", " " );
+			char_pointer = (" "):rep( #strline ) `concat` "^";
+		}
+
+		throw new ParserException(
+			src `concat` "[" `concat` line
+			`concat` "]: expected ';'" `concat` (location && " at " `concat` location || "")
+			`concat` "\n\t" `concat` strline `concat` "\n\t" `concat` char_pointer
+		);
+	}
 
 bool tokenFollowsLast(Lexer lexer)
 	= a.position.line == b.position.line && a.position.source == b.position.source && a.position.character + #a.value == b.position.character

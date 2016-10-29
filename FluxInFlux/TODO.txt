@@ -6,6 +6,8 @@ Parsing
 		`extern<some_func> int f() void;`
 		`extern<some_class> class C {}`
 	[ ] Notes at top of LetStatement.flx
+	[ ] `using MyClass for literal.integer;`
+	[ ] `using MyNamespace in {}`
 
 Type checking
 	Haha nope.

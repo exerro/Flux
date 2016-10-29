@@ -6,7 +6,7 @@ import types;
 
 namespace Flux::Parsing;
 
-// private class TypedName = struct { TemplatedName type, string name };
+// private class TypedName = struct { TemplatedName type, string name, Position position };
 
 // determines whether a definition follows
 bool is_definition(Source source);
@@ -32,7 +32,7 @@ void parse_var_definition(Source source, bool{string} modifiers, TypedName name)
 TemplateList parse_template_begin(Source source);
 
 // parses the modifier keywords
-bool{string} parse_modifiers(Source source); // public, private, static, abstract, final
+bool{string} parse_modifiers(Source source); // public, private, static, abstract, final, const
 
 // parses the beginning type of a generic definition
 TypedName parse_initial_type_and_name(Source source);
@@ -105,30 +105,122 @@ void parse_enum(Source source, bool{string} modifiers) {
 
 }
 
-void parse_definition(Source source) {
+void parse_definition(Source source, TemplateList _template, bool{string} modifiers) {
 
 }
 
-void parse_method_definition(Source source, bool{string} modifiers, TypedName name) {
+void parse_method_definition(Source source, TemplateList _template, bool{string} modifiers, TypedName name) {
 
 }
 
-void parse_function_definition(Source source, bool{string} modifiers, TypedName name) {
+void parse_function_definition(Source source, TemplateList _template, bool{string} modifiers, TypedName name) {
 
 }
 
 void parse_var_definition(Source source, bool{string} modifiers, TypedName name) {
+	Lexer lexer = source.lexer;
+	bool is_const = modifiers["const"];
+	bool is_public = modifiers["public"];
+	bool is_static = modifiers["static"];
 
+	if !modifiers["public_is_set"]
+		is_public /*= calculated_default_public*/ = true;
+
+	if lexer:skip( Symbol, "=" ) {
+		let expr = Flux::Parsing::Expression:parse( source );
+
+		Flux::Parsing::expectSemicolon( source, "end of definition" );
+
+		source.file:push( new Flux::Parsing::Declaration(
+			name.type, Flux::Parsing::resolveDefinitionName( source, name.name ),
+			name.position, is_const, is_public, is_static, null, expr
+		));
+	}
+	else {
+		Flux::Parsing::expectSemicolon( source, "end of declaration" );
+
+		source.file:push( new Flux::Parsing::Declaration(
+			name.type, Flux::Parsing::resolveDefinitionName( source, name.name ),
+			name.position, is_const, is_public, is_static, null, null
+		));
+	}
 }
 
 TemplateList parse_template_begin(Source source) {
-
+	// <a, b, c>
 }
 
 bool{string} parse_modifiers(Source source) {
+	bool{string} modifiers = {};
+	Lexer lexer = source.lexer;
 
+	if lexer:skip( Keyword, "public" ) {
+		modifiers["public_is_set"] = true;
+		modifiers["public"] = true;
+	}
+	else if lexer:skip( Keyword, "private" ) {
+		modifiers["public_is_set"] = true;
+		modifiers["public"] = false;
+	}
+	else {
+		modifiers["public_is_set"] = false;
+		modifiers["public"] = false;
+	}
+
+	if lexer:skip( Keyword, "static" )
+		modifiers["static"] = true;
+
+	if lexer:skip( Keyword, "const" )
+		modifiers["const"] = true;
+
+	if lexer:skip( Keyword, "final" )
+		modifiers["final"] = true;
+
+	if lexer:skip( Keyword, "abstract" )
+		modifiers["abstract"] = true;
+
+	return modifiers;
 }
 
 TypedName parse_initial_type_and_name(Source source) {
+	// A:A() -> void A leaving colon
+	// ClassName() -> void ClassName
+	// int x -> int x
 
+	Lexer lexer = source.lexer;
+	Position position = lexer:get().position;
+
+	if source.file.context:get_flag "is_parsing_body" && lexer:skip( Identifier, source.file.context.class_name ) {
+		return {
+			type = new Flux::Parsing::TemplatedName( "void", null, position );
+			name = source.file.context.class_name;
+			position = position;
+		};
+	}
+	else {
+		string name = lexer:skipValue "Identifier";
+
+		if lexer:skip( Symbol, ":" ) {
+		 	if lexer:skip( Identifier, name ) {
+				return {
+					type = new Flux::Parsing::TemplatedName( "void", null, position );
+					name = name;
+					position = position;
+				};
+			}
+
+			lexer:back();
+		}
+
+		lexer:back();
+
+		TemplatedName type = Flux::Parsing::types::parse( source );
+		string name = lexer:skipValue( Identifier ) || throw new WTF "oh no this is bad";
+
+		return {
+			type = type;
+			name = name;
+			position = position;
+		};
+	}
 }

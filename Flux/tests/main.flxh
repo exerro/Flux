@@ -1,2 +1,7 @@
 
-int x = 0;
+private int x = 10;
+public static float<k> y = 10.1;
+
+private float z;
+
+int x;

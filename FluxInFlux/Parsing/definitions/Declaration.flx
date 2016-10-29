@@ -13,10 +13,9 @@ const public int f(float v) {
 */
 
 // stores function and variable declarations/definitions
-class Declaration {
+class Declaration extends ASTNode {
 	TemplatedName type;
 	string name;
-	Position position;
 
 	bool is_const;
 	bool is_public;
@@ -35,4 +34,23 @@ class Declaration {
 		self._template = _template;
 		self.definition = definition;
 	}
+
+	string serialize();
+}
+
+string Declaration:serialize() {
+	string r = "";
+
+	if self._template {
+		r = "template <" `concat` self._template:serialize() `concat` ">\n";
+	}
+
+	r = r
+		`concat` (self.is_const && "const " || "")
+		`concat` (self.is_public && "public " || "private ")
+		`concat` (self.is_static && "static " || "");
+
+	r = r `concat` self.type:serialize() `concat` " " `concat` self.name;
+
+	return r `concat` (self.definition && " = " `concat` self.definition:serialize() || "") `concat` ";";
 }

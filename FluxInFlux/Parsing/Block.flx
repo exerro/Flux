@@ -25,4 +25,6 @@ void Block:push(ASTNode node, null int pos = #self + 1) {
 }
 
 string Block:serialize()
-	= self.isVoid && "void" || (#self == 0 && "{}" || "{\n\t" `concat` (self `concattenate` "\n"):gsub( "\n", "\n\t" ) `concat` "\n}");
+	 = self.isVoid && "void"
+	|| #self == 0 && "{}"
+	|| "{\n\t" `concat` (self `concattenate` "\n"):gsub( "\n", "\n\t" ) `concat` "\n}";

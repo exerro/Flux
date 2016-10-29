@@ -29,7 +29,7 @@ bool LetStatement:parse(Source source) {
 	if !lexer:skip( Keyword, "let" )
 		return false;
 
-	bool isConst = lexer:skip( Keyword, "const" ) && true || false;
+	bool is_const = lexer:skip( Keyword, "const" ) && true || false;
 
 	repeat {
 		Position position = lexer:get().position;
@@ -43,9 +43,6 @@ bool LetStatement:parse(Source source) {
 		Expression expr;
 
 		if backtick {
-			if backtick:find "native"
-				source:error( "cannot overload native operator", backtick_pos );
-
 			parameters = [];
 
 			if name1 {
@@ -55,6 +52,8 @@ bool LetStatement:parse(Source source) {
 			}
 			else if name2
 				parameters[1] = new Flux::Parsing::FunctionParameter( cast2, name2, false );
+			else
+				source:error( "expected operand name after '`" `concat` "`'" );
 
 			name1 = backtick;
 		}
@@ -65,9 +64,9 @@ bool LetStatement:parse(Source source) {
 				repeat {
 					let position = lexer:get().position;
 					let name = lexer:skipValue( Identifier ) || source:error "expected parameter name";
-					let _type = lexer:skip( Symbol, "->" ) && Flux::Parsing::types::parse( source ) || Flux::Parsing::types::auto_type( position );
+					let type = lexer:skip( Symbol, "->" ) && Flux::Parsing::types::parse( source ) || Flux::Parsing::types::auto_type( position );
 
-					parameters[#parameters + 1] = new Flux::Parsing::FunctionParameter( _type, name, false );
+					parameters[#parameters + 1] = new Flux::Parsing::FunctionParameter( type, name, false );
 				}
 				while lexer:skip( Symbol, "," );
 
@@ -76,7 +75,8 @@ bool LetStatement:parse(Source source) {
 			}
 		}
 
-		if !lexer:skip( Symbol, "=" ) source:error "expected '='";
+		if !lexer:skip( Symbol, "=" )
+			source:error "expected '='";
 
 		expr = Flux::Parsing::Expression:parse( source ) || source:error "expected expression after '='";
 
@@ -87,16 +87,19 @@ bool LetStatement:parse(Source source) {
 				new Flux::Parsing::Block( [new Flux::Parsing::ReturnStatement( expr )], position ),
 				position
 			);
+			cast1 = Flux::Parsing::types::auto_type( position );
+		}
+		else {
+			expr = new Flux::Parsing::Cast( expr, cast1 );
 		}
 
-		source.file:push( new Flux::Parsing::Definition(
-			Flux::Parsing::types::auto_type( position ),
-			null,
+		source.file:push( new Flux::Parsing::Declaration(
+			cast1,
 			Flux::Parsing::resolveDefinitionName( source, name1 ),
-			expr,
-			isConst, false, false,
-			[],
-			position
+			position,
+			is_const, false, false,
+			null,
+			expr
 		) );
 
 		if parameters break;

@@ -73,5 +73,5 @@ ASTNode FunctionExpression:parse( Source source ) {
 }
 
 string FunctionExpression:serialize()
-	= "function ->" `concat` self.returns:serialize() `concat` "(" `concat` (self.parameters `concattenate` ", ") `concat` ") "
+	= "function -> " `concat` self.returns:serialize() `concat` "(" `concat` (self.parameters `concattenate` ", ") `concat` ") "
 		`concat` self.body:serialize();

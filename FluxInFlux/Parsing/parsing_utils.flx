@@ -89,6 +89,13 @@ string parseInstructionOperand( Lexer lexer ) {
 	}
 }
 
+string resolveDefinitionName(Source source, string name) {
+	if source.file.context:get_flag "is_root_level"
+		if source.file.context.namespace_name != ""
+			return source.file.context.namespace_name `concat` "::" `concat` name;
+	return name;
+}
+
 string intToName( int n ) {
 	string s = Flux::Parsing::letters[n % #Flux::Parsing::letters];
 

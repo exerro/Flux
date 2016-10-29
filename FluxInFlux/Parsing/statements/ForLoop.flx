@@ -3,6 +3,7 @@ import TemplatedName;
 import RepeatLoop;
 import DoStatement;
 import types;
+import definitions.Declaration;
 
 namespace Flux::Parsing;
 
@@ -19,42 +20,40 @@ bool ForLoop:parse(Source source) {
 
 	let openbracket = lexer:skip( Symbol, "(" ) && true || false;
 
-	TemplatedName type;
-	string name;
-	Expression value;
-	Expression condition;
-	Expression increment;
-
-	type = Flux::Parsing::types::parse( source );
-	name = lexer:skipValue( Identifier ) || source:error "expected name after type";
-	value = lexer:skip( Symbol, "=" )
+	TemplatedType type = Flux::Parsing::types::parse( source );
+	string name = lexer:skipValue( Identifier ) || source:error "expected name after type";
+	ASTNode value = lexer:skip( Symbol, "=" )
 		&& (Flux::Parsing::Expression:parse( source ) || source:error "expected expression after '='")
 		|| source:error "expected '='";
 
 	Flux::Parsing::expectSemicolon( source, "for loop initial value" );
-	condition = Flux::Parsing::Expression:parse( source ) || source:error "expected expression";
+
+	ASTNode condition = Flux::Parsing::Expression:parse( source ) || source:error "expected expression";
+
 	Flux::Parsing::expectSemicolon( source, "for loop test expression" );
-	increment = Flux::Parsing::Expression:parse( source ) || source:error "expected expression";
+
+	ASTNode increment = Flux::Parsing::Expression:parse( source ) || source:error "expected expression";
 
 	if openbracket && !lexer:skip( Symbol, ")" )
 		source:error "expected ')'";
 
 	source.file:push_context():specialise_loop();
-	let block = Flux::Parsing::Block:parse( source );
+	Block block = Flux::Parsing::Block:parse( source );
 	source.file:pop_context();
 
 	block:push( increment );
 
 	new Flux::Parsing::ConstantExpression true_constant( Flux::Parsing::ConstantType.Boolean, "true", position );
 	new Flux::Parsing::Block break_block( false, position );
+	new Flux::Parsing::Block switch_block( false, position );
 	new Flux::Parsing::BreakStatement break_statement( position );
-	new Flux::Parsing::SwitchStatement sub_block( condition, [[true_constant]], [block], break_block, position );
-	new Flux::Parsing::ConstantExpression definition( Flux::Parsing::ConstantType.String, "definition of " `concat` name, position ); // this is temporary until definitions are fixed
-		// new Flux::Parsing::Definition( type, null, name, value, false, false, false )
-	new Flux::Parsing::RepeatLoop repeat_loop( true_constant, sub_block, position );
-		new Flux::Parsing::Block do_block( false, position, [definition, repeat_loop] );
+	new Flux::Parsing::SwitchStatement switch_statement( condition, [[true_constant]], [block], break_block, position );
+	new Flux::Parsing::Declaration definition( type, name, type.position, false, false, false, null, value );
+	new Flux::Parsing::RepeatLoop repeat_loop( true_constant, switch_block, position );
+	new Flux::Parsing::Block do_block( false, position, [definition, repeat_loop] );
 
 	break_block:push( break_statement );
+	switch_block:push( switch_statement );
 	source.file:push( new Flux::Parsing::DoStatement( do_block, position ) );
 
 	return true;

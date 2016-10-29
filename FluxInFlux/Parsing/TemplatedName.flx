@@ -19,14 +19,13 @@ class TemplatedName {
 }
 
 string TemplatedName:serialize()
-	= self.name `concat` "<"
-	`concat` (self._template `concattenate` ", ")
-	`concat` ">";
+	= self.name `concat` (#self._template == 0
+		&& ""
+		|| "<" `concat` (self._template `concattenate` ", ") `concat` ">"
+	);
 
 string TemplatedName:tostring()
-	= self.name `concat` "<"
-	`concat` (self._template `concattenate` ", ")
-	`concat` ">";
+	= self:serialize();
 
 TemplatedName TemplatedName:parse(Source source) {
 	Position position = source.lexer:get().position;

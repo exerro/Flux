@@ -19,4 +19,12 @@ nope;
 while true
 	something;
 
+new int x;
+new float y( 5.3 );
+
+let x = 10;
+let y -> poop = new poop();
+let f(x) = x + 1;
+let a `plus` b = a + b;
+
 /*void freeze()*/ do repeat nothing; //where nothing = 0;

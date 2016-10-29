@@ -1,4 +1,6 @@
 
+import Block;
+
 namespace Flux::Parsing;
 
 class RepeatLoop extends Flux::Parsing::Statement {
@@ -20,7 +22,7 @@ bool RepeatLoop:parse(Source source) {
 		return false;
 
 	source.file:push_context():specialise_loop();
-	let block = Flux::Parsing::Block:parse( source );
+	Block block = Flux::Parsing::Block:parse( source );
 	source.file:pop_context();
 
 	Expression condition;

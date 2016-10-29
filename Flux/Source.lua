@@ -117,11 +117,11 @@ function Source:import( name, position )
 			s = ip:find( "/", s + 1 )
 
 			local ips = ip:sub( 1, s )
-			local p = path .. "/" .. ips .. "/" .. name:gsub( "%.", "/" )
+			local p = (path .. "/" .. ips .. "/" .. name:gsub( "%.", "/" )):gsub( "//+", "/" )
 			local found = isfile( p .. ".flxh" ) or isfile( p .. ".flxc" ) or isfile( p .. ".flx" )
 
 			if not found then
-				p = path .. "/" .. name:gsub( "%.", "/" )
+				p = (path .. "/" .. name:gsub( "%.", "/" )):gsub( "//+", "/" )
 				found = isfile( p .. ".flxh" ) or isfile( p .. ".flxc" ) or isfile( p .. ".flx" )
 			end
 

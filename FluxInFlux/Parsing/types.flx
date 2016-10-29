@@ -64,7 +64,7 @@ TemplatedName parse(Source source) {
 
 		if lexer:skip( Symbol, "<" ) {
 			repeat
-				classes[#classes + 1] = Flux::Parsing::types::parse( source );
+				_template[#_template + 1] = Flux::Parsing::types::parse( source );
 			while lexer:skip( Symbol, "," );
 
 			if !lexer:skip( Symbol, ">" )

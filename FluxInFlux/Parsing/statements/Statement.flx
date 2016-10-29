@@ -1,8 +1,5 @@
 
-namespace Flux::Parsing {
-	class Statement;
-}
-
+import ASTNode;
 import ImportStatement;
 import IfStatement;
 import WhileLoop;
@@ -17,6 +14,7 @@ import ReturnStatement;
 import BreakStatement;
 import ContinueStatement;
 import LetStatement;
+import definitions.definitions;
 
 import NamespaceStatement;
 import UsingStatement;
@@ -30,11 +28,12 @@ class Statement extends Flux::Parsing::ASTNode {
 void Statement:parse(Source source) {
 	let lexer = source.lexer;
 
-	if Flux::Parsing::Definition:parse(source)
-	|| Flux::Parsing::EnumDefinition:parse( source )
-	|| Flux::Parsing::ClassDefinition:parse(source)
-	|| Flux::Parsing::InterfaceDefinition:parse( source )
-	|| Flux::Parsing::NamespaceStatement:parse( source )
+	if Flux::Parsing::is_definition( source ) {
+		print( "Type is " `concat` Flux::Parsing::types::parse( source ):serialize() );
+		return;
+	}
+
+	if Flux::Parsing::NamespaceStatement:parse( source )
 	|| Flux::Parsing::UsingStatement:parse( source )
 	|| Flux::Parsing::IfStatement:parse( source )
 	|| Flux::Parsing::WhileLoop:parse( source )
@@ -48,10 +47,11 @@ void Statement:parse(Source source) {
 	|| Flux::Parsing::ReturnStatement:parse( source )
 	|| Flux::Parsing::BreakStatement:parse( source )
 	|| Flux::Parsing::ContinueStatement:parse( source )
-	|| Flux::Parsing::LetStatement:parse( source )
+	|| Flux::Parsing::LetStatement:parse( source ) {
 		return;
+	}
 
-	let expr = Flux::Parsing::Expression:parse(source);
+	ASTNode expr = Flux::Parsing::Expression:parse(source);
 
 	if expr {
 		Flux::Parsing::expectSemicolon( source, "end of expression" );

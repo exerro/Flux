@@ -2,6 +2,9 @@
 import TemplatedName;
 import Declaration;
 import imports.Source;
+import types;
+
+namespace Flux::Parsing;
 
 // private class TypedName = struct { TemplatedName type, string name };
 
@@ -33,3 +36,76 @@ bool{string} parse_modifiers(Source source); // public, private, static, abstrac
 
 // parses the beginning type of a generic definition
 TypedName parse_initial_type_and_name(Source source);
+
+bool is_definition(Source source) {
+	Lexer lexer = source.file.lexer;
+
+	if lexer:test( Keyword ) {
+		string word = lexer:get().value;
+
+		if word == "public"
+		|| word == "private"
+		|| word == "static"
+		|| word == "abstract"
+		|| word == "final"
+		|| word == "class"
+		|| word == "interface"
+		|| word == "enum"
+			return true;
+	}
+
+	let mark = lexer:mark();
+
+	try {
+		Flux::Parsing::types::parse( source );
+
+		if !source.file.lexer:test( Identifier )
+			throw new not_important "nope";
+	}
+	catch just to_fix_syntax {}
+	default { // catch any error and return false
+		lexer:jump( mark ); return false;
+	}
+
+	lexer:jump( mark ); return true;
+}
+
+void parse(Source source) {
+
+}
+
+void parse_class(Source source, bool is_interface, TemplateList _template, bool{string} modifiers) {
+
+}
+
+void parse_enum(Source source, bool{string} modifiers) {
+
+}
+
+void parse_definition(Source source) {
+
+}
+
+void parse_method_definition(Source source, bool{string} modifiers, TypedName name) {
+
+}
+
+void parse_function_definition(Source source, bool{string} modifiers, TypedName name) {
+
+}
+
+void parse_var_definition(Source source, bool{string} modifiers, TypedName name) {
+
+}
+
+TemplateList parse_template_begin(Source source) {
+
+}
+
+bool{string} parse_modifiers(Source source) {
+
+}
+
+TypedName parse_initial_type_and_name(Source source) {
+
+}

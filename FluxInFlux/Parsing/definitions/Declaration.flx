@@ -13,7 +13,7 @@ const public int f(float v) {
 */
 
 // stores function and variable declarations/definitions
-class Declaration extends ASTNode {
+class Declaration extends Flux::Parsing::ASTNode {
 	TemplatedName type;
 	string name;
 

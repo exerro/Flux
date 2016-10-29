@@ -1,6 +1,2 @@
 
-z;
-
-int x;
-
-int<float>[]?&{string<k>} y = 10;
+int x = 0;

@@ -51,10 +51,33 @@ bool is_definition(Source source) {
 		|| word == "class"
 		|| word == "interface"
 		|| word == "enum"
+		|| word == "template"
 			return true;
 	}
 
 	let mark = lexer:mark();
+
+	if source.file.context:get_flag "is_parsing_body"
+	&& lexer:skip( Identifier, source.file.context.class_name )
+	&& lexer:test( Symbol, "(" ) {
+		lexer:jump( mark );
+		return true;
+	}
+	else {
+		lexer:jump( mark );
+
+		string name = lexer:skipValue( Identifier );
+
+		if name
+		&& lexer:skip( Symbol, ":" )
+		&& lexer:skip( Identifier, name )
+		&& lexer:skip( Symbol, "(" ) {
+			lexer:jump( mark );
+			return true;
+		}
+		else
+			lexer:jump( mark );
+	}
 
 	try {
 		Flux::Parsing::types::parse( source );

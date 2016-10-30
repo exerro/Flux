@@ -8,6 +8,7 @@ import types;
 namespace Flux::Parsing;
 
 // private class TypedName = struct { TemplatedName type, string name, Position position };
+// private class DefinitionFlags = struct { bool is_public, is_public_set, is_const, is_static, Position static_pos, const_pos, public_pos }
 
 // determines whether a definition follows
 bool is_definition(Source source);
@@ -16,24 +17,24 @@ bool is_definition(Source source);
 void parse(Source source);
 
 // parses a class or interface definition
-void parse_class(Source source, bool is_interface, TemplateList _template, bool{string} modifiers);
+void parse_class(Source source, bool is_interface, TemplateList _template, DefinitionFlags modifiers);
 
 // parses an enum definition
-void parse_enum(Source source, bool{string} modifiers);
+void parse_enum(Source source, DefinitionFlags modifiers);
 
 // parses a generic definition
 void parse_definition(Source source);
 
 // parses a method definition i.e. int x:f() or float y<T>:g()
-void parse_method_definition(Source source, bool{string} modifiers, TypedName name);
-void parse_function_definition(Source source, bool{string} modifiers, TypedName name);
-void parse_var_definition(Source source, bool{string} modifiers, TypedName name);
+void parse_method_definition(Source source, DefinitionFlags modifiers, TypedName name);
+void parse_function_definition(Source source, DefinitionFlags modifiers, TypedName name);
+void parse_var_definition(Source source, DefinitionFlags modifiers, TypedName name);
 
 // parses a template list before a definition
 TemplateList parse_template_begin(Source source);
 
 // parses the modifier keywords
-bool{string} parse_modifiers(Source source); // public, private, static, const
+DefinitionFlags parse_modifiers(Source source); // public, private, static, const
 
 // parses the beginning type of a generic definition
 TypedName parse_initial_type_and_name(Source source);
@@ -53,6 +54,7 @@ bool is_definition(Source source) {
 		|| word == "interface"
 		|| word == "enum"
 		|| word == "template"
+		|| word == "const"
 			return true;
 	}
 
@@ -96,7 +98,7 @@ bool is_definition(Source source) {
 
 void parse(Source source) {
 	TemplateList _template = Flux::Parsing::parse_template_begin( source );
-	bool{string} modifiers = Flux::Parsing::parse_modifiers( source );
+	DefinitionFlags modifiers = Flux::Parsing::parse_modifiers( source );
 	Position position = source.lexer:get().position;
 
 	if source.lexer:skip( Keyword, "class" )
@@ -109,17 +111,27 @@ void parse(Source source) {
 		return Flux::Parsing::parse_definition( source, _template, modifiers );
 }
 
-void parse_class(Source source, bool is_interface, TemplateList _template, bool{string} modifiers, Position position) {
+void parse_class(Source source, bool is_interface, TemplateList _template, DefinitionFlags modifiers, Position position) {
 
 }
 
-void parse_enum(Source source, bool{string} modifiers, Position position) {
+void parse_enum(Source source, DefinitionFlags modifiers, Position position) {
+	string[] members = [];
+	bool is_public = modifiers.is_public;
+
+	if !source.file.context:get_flag "is_root_level"
+		source:error( "invalid location to define enum", position );
+
+	if modifiers.is_static
+		source:error( "unexpected 'static' before enum definition", modifiers.static_pos );
+
+	if modifiers.is_const
+		source:error( "unexpected 'const' before enum definition: enums are implicitly constant", modifiers.const_pos );
+
 	string name = Flux::Parsing::parseName( source )
 	           || source:error "expected enum name after 'enum'";
-	string[] members = [];
-	bool is_public = modifiers["public"];
 
-	if !modifiers["public_is_set"]
+	if !modifiers.is_public_set
 		is_public = /* default_value */ true;
 
 	if !source.file.lexer:skip( Symbol, "{" )
@@ -147,7 +159,10 @@ void parse_enum(Source source, bool{string} modifiers, Position position) {
 	}
 }
 
-void parse_definition(Source source, TemplateList _template, bool{string} modifiers) {
+void parse_definition(Source source, TemplateList _template, DefinitionFlags modifiers) {
+	if modifiers.is_public_set && !source.file.context:get_flag "is_root_level"
+		source:error( "cannot declare function-level definition as " `concat` (modifiers.is_public && "public" || "private"), modifiers.public_pos );
+
 	TypedName type_name = Flux::Parsing::parse_initial_type_and_name( source );
 
 	if source.lexer:skip( Symbol, ":" )
@@ -158,21 +173,21 @@ void parse_definition(Source source, TemplateList _template, bool{string} modifi
 		return Flux::Parsing::parse_var_definition( source, modifiers, type_name );
 }
 
-void parse_method_definition(Source source, TemplateList _template, bool{string} modifiers, TypedName name) {
+void parse_method_definition(Source source, TemplateList _template, DefinitionFlags modifiers, TypedName name) {
 
 }
 
-void parse_function_definition(Source source, TemplateList _template, bool{string} modifiers, TypedName name) {
+void parse_function_definition(Source source, TemplateList _template, DefinitionFlags modifiers, TypedName name) {
 
 }
 
-void parse_var_definition(Source source, bool{string} modifiers, TypedName name) {
+void parse_var_definition(Source source, DefinitionFlags modifiers, TypedName name) {
 	Lexer lexer = source.lexer;
-	bool is_const = modifiers["const"];
-	bool is_public = modifiers["public"];
-	bool is_static = modifiers["static"];
+	bool is_const = modifiers.is_const;
+	bool is_public = modifiers.is_public;
+	bool is_static = modifiers.is_static;
 
-	if !modifiers["public_is_set"]
+	if !modifiers.is_public_set
 		is_public /*= calculated_default_public*/ = true;
 
 	if lexer:skip( Symbol, "=" ) {
@@ -209,28 +224,42 @@ TemplateList parse_template_begin(Source source)
 	}
 	else return null;
 
-bool{string} parse_modifiers(Source source) {
-	bool{string} modifiers = {};
+DefinitionFlags parse_modifiers(Source source) {
+	DefinitionFlags modifiers = {
+		is_public = false;
+		is_public_set = false;
+		is_static = false;
+		is_const = false;
+		public_pos = source.file.lexer:get().position;
+		static_pos = source.file.lexer:get().position;
+		const_pos = source.file.lexer:get().position;
+	};
 	Lexer lexer = source.lexer;
 
 	if lexer:skip( Keyword, "public" ) {
-		modifiers["public_is_set"] = true;
-		modifiers["public"] = true;
+		modifiers.is_public_set = true;
+		modifiers.is_public = true;
+		modifiers.static_pos = source.file.lexer:get().position;
+		modifiers.const_pos = source.file.lexer:get().position;
 	}
 	else if lexer:skip( Keyword, "private" ) {
-		modifiers["public_is_set"] = true;
-		modifiers["public"] = false;
+		modifiers.is_public_set = true;
+		modifiers.is_public = false;
+		modifiers.static_pos = source.file.lexer:get().position;
+		modifiers.const_pos = source.file.lexer:get().position;
 	}
 	else {
-		modifiers["public_is_set"] = false;
-		modifiers["public"] = false;
+		modifiers.is_public_set = false;
+		modifiers.is_public = false;
 	}
 
-	if lexer:skip( Keyword, "static" )
-		modifiers["static"] = true;
+	if lexer:skip( Keyword, "static" ) {
+		modifiers.is_static = true;
+		modifiers.const_pos = source.file.lexer:get().position;
+	}
 
 	if lexer:skip( Keyword, "const" )
-		modifiers["const"] = true;
+		modifiers.is_const = true;
 
 	return modifiers;
 }

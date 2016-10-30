@@ -8,5 +8,10 @@ namespace A::B {
 
 		private int x = 10;
 		public static float<k> y = 10.1;
+
+		x = function() {
+			int x = 0;
+			int x = 0;
+		}
 	}
 }

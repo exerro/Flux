@@ -197,6 +197,8 @@ void parse_var_definition(Source source, DefinitionFlags modifiers, TypedName na
 
 		Flux::Parsing::expectSemicolon( source, "end of definition" );
 
+		expr = new Flux::Parsing::Cast( expr, name.type );
+
 		source.file:push( new Flux::Parsing::Declaration(
 			name.type, Flux::Parsing::resolveDefinitionName( source, name.name ),
 			name.position, is_const, is_public, is_static, null, expr

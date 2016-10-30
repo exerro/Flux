@@ -53,7 +53,6 @@ TemplatedName nullable_type(Position position, TemplatedName value)
 
 TemplatedName parse(Source source) {
 	Lexer lexer = source.lexer;
-	int start = lexer:mark();
 	Position position = lexer:get().position;
 
 	string name = Flux::Parsing::parseName( source ) || lexer:skipValue( Keyword, "auto" );

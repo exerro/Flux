@@ -24,6 +24,8 @@ class Context {
 	string class_name;
 	string namespace_name = "";
 
+	bool is_global_public = true; // things are public if not specified by default
+
 	Context(null Context parent) {
 		self.flags = [];
 

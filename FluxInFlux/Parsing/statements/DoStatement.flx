@@ -26,7 +26,7 @@ bool DoStatement:parse(Source source) {
 	if !lexer:skip( Keyword, "do" )
 		return false;
 
-	source.file:push_context();
+	source.file:push_context():specialise_block();
 	let block = Flux::Parsing::Block:parse( source );
 	source.file:pop_context();
 

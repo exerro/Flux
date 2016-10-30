@@ -28,7 +28,7 @@ bool TryStatement:parse(Source source) {
 	if !lexer:skip( Keyword, "try" )
 		return false;
 
-	source.file:push_context();
+	source.file:push_context():specialise_block();
 	Block block = Flux::Parsing::Block:parse( source );
 	source.file:pop_context();
 	TemplatedName[] catch_types = [];

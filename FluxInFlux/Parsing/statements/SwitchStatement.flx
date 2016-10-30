@@ -38,7 +38,7 @@ bool SwitchStatement:parse(Source source) {
 			this_cases[#this_cases + 1] = Flux::Parsing::Expression:parse( source ) || source:error "expected case expression";
 		while lexer:skip( Symbol, "," );
 
-		source.file:push_context();
+		source.file:push_context():specialise_block();
 		cases[#cases + 1] = this_cases;
 		blocks[#blocks + 1] = Flux::Parsing::Block:parse( source );
 		source.file:pop_context();

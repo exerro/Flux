@@ -22,7 +22,7 @@ bool IfStatement:parse(Source source) {
 		return false;
 
 	let condition = Flux::Parsing::Expression:parse( source ) || source:error "expected condition after 'if'";
-	source.file:push_context();
+	source.file:push_context():specialise_block();
 	let block = Flux::Parsing::Block:parse( source );
 	source.file:pop_context();
 	let else_block = lexer:skip( Keyword, "else" ) && Flux::Parsing::Block:parse( source );

@@ -19,5 +19,11 @@ namespace A::B {
 		int x = 0;
 		public int z = 5;
 		int y = 10;
+
+		if a {
+			enum T {
+				abc
+			}
+		}
 	}
 }

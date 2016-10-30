@@ -54,7 +54,7 @@ bool OperatorExpressionStack:get_next_term(Source source) {
 	string operator_s = operator_t && operator_t.value;
 	Position position = operator_t && operator_t.position;
 
-	if Flux::Parsing::Operator::operators[operator_s] && Flux::Parsing::Operator::is_binary( operator_s ) {
+	if Flux::Parsing::Operator::is_binary( operator_s ) {
 		source.lexer:next();
 
 		if operator_s == ">" && Flux::Parsing::tokenFollowsLast( source.lexer ) && source.lexer:skip( Symbol, ">" )

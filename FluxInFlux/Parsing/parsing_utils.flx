@@ -82,9 +82,24 @@ string parseMethodName(Source source) {
 			return lexer:skip( Symbol, "=" ) && "[]=" || "[]";
 		}
 		else {
-			string op = Flux::Parsing::parseOperator( lexer );
-			return op != "" && op
-			    || source:error( "expected operator after 'operator'", symbol && symbol.position );
+			Token symbol = source.file.lexer:skip( Symbol );
+
+			if symbol
+				if Flux::Parsing::Operator::operators[symbol.value] {
+					string operator_s = symbol.value;
+
+					if operator_s == ">" && Flux::Parsing::tokenFollowsLast( source.lexer ) && source.lexer:skip( Symbol, ">" )
+						operator_s = ">>";
+
+					if (operator_s == ">" || operator_s == ">>") && Flux::Parsing::tokenFollowsLast( source.lexer ) && source.lexer:skip( Symbol, "=" )
+						operator_s = operator_s == ">" && ">=" || ">>=";
+
+					return operator_s;
+				}
+				else
+				    source:error( "expected operator after 'operator'", symbol.position );
+			else
+			    source:error( "expected operator after 'operator'" );
 		}
 	}
 	else if lexer:skip( Keyword, "setter" )

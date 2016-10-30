@@ -1,2 +1,7 @@
 
 int x = 0;
+
+auto operator+(
+auto a:
+auto a<b>:
+auto operator+<a>

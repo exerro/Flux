@@ -16,6 +16,7 @@
 
 import TemplatedName;
 import types;
+import expressions.AutoCast;
 
 namespace Flux::Parsing;
 
@@ -105,7 +106,7 @@ bool LetStatement:parse(Source source) {
 			cast1 = Flux::Parsing::types::auto_type( position );
 		}
 		else {
-			expr = new Flux::Parsing::Cast( expr, cast1 );
+			expr = new Flux::Parsing::AutoCast( expr, cast1 );
 		}
 
 		source.file:push( new Flux::Parsing::Declaration(

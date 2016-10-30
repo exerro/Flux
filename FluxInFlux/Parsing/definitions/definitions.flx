@@ -4,10 +4,11 @@ import Declaration;
 import EnumDefinition;
 import imports.Source;
 import types;
+import expressions.AutoCast;
 
 namespace Flux::Parsing;
 
-// private class TypedName = struct { TemplatedName type, string name, Position position };
+// private class TypedName = struct { TemplatedName type, name, Position position };
 // private class DefinitionFlags = struct { bool is_public, is_public_set, is_const, is_static, Position static_pos, const_pos, public_pos }
 
 // determines whether a definition follows
@@ -85,7 +86,7 @@ bool is_definition(Source source) {
 	try {
 		Flux::Parsing::types::parse( source );
 
-		if !source.file.lexer:test( Identifier )
+		if !source.file.lexer:test( Identifier ) && !source.file.lexer:test( Keyword, "setter" ) && !source.file.lexer:test( Keyword, "getter" ) && !source.file.lexer:test( Keyword, "operator" )
 			throw new not_important "nope";
 	}
 	catch just to_fix_syntax {}
@@ -170,12 +171,42 @@ void parse_definition(Source source, TemplateList _template, DefinitionFlags mod
 
 	TypedName type_name = Flux::Parsing::parse_initial_type_and_name( source );
 
-	if source.lexer:skip( Symbol, ":" )
+	if source.lexer:skip( Symbol, "<" ) {
+		if type_name.name.name:find "[^%w_]"
+			source:error( "invalid template class '" `concat` type_name.name.name `concat` "'", source.file.lexer:peek( -1 ).position );
+
+		TemplatedName[] _template = [];
+
+		repeat {
+			_template[#_template + 1] = Flux::Parsing::TemplatedName:parse( source );
+		}
+		while source.file.lexer:skip( Symbol, "," );
+
+		type_name.name = new Flux::Parsing::TemplatedName( type_name.name.name, _template, type_name.name.position );
+
+		if !source.file.lexer:skip( Symbol, ">" )
+			source:error( "expected '>' to end template list" );
+
+		if !source.file.lexer:skip( Symbol, ":" )
+			source:error( "expected ':' for method definition" );
+
 		return Flux::Parsing::parse_method_definition( source, _template, modifiers, type_name );
-	else if source.lexer:skip( Symbol, "(" )
+	}
+	else if source.lexer:skip( Symbol, ":" ) {
+		if type_name.name.name:find "[^%w_]"
+			source:error( "invalid class for method definition '" `concat` type_name.name.name `concat` "'", source.file.lexer:peek( -1 ).position );
+
+		return Flux::Parsing::parse_method_definition( source, _template, modifiers, type_name );
+	}
+	else if source.lexer:skip( Symbol, "(" ) {
 		return Flux::Parsing::parse_function_definition( source, _template, modifiers, type_name );
-	else
+	}
+	else {
+		if type_name.name.name:find "[^%w_]"
+			source:error( "invalid name for definition '" `concat` type_name.name.name `concat` "'", type_name.name.position );
+
 		return Flux::Parsing::parse_var_definition( source, modifiers, type_name );
+	}
 }
 
 void parse_method_definition(Source source, TemplateList _template, DefinitionFlags modifiers, TypedName name) {
@@ -197,10 +228,10 @@ void parse_var_definition(Source source, DefinitionFlags modifiers, TypedName na
 
 		Flux::Parsing::expectSemicolon( source, "end of definition" );
 
-		expr = new Flux::Parsing::Cast( expr, name.type );
+		expr = new Flux::Parsing::AutoCast( expr, name.type );
 
 		source.file:push( new Flux::Parsing::Declaration(
-			name.type, Flux::Parsing::resolveDefinitionName( source, name.name ),
+			name.type, Flux::Parsing::resolveDefinitionName( source, name.name.name ),
 			name.position, is_const, is_public, is_static, null, expr
 		));
 	}
@@ -208,7 +239,7 @@ void parse_var_definition(Source source, DefinitionFlags modifiers, TypedName na
 		Flux::Parsing::expectSemicolon( source, "end of declaration" );
 
 		source.file:push( new Flux::Parsing::Declaration(
-			name.type, Flux::Parsing::resolveDefinitionName( source, name.name ),
+			name.type, Flux::Parsing::resolveDefinitionName( source, name.name.name ),
 			name.position, is_const, is_public, is_static, null, null
 		));
 	}
@@ -303,7 +334,8 @@ TypedName parse_initial_type_and_name(Source source) {
 		}
 
 		TemplatedName type = Flux::Parsing::types::parse( source );
-		string name = lexer:skipValue( Identifier ) || throw new WTF "oh no this is bad";
+		Position pos = source.file.lexer:get().position;
+		new Flux::Parsing::TemplatedName name( Flux::Parsing::parseMethodName( source ) || throw new WTF "oh no this is bad", [], pos );
 
 		return {
 			type = type;

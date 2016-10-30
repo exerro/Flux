@@ -1,0 +1,26 @@
+
+import TemplatedName;
+
+namespace Flux::Parsing;
+
+class AutoCast extends RightUnaryExpression {
+	Expression value;
+	TemplatedName type;
+
+	AutoCast( Expression value, TemplatedName type, null Position position = value.position ) {
+		self.value = value;
+		self.type = type;
+		self.position = position;
+	}
+
+	static ASTNode parse(Source source);
+}
+
+ASTNode AutoCast:parse( Source source, Expression value )
+	= type && new Flux::Parsing::AutoCast( value, type, position )
+	where lexer = source.lexer
+	where position = lexer:get().position
+	where type = lexer:skip( Symbol, "->" ) && Flux::Parsing::types::parse(source);
+
+string AutoCast:serialize()
+	= Flux::Parsing::serializeExpression( self.value ) `concat` " <auto>-> " `concat` self.type:serialize();

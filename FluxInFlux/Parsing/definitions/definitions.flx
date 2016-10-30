@@ -1,6 +1,7 @@
 
 import TemplatedName;
 import Declaration;
+import EnumDefinition;
 import imports.Source;
 import types;
 
@@ -94,19 +95,57 @@ bool is_definition(Source source) {
 }
 
 void parse(Source source) {
+	TemplateList _template = Flux::Parsing::parse_template_begin( source );
+	bool{string} modifiers = Flux::Parsing::parse_modifiers( source );
+	Position position = source.lexer:get().position;
+
+	if source.lexer:skip( Keyword, "class" )
+		return Flux::Parsing::parse_class( source, false, _template, modifiers, position );
+	else if source.lexer:skip( Keyword, "interface" )
+		return Flux::Parsing::parse_class( source, true, _template, modifiers, position );
+	else if source.lexer:skip( Keyword, "enum" )
+		return Flux::Parsing::parse_enum( source, _template, modifiers, position );
+	else
+		return Flux::Parsing::parse_definition( source, _template, modifiers );
+}
+
+void parse_class(Source source, bool is_interface, TemplateList _template, bool{string} modifiers, Position position) {
 
 }
 
-void parse_class(Source source, bool is_interface, TemplateList _template, bool{string} modifiers) {
+void parse_enum(Source source, bool{string} modifiers, Position position) {
+	string name = Flux::Parsing::parseName( source )
+	           || source:error "expected enum name after 'enum'";
+	string[] members = [];
 
-}
+	if !source.file.lexer:skip( Symbol, "{" )
+		source:error "expected '{' after enum name";
 
-void parse_enum(Source source, bool{string} modifiers) {
+	repeat {
+		members[#members + 1] = source.file.lexer:skipValue( Identifier )
+		                     || source:error "expected identifier for enum member";
+	}
+	while (source.file.lexer:skip( Symbol, "," )
+	   || (source.file.lexer:skip( Symbol, ";" ) && !source.file.lexer:test( Symbol, "}" )));
 
+	if !source.file.lexer:skip( Symbol, "}" )
+		source:error "expected '}' to close enum body";
+
+	source.file.lexer:skip( Symbol, ";" );
+	source.file:push( new Flux::Parsing::EnumDefinition( Flux::Parsing::resolveDefinitionName( source, name ), members, position ) );
+
+	print "Got to here! :)";
 }
 
 void parse_definition(Source source, TemplateList _template, bool{string} modifiers) {
+	TypedName type_name = Flux::Parsing::parse_initial_type_and_name( source );
 
+	if source.lexer:skip( Symbol, ":" )
+		return Flux::Parsing::parse_method_definition( source, _template, modifiers, type_name );
+	else if source.lexer:skip( Symbol, "(" )
+		return Flux::Parsing::parse_function_definition( source, _template, modifiers, type_name );
+	else
+		return Flux::Parsing::parse_var_definition( source, modifiers, type_name );
 }
 
 void parse_method_definition(Source source, TemplateList _template, bool{string} modifiers, TypedName name) {
@@ -146,9 +185,19 @@ void parse_var_definition(Source source, bool{string} modifiers, TypedName name)
 	}
 }
 
-TemplateList parse_template_begin(Source source) {
-	// <a, b, c>
-}
+TemplateList parse_template_begin(Source source)
+	if source.lexer:skip( Keyword, "template" ) {
+		if !source.lexer:skip( Symbol, "<" )
+			source:error "expected '<' after 'template'";
+
+		TemplateList _template = Flux::Parsing::TemplateList:parse( source );
+
+		if !source.lexer:skip( Symbol, ">" )
+			source:error "expected '>' after template list";
+
+		return _template;
+	}
+	else return null;
 
 bool{string} parse_modifiers(Source source) {
 	bool{string} modifiers = {};

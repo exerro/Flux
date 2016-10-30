@@ -23,6 +23,20 @@ bool NamespaceStatement:parse(Source source) {
 		return false;
 
 	string name = Flux::Parsing::parseName( source ) || source:error "expected name after 'namespace'";
+	string[] segments = [];
+
+	do {
+		int i = 1;
+		int s = name:find "::";
+
+		while s {
+			segments[#segments + 1] = name:sub( i, s - 1 );
+			i = s + 2;
+			s = name:find( "::", i );
+		}
+
+		segments[#segments + 1] = name:sub( i );
+	}
 
 	source.file:push_context():specialise_namespace( name );
 	source.file:push_block( lexer:get().position, false );
@@ -40,7 +54,15 @@ bool NamespaceStatement:parse(Source source) {
 	else
 		source:error "expected '{' after namespace name";
 
-	source.file:push( new Flux::Parsing::NamespaceStatement( name, source.file:pop_block(), position ) );
+	Block block = source.file:pop_block();
+
+	for (int i = #segments; i > 1; i--) {
+		block = new Flux::Parsing::Block( false, position, [
+			new Flux::Parsing::NamespaceStatement( segments[i], block, position )
+		] );
+	}
+
+	source.file:push( new Flux::Parsing::NamespaceStatement( segments[1], block, position ) );
 
 	return true;
 }

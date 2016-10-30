@@ -28,12 +28,8 @@ class Statement extends Flux::Parsing::ASTNode {
 void Statement:parse(Source source) {
 	let lexer = source.lexer;
 
-	if Flux::Parsing::is_definition( source ) {
-		let modifiers = Flux::Parsing::parse_modifiers( source );
-		let type_name = Flux::Parsing::parse_initial_type_and_name( source );
-
-		return Flux::Parsing::parse_var_definition( source, modifiers, type_name );
-	}
+	if Flux::Parsing::is_definition( source )
+		return Flux::Parsing::parse( source, modifiers, type_name );
 
 	if Flux::Parsing::NamespaceStatement:parse( source )
 	|| Flux::Parsing::UsingStatement:parse( source )
@@ -49,9 +45,8 @@ void Statement:parse(Source source) {
 	|| Flux::Parsing::ReturnStatement:parse( source )
 	|| Flux::Parsing::BreakStatement:parse( source )
 	|| Flux::Parsing::ContinueStatement:parse( source )
-	|| Flux::Parsing::LetStatement:parse( source ) {
+	|| Flux::Parsing::LetStatement:parse( source )
 		return;
-	}
 
 	ASTNode expr = Flux::Parsing::Expression:parse(source);
 

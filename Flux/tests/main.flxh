@@ -1,7 +1,12 @@
 
-private int x = 10;
-public static float<k> y = 10.1;
+namespace A::B {
+	namespace C {
+		enum E {
+			A, B;
+			C, D;
+		}
 
-private float z;
-
-int x;
+		private int x = 10;
+		public static float<k> y = 10.1;
+	}
+}

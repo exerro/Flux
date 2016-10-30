@@ -1,0 +1,19 @@
+
+import ASTNode;
+
+namespace Flux::Parsing;
+
+class EnumDefinition extends Flux::Parsing::ASTNode {
+	string name;
+	string[] members;
+
+	EnumDefinition(string name, string[] members, Position position) {
+		self.name = name;
+		self.members = members;
+		self.position = position;
+	}
+}
+
+string EnumDefinition:serialize()
+	= "enum " `concat` self.name
+	`concat` " {\n\t" `concat` table.concat( self.members, ";\n\t" ) `concat` "\n}";

@@ -27,8 +27,13 @@ class Context {
 	Context(null Context parent) {
 		self.flags = [];
 
-		if parent foreach k, v in parent.flags
-			self.flags[k] = v;
+		if parent {
+			foreach k, v in parent.flags
+				self.flags[k] = v;
+
+			self.class_name = parent.class_name;
+			self.namespace_name = parent.namespace_name;
+		}
 	}
 
 	string resolve_definition_name(string name);

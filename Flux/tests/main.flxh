@@ -1,7 +1,6 @@
 
 int x = 0;
 
-auto operator+(
-auto a:
-auto a<b>:
-auto operator+<a>
+int a<b>:f(float a, b) {
+	return 0;
+}

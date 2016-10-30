@@ -34,8 +34,6 @@ class Declaration extends Flux::Parsing::ASTNode {
 		self._template = _template;
 		self.definition = definition;
 	}
-
-	string serialize();
 }
 
 string Declaration:serialize() {

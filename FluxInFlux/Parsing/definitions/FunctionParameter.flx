@@ -41,14 +41,14 @@ FunctionParameter FunctionParameter:parse(Source source, bool parameterNamesGive
 	}
 
 	if name == null || type == null {
-		if type != null && prev != null && #type.classes == 0 {
+		if type != null && prev != null && #type._template == 0 { // when the parameter type is the same as previous
 			name = type.name;
 			type = prev.type;
 		}
-		else if type == null && name != null && prev != null {
+		else if type == null && name != null && prev != null { // when the parameter type is the same as previous, no idea how this can happen tbh, but I wrote it ages ago and am scared to remove it
 			type = prev.type;
 		}
-		else if !parameterNamesGiven {
+		else if !parameterNamesGiven { // if there was no parameter name or type, but it doesn't matter
 			type = type || prev.type;
 		}
 		else if type != null {

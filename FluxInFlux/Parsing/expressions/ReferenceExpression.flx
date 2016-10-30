@@ -2,9 +2,9 @@
 namespace Flux::Parsing;
 
 class ReferenceExpression extends Flux::Parsing::PrimaryExpression {
-	string name;
+	TemplatedName name;
 
-	ReferenceExpression(string name, Position position) {
+	ReferenceExpression(TemplatedName name, null Position position = name.position) {
 		self.name = name;
 		self.position = position;
 	}
@@ -12,9 +12,10 @@ class ReferenceExpression extends Flux::Parsing::PrimaryExpression {
 	static ASTNode parse(Source source);
 }
 
-ASTNode ReferenceExpression:parse(Source source)
-	= name && new Flux::Parsing::ReferenceExpression(name, position) || null
+ASTNode ReferenceExpression:parse( Source source )
+	= name && new Flux::Parsing::ReferenceExpression(
+		      new Flux::Parsing::TemplatedName( name, [], position ) )
 	where position = source.lexer:get().position
 	where name = Flux::Parsing::parseName(source);
 
-string ReferenceExpression:serialize() = self.name;
+string ReferenceExpression:serialize() = self.name:serialize();

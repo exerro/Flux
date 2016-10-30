@@ -9,6 +9,9 @@ class TemplateList {
 		self.names = names;
 		self.classes = classes;
 	}
+
+	TemplateList parse(Source source);
+	string serialize();
 }
 
 TemplateList TemplateList:parse( Source source ) {

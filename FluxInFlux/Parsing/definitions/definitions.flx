@@ -2,6 +2,7 @@
 import TemplatedName;
 import Declaration;
 import EnumDefinition;
+import MethodDefinition;
 import imports.Source;
 import types;
 import expressions.AutoCast;
@@ -158,7 +159,7 @@ void parse_enum(Source source, DefinitionFlags modifiers, Position position) {
 
 	foreach member in members {
 		new Flux::Parsing::TemplatedName enum_name( name, [], position );
-		new Flux::Parsing::ReferenceExpression enum_lookup( name, position );
+		new Flux::Parsing::ReferenceExpression enum_lookup( enum_name, position );
 		new Flux::Parsing::DotIndex enum_member_lookup( enum_lookup, member, position );
 
 		source.file:push( new Flux::Parsing::Declaration( enum_name, member, position, true, modifiers.is_public, false, null, enum_member_lookup ) );
@@ -175,14 +176,14 @@ void parse_definition(Source source, TemplateList _template, DefinitionFlags mod
 		if type_name.name.name:find "[^%w_]"
 			source:error( "invalid template class '" `concat` type_name.name.name `concat` "'", source.file.lexer:peek( -1 ).position );
 
-		TemplatedName[] _template = [];
+		TemplatedName[] classes = [];
 
 		repeat {
-			_template[#_template + 1] = Flux::Parsing::TemplatedName:parse( source );
+			classes[#classes + 1] = Flux::Parsing::TemplatedName:parse( source );
 		}
 		while source.file.lexer:skip( Symbol, "," );
 
-		type_name.name = new Flux::Parsing::TemplatedName( type_name.name.name, _template, type_name.name.position );
+		type_name.name = new Flux::Parsing::TemplatedName( type_name.name.name, classes, type_name.name.position );
 
 		if !source.file.lexer:skip( Symbol, ">" )
 			source:error( "expected '>' to end template list" );
@@ -210,7 +211,35 @@ void parse_definition(Source source, TemplateList _template, DefinitionFlags mod
 }
 
 void parse_method_definition(Source source, TemplateList _template, DefinitionFlags modifiers, TypedName name) {
+	string method_name = Flux::Parsing::parseMethodName( source )
+	                  || source:error( "expected method name after ':'" );
 
+	if !source.file.lexer:skip( Symbol, "(" )
+		source:error( "expected '(' for method parameters" );
+
+	TemplatedName[] parameter_types = [];
+	FunctionParameter[] parameters = [];
+	FunctionParameter parameter;
+
+	if !source.file.lexer:skip( Symbol, ")" ) {
+		repeat {
+			parameter = Flux::Parsing::FunctionParameter:parse( source, true, parameter );
+			parameters[#parameters + 1] = parameter;
+			parameter_types[#parameter_types + 1] = parameter.type;
+		}
+		while source.file.lexer:skip( Symbol, "," );
+
+		if !source.file.lexer:skip( Symbol, ")" )
+			source:error( "expected ')' to close method parameters" );
+	}
+
+	Block body = Flux::Parsing::parseFunctionBody( source );
+
+	new Flux::Parsing::FunctionExpression definition( parameters, name.type, body );
+
+	source.file:push( new Flux::Parsing::MethodDefinition(
+		_template, name.type, name.name, method_name, modifiers.is_static, modifiers.is_public, parameter_types, definition
+	) );
 }
 
 void parse_function_definition(Source source, TemplateList _template, DefinitionFlags modifiers, TypedName name) {
@@ -241,7 +270,7 @@ void parse_var_definition(Source source, DefinitionFlags modifiers, TypedName na
 		source.file:push( new Flux::Parsing::Declaration(
 			name.type, Flux::Parsing::resolveDefinitionName( source, name.name.name ),
 			name.position, is_const, is_public, is_static, null, null
-		));
+		) );
 	}
 }
 
@@ -309,7 +338,7 @@ TypedName parse_initial_type_and_name(Source source) {
 
 	if source.file.context:get_flag "is_parsing_body" && lexer:skip( Identifier, source.file.context.class_name ) {
 		return {
-			type = new Flux::Parsing::TemplatedName( "void", null, position );
+			type = new Flux::Parsing::TemplatedName( "void", [], position );
 			name = source.file.context.class_name;
 			position = position;
 		};
@@ -321,7 +350,7 @@ TypedName parse_initial_type_and_name(Source source) {
 			if lexer:skip( Symbol, ":" ) {
 			 	if lexer:skip( Identifier, name ) {
 					return {
-						type = new Flux::Parsing::TemplatedName( "void", null, position );
+						type = new Flux::Parsing::TemplatedName( "void", [], position );
 						name = name;
 						position = position;
 					};

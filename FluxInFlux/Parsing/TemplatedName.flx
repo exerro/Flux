@@ -32,7 +32,7 @@ TemplatedName TemplatedName:parse(Source source) {
 	string name = source.lexer:skipValue( Identifier );
 
 	if name {
-		TemplatedName[] _template;
+		TemplatedName[] _template = [];
 
 		if source.lexer:skip( Symbol, "<" ) {
 			string prev = "<";

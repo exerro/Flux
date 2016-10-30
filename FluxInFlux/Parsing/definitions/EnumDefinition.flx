@@ -6,14 +6,16 @@ namespace Flux::Parsing;
 class EnumDefinition extends Flux::Parsing::ASTNode {
 	string name;
 	string[] members;
+	bool is_public;
 
-	EnumDefinition(string name, string[] members, Position position) {
+	EnumDefinition(string name, string[] members, bool is_public, Position position) {
 		self.name = name;
 		self.members = members;
+		self.is_public = is_public;
 		self.position = position;
 	}
 }
 
 string EnumDefinition:serialize()
-	= "enum " `concat` self.name
+	= (self.is_public && "public enum " || "private enum ") `concat` self.name
 	`concat` " {\n\t" `concat` table.concat( self.members, ";\n\t" ) `concat` "\n}";

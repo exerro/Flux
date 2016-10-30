@@ -1,7 +1,7 @@
 
 namespace A::B {
 	namespace C {
-		enum E {
+		public enum E {
 			A, B;
 			C, D;
 		}

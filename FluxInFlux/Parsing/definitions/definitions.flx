@@ -33,7 +33,7 @@ void parse_var_definition(Source source, bool{string} modifiers, TypedName name)
 TemplateList parse_template_begin(Source source);
 
 // parses the modifier keywords
-bool{string} parse_modifiers(Source source); // public, private, static, abstract, final, const
+bool{string} parse_modifiers(Source source); // public, private, static, const
 
 // parses the beginning type of a generic definition
 TypedName parse_initial_type_and_name(Source source);
@@ -104,7 +104,7 @@ void parse(Source source) {
 	else if source.lexer:skip( Keyword, "interface" )
 		return Flux::Parsing::parse_class( source, true, _template, modifiers, position );
 	else if source.lexer:skip( Keyword, "enum" )
-		return Flux::Parsing::parse_enum( source, _template, modifiers, position );
+		return Flux::Parsing::parse_enum( source, modifiers, position );
 	else
 		return Flux::Parsing::parse_definition( source, _template, modifiers );
 }
@@ -117,6 +117,10 @@ void parse_enum(Source source, bool{string} modifiers, Position position) {
 	string name = Flux::Parsing::parseName( source )
 	           || source:error "expected enum name after 'enum'";
 	string[] members = [];
+	bool is_public = modifiers["public"];
+
+	if !modifiers["public_is_set"]
+		is_public = /* default_value */ true;
 
 	if !source.file.lexer:skip( Symbol, "{" )
 		source:error "expected '{' after enum name";
@@ -132,9 +136,15 @@ void parse_enum(Source source, bool{string} modifiers, Position position) {
 		source:error "expected '}' to close enum body";
 
 	source.file.lexer:skip( Symbol, ";" );
-	source.file:push( new Flux::Parsing::EnumDefinition( Flux::Parsing::resolveDefinitionName( source, name ), members, position ) );
+	source.file:push( new Flux::Parsing::EnumDefinition( Flux::Parsing::resolveDefinitionName( source, name ), members, is_public, position ) );
 
-	print "Got to here! :)";
+	foreach member in members {
+		new Flux::Parsing::TemplatedName enum_name( name, [], position );
+		new Flux::Parsing::ReferenceExpression enum_lookup( name, position );
+		new Flux::Parsing::DotIndex enum_member_lookup( enum_lookup, member, position );
+
+		source.file:push( new Flux::Parsing::Declaration( enum_name, member, position, true, is_public, false, null, enum_member_lookup ) );
+	}
 }
 
 void parse_definition(Source source, TemplateList _template, bool{string} modifiers) {
@@ -221,12 +231,6 @@ bool{string} parse_modifiers(Source source) {
 
 	if lexer:skip( Keyword, "const" )
 		modifiers["const"] = true;
-
-	if lexer:skip( Keyword, "final" )
-		modifiers["final"] = true;
-
-	if lexer:skip( Keyword, "abstract" )
-		modifiers["abstract"] = true;
 
 	return modifiers;
 }

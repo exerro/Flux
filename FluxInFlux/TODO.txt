@@ -7,7 +7,7 @@ Parsing
 		`extern<some_class> class C {}`
 	[ ] Notes at top of LetStatement.flx
 	[ ] `using MyClass for literal.integer;`
-	[ ] `using MyNamespace in {}`
+	[ ] `using MyNamespace in {}` <- probs involves tracking namespaces, rip
 
 Type checking
 	Haha nope.
@@ -16,3 +16,12 @@ Compilation
 Initial standard library
 Optimisation
 Full standard library
+
+Things to consider implementing:
+add const-function-only members to initialised classes i.e.
+	class T {
+		int x;
+	}
+	int T:make_x_0() self.x = 0;
+..useful for type casting...
+	MyType int:operator->() = new MyType();

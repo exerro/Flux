@@ -20,11 +20,15 @@ local ok, err --= pcall( function(...)
 		error( "path 'FluxInFlux' has no main file", 0 )
 	end
 
+	print "Flux source parsed"
+
 	for i = 1, #source.statements do
 		compileRootStatement( emitter, source.statements[i] )
 		emitter:pushLineBreak()
 		emitter:pushLineBreak()
 	end
+
+	print "Flux source compiled"
 
 	local t = {}
 	for k, v in pairs( Lexer.words ) do

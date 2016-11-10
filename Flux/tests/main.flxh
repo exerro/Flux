@@ -5,6 +5,8 @@ int a<b>:f(float a, b) {
 	return 0;
 }
 
+int f(float x, y, z = 0, int w = 1) = 0;
+
 foreach i, v in k {
 	1;
 }

@@ -6,6 +6,7 @@ import MethodDefinition;
 import imports.Source;
 import types;
 import expressions.AutoCast;
+import parsing_utils;
 
 namespace Flux::Parsing;
 
@@ -62,13 +63,14 @@ bool is_definition(Source source) {
 
 	let mark = lexer:mark();
 
-	if source.file.context:get_flag "is_parsing_body"
+	if source.file.context:get_flag "is_parsing_body" // constructor inside class body
 	&& lexer:skip( Identifier, source.file.context.class_name )
 	&& lexer:test( Symbol, "(" ) {
 		lexer:jump( mark );
 		return true;
 	}
-	else {
+	else { // constructor outside class body
+		// note this won't work for C<T>:C() :/
 		lexer:jump( mark );
 
 		string name = lexer:skipValue( Identifier );
@@ -93,7 +95,7 @@ bool is_definition(Source source) {
 	catch just to_fix_syntax {}
 	default { // catch any error and return false
 		lexer:jump( mark ); return false;
-	}
+	}//*/
 
 	lexer:jump( mark ); return true;
 }
@@ -173,7 +175,7 @@ void parse_definition(Source source, TemplateList _template, DefinitionFlags mod
 	TypedName type_name = Flux::Parsing::parse_initial_type_and_name( source );
 
 	if source.lexer:skip( Symbol, "<" ) {
-		if type_name.name.name:find "[^%w_]"
+		if type_name.name.name:find "[^%w_]" // i.e. T operator+<X>:f()
 			source:error( "invalid template class '" `concat` type_name.name.name `concat` "'", source.file.lexer:peek( -1 ).position );
 
 		TemplatedName[] classes = [];
@@ -190,11 +192,16 @@ void parse_definition(Source source, TemplateList _template, DefinitionFlags mod
 
 		if !source.file.lexer:skip( Symbol, ":" )
 			source:error( "expected ':' for method definition" );
+		else if source.file.context:get_flag "is_parsing_body"
+			source:error( "cannot declare method in class body", source.file.lexer:peek( -1 ).position );
 
 		return Flux::Parsing::parse_method_definition( source, _template, modifiers, type_name );
 	}
 	else if source.lexer:skip( Symbol, ":" ) {
-		if type_name.name.name:find "[^%w_]"
+		if source.file.context:get_flag "is_parsing_body"
+			source:error( "cannot declare method in class body", source.file.lexer:peek( -1 ).position );
+
+		if type_name.name.name:find "[^%w_]" // i.e. T operator+:f()
 			source:error( "invalid class for method definition '" `concat` type_name.name.name `concat` "'", source.file.lexer:peek( -1 ).position );
 
 		return Flux::Parsing::parse_method_definition( source, _template, modifiers, type_name );
@@ -243,7 +250,104 @@ void parse_method_definition(Source source, TemplateList _template, DefinitionFl
 }
 
 void parse_function_definition(Source source, TemplateList _template, DefinitionFlags modifiers, TypedName name) {
+	auto start = source.file.lexer:mark();
+	bool names_given = false;
+	TemplatedName type;
 
+	try {
+		type = Flux::Parsing::types::parse(source);
+	}
+	catch ParserException e {
+		if do_throw && !e:find "expected typename"
+			throw new ParserException( e );
+	}
+
+	if type != null && source.file.lexer:skip( Identifier )
+		names_given = true;
+
+	source.file.lexer:jump( start );
+
+	FunctionParameter parameter;
+	FunctionParameter[] parameters = [];
+	TemplatedName[] parameter_types = [name.type];
+	ASTNode[] defaults = [];
+	bool defaults_started = false;
+
+	repeat {
+		parameter = Flux::Parsing::FunctionParameter:parse( source, names_given, parameter );
+		parameters[#parameters + 1] = parameter;
+		parameter_types[#parameter_types + 1] = parameter.type;
+
+		if source.file.lexer:skip( Symbol, "=" ) {
+			ASTNode default_value = Flux::Parsing::Expression:parse( source );
+
+			table.insert( defaults, 1, default_value );
+			defaults_started = true;
+		}
+		else if defaults_started
+			source:error "expected '=' for parameter default value";
+	}
+	while source.file.lexer:skip( Symbol, "," );
+
+	if !source.file.lexer:skip( Symbol, ")" )
+		source:error( "expected ')' after function parameters" );
+
+	Block body = Flux::Parsing::parseFunctionBody( source );
+
+	new Flux::Parsing::TemplatedName f_type( "function", parameter_types );
+	new Flux::Parsing::FunctionExpression definition( parameters, name.type, body );
+
+	new Flux::Parsing::Declaration decl(
+		f_type,
+		name.name.name,
+		name.type.position,
+		modifiers.is_const,
+		modifiers.is_public,
+		modifiers.is_static,
+		_template,
+		definition);
+
+	source.file:push( decl );
+
+	foreach i, v in defaults {
+		TemplatedName[] overload_parameter_types = [];
+		FunctionParameter[] overload_parameters = [];
+		ASTNode[] overload_call_parameters = [];
+
+		for (int j = 1; j <= #parameters - i; j++) {
+			overload_parameter_types[j] = parameter_types[j];
+			overload_parameters[j] = parameters[j];
+			overload_call_parameters[j] = new Flux::Parsing::ReferenceExpression(
+				new Flux::Parsing::TemplatedName( parameters[j].name, [], parameters[j].type.position ),
+				parameters[j].type.position
+			);
+		}
+
+		overload_parameter_types[#parameters - i + 1] = parameter_types[#parameters - i + 1];
+
+		overload_call_parameters[#overload_call_parameters + 1] = v;
+
+		new Flux::Parsing::ReferenceExpression super_ref( name.name );
+		new Flux::Parsing::FunctionCall call_to_super( super_ref, overload_call_parameters );
+		new Flux::Parsing::ReturnStatement return_statement( call_to_super );
+		new Flux::Parsing::Block overload_body( false, null, [return_statement] );
+
+		new Flux::Parsing::TemplatedName overload_f_type( "function", overload_parameter_types );
+		new Flux::Parsing::FunctionExpression overload_definition( overload_parameters, name.type, overload_body );
+
+		new Flux::Parsing::Declaration overload_decl(
+			overload_f_type,
+			name.name.name,
+			name.type.position,
+			modifiers.is_const,
+			modifiers.is_public,
+			modifiers.is_static,
+			_template,
+			overload_definition
+		);
+
+		source.file:push( overload_decl );
+	}
 }
 
 void parse_var_definition(Source source, DefinitionFlags modifiers, TypedName name) {

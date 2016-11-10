@@ -62,10 +62,11 @@ bool tokenSameLineAsLast(Lexer lexer)
 	where b = lexer:get();
 
 string parseName(Source source) {
-	let name = source.lexer:skipValue(Identifier);
+	string name = source.lexer:skipValue( Identifier );
 
-	if (name) while source.lexer:skip(Symbol, "::")
-		name = name `concat` "::" `concat` (source.lexer:skipValue(Identifier) || source:error "expected name after ':'");
+	if name
+		while source.lexer:skip(Symbol, "::")
+			name = name `concat` "::" `concat` (source.lexer:skipValue(Identifier) || source:error "expected name after ':'");
 
 	return name;
 }
@@ -173,7 +174,7 @@ Block parseFunctionBody(Source source, bool is_vararg) {
 		if !Flux::Parsing::parseSemicolon(lexer)
 			source:error "expected ';' after function return";
 
-		block = new Flux::Parsing::Block( statements, position );
+		block = new Flux::Parsing::Block( false, position, statements );
 	}
 	else
 		block = Flux::Parsing::Block:parse( source );

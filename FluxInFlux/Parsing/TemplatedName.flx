@@ -1,4 +1,6 @@
 
+import Position;
+
 namespace Flux::Parsing;
 
 class TemplatedName {

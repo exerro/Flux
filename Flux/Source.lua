@@ -134,19 +134,10 @@ function Source:import( name, position )
 
 				if isfile( p .. ".flxh" ) then
 					self:parseContent( readfile( p .. ".flxh" ), name .. " header", p )
-
 				end
 
-				if isfile( p .. ".flxc" ) then
-					self:push {
-						type = "LuaScript";
-						value = readfile( p .. ".flxc" );
-						position = position;
-					}
-
-				elseif isfile( p .. ".flx" ) then
+				if isfile( p .. ".flx" ) then
 					self:parseContent( readfile( p .. ".flx" ), name, p )
-
 				end
 
 				self.current_include_path[#self.current_include_path] = nil

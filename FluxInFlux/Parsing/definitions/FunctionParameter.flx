@@ -48,7 +48,7 @@ FunctionParameter FunctionParameter:parse(Source source, bool parameterNamesGive
 		else if type == null && name != null && prev != null { // when the parameter type is the same as previous, no idea how this can happen tbh, but I wrote it ages ago and am scared to remove it
 			type = prev.type;
 		}
-		else if !parameterNamesGiven { // if there was no parameter name or type, but it doesn't matter
+		else if prev && !parameterNamesGiven { // if there was no parameter name or type, but it doesn't matter
 			type = type || prev.type;
 		}
 		else if type != null {

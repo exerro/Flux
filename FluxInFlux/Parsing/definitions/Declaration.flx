@@ -24,13 +24,12 @@ class Declaration extends Flux::Parsing::ASTNode {
 
 	ASTNode definition;
 
-	Declaration(TemplatedName type, string name, Position position, bool is_const, is_public, is_static, TemplateList _template, ASTNode definition) {
+	Declaration(TemplatedName type, string name, Position position, bool is_const, is_public, TemplateList _template, ASTNode definition) {
 		self.type = type;
 		self.name = name;
 		self.position = position;
 		self.is_const = is_const;
 		self.is_public = is_public;
-		self.is_static = is_static;
 		self._template = _template;
 		self.definition = definition;
 	}

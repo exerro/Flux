@@ -55,7 +55,8 @@ TemplatedName parse(Source source) {
 	Lexer lexer = source.lexer;
 	Position position = lexer:get().position;
 
-	string name = Flux::Parsing::parseName( source ) || lexer:skipValue( Keyword, "auto" );
+	string name = Flux::Parsing::parseName( source )
+	           || lexer:skipValue( Keyword, "auto" );
 	TemplatedName type;
 
 	if name {

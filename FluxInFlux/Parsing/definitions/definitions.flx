@@ -58,6 +58,7 @@ bool is_definition(Source source) {
 		|| word == "enum"
 		|| word == "template"
 		|| word == "const"
+		|| word == "void"
 			return true;
 	}
 
@@ -111,11 +112,11 @@ void parse(Source source) {
 
 		source.file.context.is_global_public = modifiers.is_public;
 	}
-	else if source.lexer:skip( Keyword, "class" ) {
-		return Flux::Parsing::parse_class( source, false, _template, modifiers, position );
-	}
-	else if source.lexer:skip( Keyword, "interface" ) {
-		return Flux::Parsing::parse_class( source, true, _template, modifiers, position );
+	else if source.lexer:test( Keyword, "class" )
+	     || source.lexer:test( Keyword, "interface" )
+		 || source.lexer:test( Keyword, "final" )
+		 || source.lexer:test( Keyword, "abstract" ) {
+		return Flux::Parsing::parse_class( source, _template, modifiers, position );
 	}
 	else if source.lexer:skip( Keyword, "enum" ) {
 		return Flux::Parsing::parse_enum( source, modifiers, position );
@@ -125,7 +126,7 @@ void parse(Source source) {
 	}
 }
 
-void parse_class(Source source, bool is_interface, TemplateList _template, DefinitionFlags modifiers, Position position) {
+void parse_class(Source source, TemplateList _template, DefinitionFlags modifiers, Position position) {
 
 }
 
@@ -164,7 +165,7 @@ void parse_enum(Source source, DefinitionFlags modifiers, Position position) {
 		new Flux::Parsing::ReferenceExpression enum_lookup( enum_name, position );
 		new Flux::Parsing::DotIndex enum_member_lookup( enum_lookup, member, position );
 
-		source.file:push( new Flux::Parsing::Declaration( enum_name, member, position, true, modifiers.is_public, false, null, enum_member_lookup ) );
+		source.file:push( new Flux::Parsing::Declaration( enum_name, member, position, true, modifiers.is_public, null, enum_member_lookup ) );
 	}
 }
 
@@ -206,6 +207,9 @@ void parse_definition(Source source, TemplateList _template, DefinitionFlags mod
 
 		return Flux::Parsing::parse_method_definition( source, _template, modifiers, type_name );
 	}
+	else if modifiers.is_static {
+		source:error( "unexpected 'static' modifier before definition", modifiers.static_pos );
+	}
 	else if source.lexer:skip( Symbol, "(" ) {
 		return Flux::Parsing::parse_function_definition( source, _template, modifiers, type_name );
 	}
@@ -227,6 +231,11 @@ void parse_method_definition(Source source, TemplateList _template, DefinitionFl
 	TemplatedName[] parameter_types = [];
 	FunctionParameter[] parameters = [];
 	FunctionParameter parameter;
+
+	if !modifiers.is_static {
+		parameters[1] = new Flux::Parsing::FunctionParameter( name.name, "self" );
+		parameter_types[1] = name.name;
+	}
 
 	if !source.file.lexer:skip( Symbol, ")" ) {
 		repeat {
@@ -273,24 +282,26 @@ void parse_function_definition(Source source, TemplateList _template, Definition
 	ASTNode[] defaults = [];
 	bool defaults_started = false;
 
-	repeat {
-		parameter = Flux::Parsing::FunctionParameter:parse( source, names_given, parameter );
-		parameters[#parameters + 1] = parameter;
-		parameter_types[#parameter_types + 1] = parameter.type;
+	if !source.lexer:skip( Symbol, ")" ) {
+		repeat {
+			parameter = Flux::Parsing::FunctionParameter:parse( source, names_given, parameter );
+			parameters[#parameters + 1] = parameter;
+			parameter_types[#parameter_types + 1] = parameter.type;
 
-		if source.file.lexer:skip( Symbol, "=" ) {
-			ASTNode default_value = Flux::Parsing::Expression:parse( source );
+			if source.file.lexer:skip( Symbol, "=" ) {
+				ASTNode default_value = Flux::Parsing::Expression:parse( source );
 
-			table.insert( defaults, 1, default_value );
-			defaults_started = true;
+				table.insert( defaults, 1, default_value );
+				defaults_started = true;
+			}
+			else if defaults_started
+				source:error "expected '=' for parameter default value";
 		}
-		else if defaults_started
-			source:error "expected '=' for parameter default value";
-	}
-	while source.file.lexer:skip( Symbol, "," );
+		while source.file.lexer:skip( Symbol, "," );
 
-	if !source.file.lexer:skip( Symbol, ")" )
-		source:error( "expected ')' after function parameters" );
+		if !source.file.lexer:skip( Symbol, ")" )
+			source:error( "expected ')' after function parameters" );
+	}
 
 	Block body = Flux::Parsing::parseFunctionBody( source );
 
@@ -303,7 +314,6 @@ void parse_function_definition(Source source, TemplateList _template, Definition
 		name.type.position,
 		modifiers.is_const,
 		modifiers.is_public,
-		modifiers.is_static,
 		_template,
 		definition);
 
@@ -341,7 +351,6 @@ void parse_function_definition(Source source, TemplateList _template, Definition
 			name.type.position,
 			modifiers.is_const,
 			modifiers.is_public,
-			modifiers.is_static,
 			_template,
 			overload_definition
 		);
@@ -354,28 +363,39 @@ void parse_var_definition(Source source, DefinitionFlags modifiers, TypedName na
 	Lexer lexer = source.lexer;
 	bool is_const = modifiers.is_const;
 	bool is_public = modifiers.is_public;
-	bool is_static = modifiers.is_static;
 
-	if lexer:skip( Symbol, "=" ) {
-		let expr = Flux::Parsing::Expression:parse( source );
-
-		Flux::Parsing::expectSemicolon( source, "end of definition" );
-
-		expr = new Flux::Parsing::AutoCast( expr, name.type );
-
-		source.file:push( new Flux::Parsing::Declaration(
-			name.type, Flux::Parsing::resolveDefinitionName( source, name.name.name ),
-			name.position, is_const, is_public, is_static, null, expr
-		));
+	if name.type.name == "void" {
+		source:error( "cannot declare variable type 'void'", name.type.position );
 	}
-	else {
-		Flux::Parsing::expectSemicolon( source, "end of declaration" );
 
-		source.file:push( new Flux::Parsing::Declaration(
-			name.type, Flux::Parsing::resolveDefinitionName( source, name.name.name ),
-			name.position, is_const, is_public, is_static, null, null
-		) );
+	string str_name = name.name.name;
+
+	while true {
+		if lexer:skip( Symbol, "=" ) {
+			let expr = Flux::Parsing::Expression:parse( source );
+
+			expr = new Flux::Parsing::AutoCast( expr, name.type );
+
+			source.file:push( new Flux::Parsing::Declaration(
+				name.type, Flux::Parsing::resolveDefinitionName( source, str_name ),
+				name.position, is_const, is_public, null, expr
+			));
+		}
+		else {
+			source.file:push( new Flux::Parsing::Declaration(
+				name.type, Flux::Parsing::resolveDefinitionName( source, str_name ),
+				name.position, is_const, is_public, null, null
+			) );
+		}
+
+		if lexer:skip( Symbol, "," ) {
+			str_name = lexer:skipValue( Identifier )
+			        || source:error "expected variable name after ','";
+		}
+		else break;
 	}
+
+	Flux::Parsing::expectSemicolon( source, "end of definition" );
 }
 
 TemplateList parse_template_begin(Source source)
@@ -453,9 +473,12 @@ TypedName parse_initial_type_and_name(Source source) {
 		if name {
 			if lexer:skip( Symbol, ":" ) {
 			 	if lexer:skip( Identifier, name ) {
+					lexer:back();
+					lexer:back();
+
 					return {
 						type = new Flux::Parsing::TemplatedName( "void", [], position );
-						name = name;
+						name = new Flux::Parsing::TemplatedName( name, [], position );
 						position = position;
 					};
 				}
@@ -466,9 +489,12 @@ TypedName parse_initial_type_and_name(Source source) {
 			lexer:back();
 		}
 
-		TemplatedName type = Flux::Parsing::types::parse( source );
+		TemplatedName type = source.file.lexer:test( Keyword, "void" )
+		                  && new Flux::Parsing::TemplatedName( "void", [], source.file.lexer:next().position )
+		                  || Flux::Parsing::types::parse( source );
 		Position pos = source.file.lexer:get().position;
-		new Flux::Parsing::TemplatedName name( Flux::Parsing::parseMethodName( source ) || throw new WTF "oh no this is bad", [], pos );
+		new Flux::Parsing::TemplatedName name( Flux::Parsing::parseMethodName( source )
+			|| source:error( "expected variable/function name after type" ), [], pos );
 
 		return {
 			type = type;

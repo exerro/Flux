@@ -1,12 +1,7 @@
 
-int x = 0;
+let x = 0;
+let x -> int = 1;
+let f(x -> int) = x + 2;
 
-int a<b>:f(float a, b) {
-	return 0;
-}
-
-int f(float x, y, z = 0, int w = 1) = 0;
-
-foreach i, v in k {
-	1;
-}
+let a `plus` b = a + b;
+let a -> float `plus` b -> float = a + b;

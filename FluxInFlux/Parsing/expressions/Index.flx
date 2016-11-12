@@ -21,7 +21,7 @@ ASTNode Index:parse( Source source, Expression value ) {
 
 	if lexer:skip( Symbol, "[" ) {
 		repeat
-			index[#index + 1] = Flux::Parsing::Expression:parse(source) || source:error "expected parameter";
+			index[#index + 1] = Flux::Parsing::Expression:parse(source) || source:error "expected index";
 		while lexer:skip( Symbol, "," );
 
 		if !lexer:skip( Symbol, "]" ) source:error "expected ']' to close index";

@@ -2,7 +2,6 @@
 import Context;
 import Lexer;
 import TemplatedName;
-// import definitions.Definition;
 import ASTNode;
 
 namespace Flux::Parsing;

@@ -1,7 +1,0 @@
-
-import ASTNode;
-
-// class to contain function definition specifics
-class FunctionDefinition extends Flux::Parsing::ASTNode {
-
-}

@@ -6,4 +6,3 @@ let a `concat` b = table::concat( [a, b] );
 
 import Position;
 import Parsing.parsing;
-import IR.IR;

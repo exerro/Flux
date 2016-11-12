@@ -57,6 +57,7 @@ bool LetStatement:parse(Source source) {
 		TemplatedName cast2 = name2 && (lexer:skip( Symbol, "->" ) && Flux::Parsing::types::parse( source ) || Flux::Parsing::types::auto_type( lexer:peek(-1).position ));
 		FunctionParameter[] parameters;
 		Expression expr;
+		bool is_vararg = false;
 
 		if backtick {
 			parameters = [];
@@ -71,6 +72,7 @@ bool LetStatement:parse(Source source) {
 			else
 				source:error( "expected operand name after '`" `concat` "`'" );
 
+			cast1 = Flux::Parsing::types::auto_type( cast1.position );
 			name1 = backtick;
 		}
 		else if lexer:skip( Symbol, "(" ) {
@@ -79,10 +81,18 @@ bool LetStatement:parse(Source source) {
 			if !lexer:skip( Symbol, ")" ) {
 				repeat {
 					let position = lexer:get().position;
-					let name = lexer:skipValue( Identifier ) || source:error "expected parameter name";
+					let name = lexer:skipValue( Identifier )
+					        || lexer:skipValue( Symbol, "..." )
+							|| source:error "expected parameter name";
 					let type = lexer:skip( Symbol, "->" ) && Flux::Parsing::types::parse( source ) || Flux::Parsing::types::auto_type( position );
 
 					parameters[#parameters + 1] = new Flux::Parsing::FunctionParameter( type, name, false );
+
+					if name == "..." {
+						if lexer:test( Symbol, "," )
+							source:error( "unexpected ',' after vararg (...) parameter" );
+						is_vararg = true;
+					}
 				}
 				while lexer:skip( Symbol, "," );
 
@@ -94,12 +104,18 @@ bool LetStatement:parse(Source source) {
 		if !lexer:skip( Symbol, "=" )
 			source:error "expected '='";
 
+		if parameters
+			source.file:push_context():specialise_function( is_vararg );
+
 		expr = Flux::Parsing::Expression:parse( source ) || source:error "expected expression after '='";
+
+		if parameters
+			source.file:pop_context();
 
 		if parameters {
 			expr = new Flux::Parsing::FunctionExpression(
 				parameters,
-				Flux::Parsing::types::auto_type( position ),
+				cast1,
 				new Flux::Parsing::Block( false, position, [new Flux::Parsing::ReturnStatement( expr )] ),
 				position
 			);

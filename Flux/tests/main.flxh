@@ -1,7 +1,11 @@
 
-let x = 0;
-let x -> int = 1;
-let f(x -> int) = x + 2;
+let sum(x, ...) = match [...] {
+	[] => x;
+	default => x + sum( ... );
+};
 
-let a `plus` b = a + b;
-let a -> float `plus` b -> float = a + b;
+print( sum( 1, 2, 3 ) );
+
+let f->function int()()=function->int(){return 0};
+
+let a -> int `plus` b -> int = a + b;

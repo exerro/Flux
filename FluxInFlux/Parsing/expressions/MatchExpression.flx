@@ -32,13 +32,15 @@ ASTNode MatchExpression:parse(Source source) {
 	if !lexer:skip( Symbol, "{" ) source:error "expected '{' after match expression";
 
 	repeat
-		if lexer:skip( Keyword, "default" )
-			if lexer:skip( Symbol, "=>" )
+		if lexer:skip( Keyword, "default" ) {
+			if lexer:skip( Symbol, "=>" ) {
 				_default = Flux::Parsing::Expression:parse(source) || source:error "expected default expression";
-				then break;
-
-			else source:error "expected '=>' after 'default'";
-
+				lexer:skip( Symbol, ";" );
+				break;
+			}
+			else
+				source:error "expected '=>' after 'default'";
+		}
 		else {
 			Expression[] caselist = [];
 
@@ -51,7 +53,6 @@ ASTNode MatchExpression:parse(Source source) {
 			cases[#cases + 1] = caselist;
 			matches[#matches + 1] = Flux::Parsing::Expression:parse(source) || source:error "expected expression";
 		}
-
 	while lexer:skip( Symbol, ";" ) && !lexer:test( Symbol, "}" );
 
 	if !lexer:skip( Symbol, "}" ) source:error "expected '}'";

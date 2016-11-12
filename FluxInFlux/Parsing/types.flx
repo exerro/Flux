@@ -6,6 +6,7 @@ namespace Flux::Parsing::types;
 TemplatedName auto_type(Position position); // auto
 TemplatedName void_type(Position position); // void
 TemplatedName function_type(Position position, TemplatedName returns, TemplatedName[] parameters); // function
+TemplatedName vararg_function_type(Position position, TemplatedName returns, TemplatedName[] parameters); // vararg_function
 TemplatedName struct_type(Position position, string[] names, TemplatedName[] types); // struct
 TemplatedName list_type(Position position, TemplatedName value); // List
 TemplatedName table_type(Position position, TemplatedName value, TemplatedName index); // Table
@@ -27,6 +28,15 @@ TemplatedName function_type(Position position, TemplatedName returns, TemplatedN
 		_template[i + 1] = v;
 
 	return new Flux::Parsing::TemplatedName( "function", _template, position );
+}
+
+TemplatedName vararg_function_type(Position position, TemplatedName returns, TemplatedName[] parameters) {
+	TemplatedName[] _template = [returns];
+
+	foreach i, v in parameters
+		_template[i + 1] = v;
+
+	return new Flux::Parsing::TemplatedName( "vararg_function", _template, position );
 }
 
 TemplatedName struct_type(Position position, string[] names, TemplatedName[] types) {

@@ -12,12 +12,13 @@ class MethodDefinition extends Flux::Parsing::ASTNode {
 
 	bool is_static;
 	bool is_public;
+	bool is_vararg;
 
 	TemplatedName[] parameter_types;
 
 	ASTNode definition;
 
-	MethodDefinition(TemplateList _template, TemplatedName return_type, _class, string method, bool is_static, is_public, TemplatedName[] parameter_types, ASTNode definition) {
+	MethodDefinition(TemplateList _template, TemplatedName return_type, _class, string method, bool is_static, is_public, TemplatedName[] parameter_types, ASTNode definition, bool is_vararg) {
 		self._template = _template;
 		self.return_type = return_type;
 		self._class = _class;
@@ -26,6 +27,7 @@ class MethodDefinition extends Flux::Parsing::ASTNode {
 		self.is_public = is_public;
 		self.parameter_types = parameter_types;
 		self.definition = definition;
+		self.is_vararg = is_vararg;
 	}
 }
 

@@ -231,6 +231,7 @@ void parse_method_definition(Source source, TemplateList _template, DefinitionFl
 	TemplatedName[] parameter_types = [];
 	FunctionParameter[] parameters = [];
 	FunctionParameter parameter;
+	bool is_vararg = false;
 
 	if !modifiers.is_static {
 		parameters[1] = new Flux::Parsing::FunctionParameter( name.name, "self" );
@@ -238,23 +239,31 @@ void parse_method_definition(Source source, TemplateList _template, DefinitionFl
 	}
 
 	if !source.file.lexer:skip( Symbol, ")" ) {
-		repeat {
+		while true {
 			parameter = Flux::Parsing::FunctionParameter:parse( source, true, parameter );
 			parameters[#parameters + 1] = parameter;
 			parameter_types[#parameter_types + 1] = parameter.type;
+
+			if parameter.name == "..." {
+				if source.file.lexer:test( Symbol, "," )
+					source:error( "unexpected ',' after vararg (...) parameter" );
+				is_vararg = true;
+			}
+
+			if !source.file.lexer:skip( Symbol, "," ) break;
 		}
-		while source.file.lexer:skip( Symbol, "," );
 
 		if !source.file.lexer:skip( Symbol, ")" )
 			source:error( "expected ')' to close method parameters" );
 	}
 
-	Block body = Flux::Parsing::parseFunctionBody( source );
+	Block body = Flux::Parsing::parseFunctionBody( source, is_vararg );
 
 	new Flux::Parsing::FunctionExpression definition( parameters, name.type, body );
 
 	source.file:push( new Flux::Parsing::MethodDefinition(
-		_template, name.type, name.name, method_name, modifiers.is_static, modifiers.is_public, parameter_types, definition
+		_template, name.type, name.name, method_name, modifiers.is_static,
+		modifiers.is_public, parameter_types, definition, is_vararg
 	) );
 }
 
@@ -278,17 +287,21 @@ void parse_function_definition(Source source, TemplateList _template, Definition
 
 	FunctionParameter parameter;
 	FunctionParameter[] parameters = [];
-	TemplatedName[] parameter_types = [name.type];
+	TemplatedName[] parameter_types = [];
 	ASTNode[] defaults = [];
 	bool defaults_started = false;
+	bool is_vararg = false;
 
 	if !source.lexer:skip( Symbol, ")" ) {
-		repeat {
+		while true {
 			parameter = Flux::Parsing::FunctionParameter:parse( source, names_given, parameter );
 			parameters[#parameters + 1] = parameter;
 			parameter_types[#parameter_types + 1] = parameter.type;
 
 			if source.file.lexer:skip( Symbol, "=" ) {
+				if parameter.name == "..."
+					source:error( "cannot assign default value to vararg (...) parameter", source.file.lexer:peek( -1 ).position );
+
 				ASTNode default_value = Flux::Parsing::Expression:parse( source );
 
 				table.insert( defaults, 1, default_value );
@@ -296,16 +309,25 @@ void parse_function_definition(Source source, TemplateList _template, Definition
 			}
 			else if defaults_started
 				source:error "expected '=' for parameter default value";
+
+			if parameter.name == "..." {
+				if source.file.lexer:test( Symbol, "," )
+					source:error( "unexpected ',' after vararg (...) parameter" );
+				is_vararg = true;
+			}
+
+			if !source.file.lexer:skip( Symbol, "," ) break;
 		}
-		while source.file.lexer:skip( Symbol, "," );
 
 		if !source.file.lexer:skip( Symbol, ")" )
 			source:error( "expected ')' after function parameters" );
 	}
 
-	Block body = Flux::Parsing::parseFunctionBody( source );
+	Block body = Flux::Parsing::parseFunctionBody( source, is_vararg );
 
-	new Flux::Parsing::TemplatedName f_type( "function", parameter_types );
+	TemplatedName f_type = (is_vararg && Flux::Parsing::types::vararg_function_type
+		                              || Flux::Parsing::types::function_type)
+						   ( name.type.position, name.type, parameter_types );
 	new Flux::Parsing::FunctionExpression definition( parameters, name.type, body );
 
 	new Flux::Parsing::Declaration decl(
@@ -333,16 +355,15 @@ void parse_function_definition(Source source, TemplateList _template, Definition
 			);
 		}
 
-		overload_parameter_types[#parameters - i + 1] = parameter_types[#parameters - i + 1];
-
 		overload_call_parameters[#overload_call_parameters + 1] = v;
+
+		TemplatedName overload_f_type =
+		    Flux::Parsing::types::function_type( name.type.position, name.type, overload_parameter_types );
 
 		new Flux::Parsing::ReferenceExpression super_ref( name.name );
 		new Flux::Parsing::FunctionCall call_to_super( super_ref, overload_call_parameters );
 		new Flux::Parsing::ReturnStatement return_statement( call_to_super );
 		new Flux::Parsing::Block overload_body( false, null, [return_statement] );
-
-		new Flux::Parsing::TemplatedName overload_f_type( "function", overload_parameter_types );
 		new Flux::Parsing::FunctionExpression overload_definition( overload_parameters, name.type, overload_body );
 
 		new Flux::Parsing::Declaration overload_decl(

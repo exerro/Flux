@@ -2,3 +2,5 @@
 using new Vec3( 0, 0, 0 ) in {
 	print( x, y, z );
 }
+
+new Vec3[5]();

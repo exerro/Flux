@@ -1,18 +1,5 @@
 
-let sum(x, ...) = match [...] {
-	[] => x;
-	default => x + sum( ... );
-};
+// extern<load>
+function auto(auto) load(string code, src, auto env) /*void*/ = 0;
 
-print( sum( 1, 2, 3 ) );
-
-let f->function int()()=function->int(){return 0};
-
-let a -> int `plus` b -> int = a + b;
-
-int f() = x where x = 0 where y = 1;
-
-private:
-int f() {
-	int x = 0;
-}
+new int[5] numbers(0);

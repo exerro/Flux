@@ -7,7 +7,9 @@ v0.1.0
 		[ ] Add `void` functions for externs
 		[x] Notes at top of LetStatement.flx
 		[x] `using MyNamespace in {}` `using my_object in {}` <- probs involves tracking namespaces, rip
-		[ ] `new int[5]`, `string[] repeat(string s, int n) = new string[n]( s );`
+		[x] `new int[5]`, `string[] repeat(string s, int n) = new string[n]( s );`
+		[ ] Add function declarations
+		[ ] Fix function-type parsing not allowing varargs
 
 	IR
 		[ ] Declarations
@@ -31,6 +33,7 @@ v0.1.1
 		[ ] Fix abc<T>:abc() not classing as definition
 		[ ] `using MyClass for literal.integer;`
 		[ ] `let len = dx ** 2 + dy ** 2 where dx = x1 - x2, dy = y1 - y2;`
+		[ ] Allow empty block for `while` and `for` loops
 
 	IR
 		[ ] Type checking

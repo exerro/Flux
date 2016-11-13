@@ -8,6 +8,7 @@
 	is_class is_interface - differentiate class/interface bodies
 	is_parsing_body - should definitions be treated as body definitions
 	class_member_inherited_public_state - should a definition be public/private by default
+	is_parsing_new_type
 	<probs some specific expression ones here, like using ',' like in C++>
 	<^ can come later>
 */

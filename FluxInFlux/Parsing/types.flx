@@ -131,11 +131,14 @@ TemplatedName parse(Source source) {
 	while true {
 		let pos = lexer:get().position;
 
-		if !source.file.context.isClassname && lexer:skip( Symbol, "[" ) {
+		if  !source.file.context:get_flag "is_parsing_classname"
+		&& (!source.file.context:get_flag "is_parsing_new_type" || !source.file.lexer:test( Integer, null, 1 ))
+		&& lexer:skip( Symbol, "[" ) {
 			if !lexer:skip( Symbol, "]" ) source:error "expected ']' to close list type modifier";
 			type = Flux::Parsing::types::list_type( pos, type );
 		}
-		else if !source.file.context.isClassname && lexer:skip( Symbol, "{" ) {
+		else if !source.file.context:get_flag "is_parsing_classname"
+		&& lexer:skip( Symbol, "{" ) {
 			if lexer:skip( Symbol, "}" )
 				type = Flux::Parsing::types::table_type( pos, type, Flux::Parsing::types::void_type( pos ) );
 			else {
@@ -145,10 +148,11 @@ TemplatedName parse(Source source) {
 				type = Flux::Parsing::types::table_type( pos, type, index );
 			}
 		}
-		else if lexer:skip( Symbol, "&" ) {
+		else if !source.file.context:get_flag "is_parsing_classname"
+		&& lexer:skip( Symbol, "&" ) {
 			type = Flux::Parsing::types::reference_type( pos, type );
 		}
-		else if !source.file.context.isClassname && lexer:skip( Symbol, "?" ) {
+		else if !source.file.context:get_flag "is_parsing_classname" && lexer:skip( Symbol, "?" ) {
 			type = Flux::Parsing::types::nullable_type( pos, type );
 		}
 		else break;

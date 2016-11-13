@@ -36,6 +36,8 @@ bool{string} keywords = {
 	["lambda"] = true;
 	["match"] = true;
 
+	["extern"] = true;
+
 	["null"] = true;
 };
 

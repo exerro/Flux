@@ -12,6 +12,8 @@ ASTNode Block:parse(Source source) {
 			if lexer:isEOF()
 				source:error "expected '}' to close block";
 
+			lexer:skip( Symbol, ";" );
+
 			Flux::Parsing::Statement:parse(source);
 		}
 	else

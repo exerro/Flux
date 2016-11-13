@@ -4,7 +4,8 @@ v0.1.0
 		[ ] Add some sort of foreign function/variable/class interface
 			`extern<some_func> int f() void;`
 			`extern<some_class> class C {}`
-		[ ] Notes at top of LetStatement.flx
+		[ ] Add `void` functions for externs
+		[x] Notes at top of LetStatement.flx
 		[ ] `using MyClass for literal.integer;`
 		[ ] `using MyNamespace in {}` `using my_object in {}` <- probs involves tracking namespaces, rip
 		[ ] `new int[5]`, `string[] repeat(string s, int n) = new string[n]( s );`
@@ -26,6 +27,8 @@ v0.1.1
 		[ ] Class definitions
 		[ ] Add #! removal from the first line
 		[ ] Auto-generate headers for source-only imports (all non-auto decls)
+		[ ] Optimise statement/expression parsing
+		[ ] Fix abc<T>:abc() not classing as definition
 
 	IR
 		[ ] Type checking

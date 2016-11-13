@@ -1,27 +1,22 @@
 
-/* TODO
-
-	int x = 1;
-	let x = 5 in {
-		print( x + 1 ); // 6
-	}
-	print( x + 1 ); // 2
-
-	new UIElement button;
-	let typeof button = UIButton in {
-		print( button.text ); // all good
-	}
-	print( button.text ); // UIElement has no member 'text'
-*/
-
 import TemplatedName;
 import types;
 import expressions.AutoCast;
 
 namespace Flux::Parsing;
 
-class LetStatement extends Flux::Parsing::Statement {}
-	// Note, this won't exist in the AST as it uses normal definitions
+class LetStatement extends Flux::Parsing::Statement {
+	TemplatedName name;
+	TemplatedName type;
+	Block block;
+
+	LetStatement(TemplatedName name, type, Block block, Position pos) {
+		self.name = name;
+		self.type = type;
+		self.block = block;
+		self.position = pos;
+	}
+}
 
 bool LetStatement:parse(Source source) {
 	let lexer = source.lexer;
@@ -29,6 +24,27 @@ bool LetStatement:parse(Source source) {
 
 	if !lexer:skip( Keyword, "let" )
 		return false;
+
+	if lexer:skip( Keyword, "typeof" ) {
+		TemplatedName name = lexer:test( Identifier ) && Flux::Parsing::TemplatedName:parse( source )
+		           || source:error "expected name after 'typeof'";
+
+		if !lexer:skip( Symbol, "=" )
+			source:error "expected '=' after name";
+
+		TemplatedName type = Flux::Parsing::types::parse( source );
+
+		if !lexer:skip( Keyword, "in" )
+			source:error "expected 'in' after type";
+
+		Block block = Flux::Parsing::Block:parse( source );
+
+		source.file:push( new Flux::Parsing::LetStatement(
+			name, type, block, position
+		) );
+
+		return true;
+	}
 
 	bool is_public = source.file.context.is_global_public;
 
@@ -46,6 +62,7 @@ bool LetStatement:parse(Source source) {
 	}
 
 	bool is_const = lexer:skip( Keyword, "const" );
+	ASTNode[] declarations = [];
 
 	repeat {
 		Position position = lexer:get().position;
@@ -125,22 +142,41 @@ bool LetStatement:parse(Source source) {
 			expr = new Flux::Parsing::AutoCast( expr, cast1 );
 		}
 
-		source.file:push( new Flux::Parsing::Declaration(
+		declarations[#declarations + 1] = new Flux::Parsing::Declaration(
 			cast1,
 			Flux::Parsing::resolveDefinitionName( source, name1 ),
 			position,
 			is_const, is_public,
 			null,
 			expr
-		) );
+		);
 
 		if parameters break;
 	}
 	while lexer:skip( Symbol, "," );
 
-	Flux::Parsing::expectSemicolon( source, "let statement" );
+	if source.file.lexer:skip( Keyword, "in" ) {
+		source.file:push_context():specialise_block();
+		Block block = Flux::Parsing::Block:parse( source );
+		source.file:pop_context();
+
+		for (int i = #declarations, i > 0, i--)
+			block:push( declarations[i], 1 );
+
+		source.file:push( new Flux::Parsing::DoStatement( block, position ) );
+	}
+	else {
+		Flux::Parsing::expectSemicolon( source, "let statement" );
+
+		foreach decl in declarations
+			source.file:push( decl );
+	}
 
 	return true;
 }
 
-// no need to define its serialize() as it's never added to the AST
+string LetStatement:serialize()
+	= "let typeof "
+	`concat` self.name:serialize() `concat` " = "
+	`concat` self.type:serialize() `concat` " in "
+	`concat` self.block:serialize();

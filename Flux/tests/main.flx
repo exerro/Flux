@@ -1,12 +1,4 @@
 
-int x = 0;
-
-while a > b do
-	error "Hi";
-
-let f(x) = x + 1 in
-	print( f(x) + 1 );
-
-let typeof x = float in {
-	print( x + 1 );
+using new Vec3( 0, 0, 0 ) in {
+	print( x, y, z );
 }

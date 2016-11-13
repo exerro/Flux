@@ -6,13 +6,13 @@ v0.1.0
 			`extern<some_class> class C {}`
 		[ ] Add `void` functions for externs
 		[x] Notes at top of LetStatement.flx
-		[ ] `using MyClass for literal.integer;`
-		[ ] `using MyNamespace in {}` `using my_object in {}` <- probs involves tracking namespaces, rip
+		[x] `using MyNamespace in {}` `using my_object in {}` <- probs involves tracking namespaces, rip
 		[ ] `new int[5]`, `string[] repeat(string s, int n) = new string[n]( s );`
 
 	IR
-		[ ] AST -> IR conversion
+		[ ] Declarations
 		[ ] Variable lookups
+		[ ] AST -> IR conversion
 		[ ] Function specialisation based on parameter count
 
 	Compilation
@@ -29,6 +29,8 @@ v0.1.1
 		[ ] Auto-generate headers for source-only imports (all non-auto decls)
 		[ ] Optimise statement/expression parsing
 		[ ] Fix abc<T>:abc() not classing as definition
+		[ ] `using MyClass for literal.integer;`
+		[ ] `let len = dx ** 2 + dy ** 2 where dx = x1 - x2, dy = y1 - y2;`
 
 	IR
 		[ ] Type checking

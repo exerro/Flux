@@ -2,10 +2,10 @@
 namespace Flux::Parsing;
 
 class UsingStatement extends Flux::Parsing::Statement {
-	string name;
+	ASTNode object;
 
-	UsingStatement(string name, Position position) {
-		self.name = name;
+	UsingStatement(ASTNode object, Position position) {
+		self.object = object;
 		self.position = position;
 	}
 }
@@ -14,21 +14,29 @@ UsingStatement UsingStatement:parse(Source source) {
 	let lexer = source.lexer;
 	let position = lexer:get().position;
 
-	if !source.file.context.isNamespace && lexer:skip( Keyword, "using" )
+	if !source.file.context:get_flag "is_root_level" && lexer:test( Keyword, "using" )
 		source:error "invalid location for 'using'";
 
 	if !lexer:skip( Keyword, "using" )
 		return false;
 
-	string name = Flux::Parsing::parseName( source ) || source:error "expected name after 'namespace'";
+	ASTNode object = Flux::Parsing::Expression:parse( source ) || source:error "expected expression after 'namespace'";
 
-	if !lexer:skip( Symbol, ";" )
-		source:error "expected ';' after namespace name";
+	if source.file.lexer:skip( Keyword, "in" ) {
+		Block block = Flux::Parsing::Block:parse( source );
 
-	source.file:push( new Flux::Parsing::UsingStatement( name, position ) );
+		block:push( new Flux::Parsing::UsingStatement( object, position ), 1 );
+		source.file:push( new Flux::Parsing::DoStatement( block, position ) );
+	}
+	else {
+		if !lexer:skip( Symbol, ";" )
+			source:error "expected ';' after namespace name";
+
+		source.file:push( new Flux::Parsing::UsingStatement( object, position ) );
+	}
 
 	return true;
 }
 
 string UsingStatement:serialize()
-	= "using " `concat` self.name `concat` ";";
+	= "using " `concat` self.object:serialize() `concat` ";";

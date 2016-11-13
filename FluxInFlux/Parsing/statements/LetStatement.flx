@@ -166,7 +166,7 @@ bool LetStatement:parse(Source source) {
 		source.file:push( new Flux::Parsing::DoStatement( block, position ) );
 	}
 	else {
-		Flux::Parsing::expectSemicolon( source, "let statement" );
+		Flux::Parsing::expectSemicolon( source, "end of let statement" );
 
 		foreach decl in declarations
 			source.file:push( decl );

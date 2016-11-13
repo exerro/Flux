@@ -83,25 +83,35 @@ TemplatedName parse(Source source) {
 
 		type = new Flux::Parsing::TemplatedName( name, _template, position );
 	}
-	else if !source.file.context.isClassname && lexer:skip( Keyword, "function" ) {
+	else if !source.file.context:get_flag "is_parsing_classname" && lexer:skip( Keyword, "function" ) {
 		TemplatedName returns = Flux::Parsing::types::parse( source );
 		TemplatedName[] parameters = [];
+		bool is_vararg = false;
 
 		if !lexer:skip( Symbol, "(" )
 			source:error "expected '(' for function type parameters";
 
 		if !lexer:skip( Symbol, ")" ) {
-			repeat
+			repeat {
 				parameters[#parameters + 1] = Flux::Parsing::types::parse( source );
+
+				if source.file.lexer:skip( Symbol, "..." ) {
+					is_vararg = true;
+					break;
+				}
+			}
 			while lexer:skip( Symbol, "," );
 
 			if !lexer:skip( Symbol, ")" )
 				source:error "expected ')' after function type parameters";
 		}
 
-		type = Flux::Parsing::types::function_type( position, returns, parameters );
+		if is_vararg
+			type = Flux::Parsing::types::vararg_function_type( position, returns, parameters );
+		else
+			type = Flux::Parsing::types::function_type( position, returns, parameters );
 	}
-	else if !source.file.context.isClassname && lexer:skip( Keyword, "struct" ) {
+	else if !source.file.context:get_flag "is_parsing_classname" && lexer:skip( Keyword, "struct" ) {
 		if !lexer:skip( Symbol, "{" )
 			source:error "expected '{' for struct body";
 

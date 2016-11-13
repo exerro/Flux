@@ -323,23 +323,40 @@ void parse_function_definition(Source source, TemplateList _template, Definition
 			source:error( "expected ')' after function parameters" );
 	}
 
-	Block body = Flux::Parsing::parseFunctionBody( source, is_vararg );
-
 	TemplatedName f_type = (is_vararg && Flux::Parsing::types::vararg_function_type
-		                              || Flux::Parsing::types::function_type)
+			                          || Flux::Parsing::types::function_type)
 						   ( name.type.position, name.type, parameter_types );
-	new Flux::Parsing::FunctionExpression definition( parameters, name.type, body );
 
-	new Flux::Parsing::Declaration decl(
-		f_type,
-		name.name.name,
-		name.type.position,
-		modifiers.is_const,
-		modifiers.is_public,
-		_template,
-		definition);
+	if source.file.lexer:skip( Symbol, ";" ) {
+		new Flux::Parsing::Declaration decl(
+			f_type,
+			name.name.name,
+			name.type.position,
+			modifiers.is_const,
+			modifiers.is_public,
+			_template,
+			null);
 
-	source.file:push( decl );
+		source.file:push( decl );
+	}
+	else if !names_given {
+		source:error "expected ';' after nameless parameter function declaration";
+	}
+	else {
+		Block body = Flux::Parsing::parseFunctionBody( source, is_vararg );
+
+		new Flux::Parsing::FunctionExpression definition( parameters, name.type, body );
+		new Flux::Parsing::Declaration decl(
+			f_type,
+			name.name.name,
+			name.type.position,
+			modifiers.is_const,
+			modifiers.is_public,
+			_template,
+			definition);
+
+		source.file:push( decl );
+	}
 
 	foreach i, v in defaults {
 		TemplatedName[] overload_parameter_types = [];

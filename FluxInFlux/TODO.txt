@@ -8,8 +8,8 @@ v0.1.0
 		[x] Notes at top of LetStatement.flx
 		[x] `using MyNamespace in {}` `using my_object in {}` <- probs involves tracking namespaces, rip
 		[x] `new int[5]`, `string[] repeat(string s, int n) = new string[n]( s );`
-		[ ] Add function declarations
-		[ ] Fix function-type parsing not allowing varargs
+		[x] Add function declarations
+		[x] Fix function-type parsing not allowing varargs
 
 	IR
 		[ ] Declarations

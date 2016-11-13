@@ -1,27 +1,37 @@
 
-Parsing
-	[ ] Definitions and stuff :'(
-	[ ]	Add preprocessor instruction support
-	[ ] Add some sort of foreign function/variable/class interface
-		`extern<some_func> int f() void;`
-		`extern<some_class> class C {}`
-	[ ] Notes at top of LetStatement.flx
-	[ ] `using MyClass for literal.integer;`
-	[ ] `using MyNamespace in {}` <- probs involves tracking namespaces, rip
+v0.1.0
+	Parsing
+		[ ] Add some sort of foreign function/variable/class interface
+			`extern<some_func> int f() void;`
+			`extern<some_class> class C {}`
+		[ ] Notes at top of LetStatement.flx
+		[ ] `using MyClass for literal.integer;`
+		[ ] `using MyNamespace in {}` `using my_object in {}` <- probs involves tracking namespaces, rip
+		[ ] `new int[5]`, `string[] repeat(string s, int n) = new string[n]( s );`
 
-Type checking
-	Haha nope.
+	IR
+		[ ] AST -> IR conversion
+		[ ] Variable lookups
+		[ ] Function specialisation based on parameter count
 
-Compilation
-Initial standard library
-Optimisation
-Full standard library
+	Compilation
+		[ ] Basic compilation to Lua
 
-Things to consider implementing:
-add const-function-only members to initialised classes i.e.
-	class T {
-		int x;
-	}
-	int T:make_x_0() self.x = 0;
-..useful for type casting...
-	MyType int:operator->() = new MyType();
+	stdlib
+		[ ] Lua-only stuff
+
+v0.1.1
+	Parsing
+		[ ]	Add preprocessor instruction support
+		[ ] Class definitions
+		[ ] Add #! removal from the first line
+		[ ] Auto-generate headers for source-only imports (all non-auto decls)
+
+	IR
+		[ ] Type checking
+
+	Compilation
+		[ ] Optimisation
+
+	stdlib
+		[ ] A bunch of stuff

@@ -25,6 +25,7 @@ void Source:parse_content() {
 }
 
 void Source:close_file() {
+	self.file.is_header = false;
 	self.active_files[#self.active_files] = null;
 	self.file = self.active_files[#self.active_files];
 	self.lexer = self.file && self.file.lexer;
@@ -87,6 +88,7 @@ bool Source:import_file(string name) {
 		else if Flux::is_file( file_path `concat` ".flx" ) {
 			if !self.files_included[file_path] {
 				self:setup_file( name, file_path, ".flx" );
+				self.file.is_header = false;
 				self:parse_content();
 				self:close_file();
 			}

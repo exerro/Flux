@@ -12,6 +12,9 @@ void main() {
 
 	foreach k, file in source.files_included {
 		print( "@" `concat` file.name );
+		foreach statement in file.header_statements {
+			print( "(header) " `concat` statement:serialize() `concat` "\n" );
+		}
 		foreach statement in file.statements {
 			print( statement:serialize() `concat` "\n" );
 		}

@@ -19,6 +19,8 @@ void File:define_type(TemplatedName type) {
 void File:push(ASTNode node) {
 	if #self.blocks > 0
 		self.blocks[#self.blocks]:push( node );
+	else if self.is_header
+		self.header_statements[#self.header_statements + 1] = node;
 	else
 		self.statements[#self.statements + 1] = node;
 }

@@ -1,36 +1,5 @@
 
-/*
-// I need this because there's no type checking
-// atm, so it can't tell if a + b is add or concat
-let a `concat` b = table.concat( [a, b] );
+int x = 0;
 
-class Element {
-	int x = 0, y = 0;
-
-	Element(int x, y) {
-		self.x = x;
-		self.y = y;
-	}
-}
-
-class Button extends Element {
-	string text = "";
-
-	Button(int x, y, string? text = "Hello world!") {
-		self.text = text;
-		self:Element( x, y );
-	}
-
-	string tostring() = "Button " `concat` location `concat` " " `concat` self.text
-		where location = "(" `concat` self.x `concat` ", " `concat` self.y `concat` ")";
-}
-
-void main() {
-	new Button test1( 1, 1, "woah!" );
-	new Button test2( 5, 7 );
-
-	print( test1:tostring() );
-	print( test2:tostring() );
-}
-
-*/
+while a > b do
+	error "Hi";

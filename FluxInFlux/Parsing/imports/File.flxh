@@ -15,8 +15,10 @@ class File {
 	File[] imports;
 
 	TemplatedName[] types;
-	ASTNode[] declarations;
 	ASTNode[] statements;
+	ASTNode[] header_statements;
+
+	bool is_header = true;
 
 	Lexer lexer;
 
@@ -31,8 +33,8 @@ class File {
 		self.source = source;
 		self.imports = [];
 		self.types = [];
-		self.declarations = [];
 		self.statements = [];
+		self.header_statements = [];
 		self.contexts = [];
 		self.blocks = [];
 		self.environment = {};

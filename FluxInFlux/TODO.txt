@@ -1,16 +1,5 @@
 
 v0.1.0
-	Parsing
-		[ ] Add some sort of foreign function/variable/class interface
-			`extern<some_func> int f() void;`
-			`extern<some_class> class C {}`
-		[ ] Add `void` functions for externs
-		[x] Notes at top of LetStatement.flx
-		[x] `using MyNamespace in {}` `using my_object in {}` <- probs involves tracking namespaces, rip
-		[x] `new int[5]`, `string[] repeat(string s, int n) = new string[n]( s );`
-		[x] Add function declarations
-		[x] Fix function-type parsing not allowing varargs
-
 	IR
 		[ ] Declarations
 		[ ] Variable lookups
@@ -23,10 +12,16 @@ v0.1.0
 	stdlib
 		[ ] Lua-only stuff
 
+	fluxc.lua
+		^ needs to be made
+
 v0.1.1
 	Parsing
 		[ ]	Add preprocessor instruction support
+		[ ] Class alias definitions (`class MyCallback = function int(float, string);`)
 		[ ] Class definitions
+		[ ] Add extern classes
+			`extern<some_class> class C {}`
 		[ ] Add #! removal from the first line
 		[ ] Auto-generate headers for source-only imports (all non-auto decls)
 		[ ] Optimise statement/expression parsing

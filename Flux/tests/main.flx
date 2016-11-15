@@ -1,6 +1,2 @@
 
-// int f() void; - errors yay!
-
-namespace math {
-	extern (math.pi) float PI = 3.14159265;
-}
+print "Hello world!";

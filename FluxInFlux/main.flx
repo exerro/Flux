@@ -3,71 +3,14 @@ import flux;
 
 void main() {
 	string[] files = [ "main" ];
+
 	new Flux::Parsing::Source source( "./Flux/tests" );
+	new Flux::IR::State state();
 
 	Flux::Parsing::Operator::init_standard_operators();
 
 	if !source:import_project( files )
 		error( "Failed to find '" `concat` files[1] `concat` "' file in " `concat` source.environment["PATH"], 0 );
 
-	foreach k, file in source.files_included {
-		print( "@" `concat` file.name );
-		foreach statement in file.header_statements {
-			print( "(header) " `concat` statement:serialize() `concat` "\n" );
-		}
-		foreach statement in file.statements {
-			print( statement:serialize() `concat` "\n" );
-		}
-	}
-
-	/*
-	new IRContext c();
-
-	c:loadfile "main";
-	c:pushScope();
-
-	new IRClassDefinition t1();
-	new IRClassDefinition t2();
-	new IRClassDefinition t3();
-	new IRClassDefinition t4();
-
-	t1.name = "1";
-	t2.name = "2";
-	t3.name = "3";
-	t4.name = "4";
-
-	c:define( t1 );
-	c:define( t2 );
-	c:define( t3 );
-	c:define( t4 );
-
-	let t1p = c:lookupType( "1", true ) || throw new Error "So the type 1 doesn't exist :/";
-	let t2p = c:lookupType( "2", true ) || throw new Error "So the type 2 doesn't exist :/";
-	let t3p = c:lookupType( "3", true ) || throw new Error "So the type 3 doesn't exist :/";
-	let t4p = c:lookupType( "4", true ) || throw new Error "So the type 4 doesn't exist :/";
-
-	new IRTypeSignature s1(t1p, []);
-	new IRTypeSignature s2(t2p, []);
-	new IRTypeSignature s3(t3p, []);
-
-	t1.super = t2p;
-
-	print( new IRTypeSignature(IRDefinitionPointer.null_type, [s1]):compare( new IRTypeSignature(IRDefinitionPointer.null_type, [s3]) ) );
-
-	/*
-	c:use "a";
-	c:use "b";
-
-	c:define(new IRObjectDefinition("a::f", true, true, t2p, [], new Flux::Position("dashjk", 1, 1, 1)));
-	c:define(new IRObjectDefinition("f", true, false, t1p, [], new Flux::Position("dashjk", 1, 1, 1)));
-	c:define(new IRObjectDefinition("b::f", true, false, t4p, [], new Flux::Position("dashjk", 1, 1, 1)));
-	c:define(new IRObjectDefinition("a::f", true, true, t3p, [], new Flux::Position("dashjk", 1, 1, 1)));
-
-	foreach v in c:lookup( "f", true )
-		print( v:definition().type:definition().name );
-
-	foreach f in c.files[c.filenames[#c.filenames]]:lookup( "a::f", true )
-		print( f:definition().type:definition().name );
-	*/
+	state:load_ast( source );
 }
-// */

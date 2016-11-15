@@ -1,0 +1,34 @@
+
+import Parsing.import.Source;
+import Position;
+
+namespace Flux::IR;
+
+class State {
+	State() {}
+
+	void load_ast(Source source);
+
+	void error(string err, Position position);
+}
+
+void State:load_ast(Source source) {
+	foreach k, file in source.files_included {
+		print( "@" `concat` file.name );
+		foreach statement in file.header_statements {
+			print( "(header) " `concat` statement:serialize() `concat` "\n" );
+		}
+		foreach statement in file.statements {
+			print( statement:serialize() `concat` "\n" );
+		}
+	}
+}
+
+void State:error(string err, Position position)
+	= throw new ParserException(src `concat` "[" `concat` line `concat` "]: " `concat` err `concat` "\n\t"
+		`concat` strline `concat` "\n\t"
+		`concat` char_pointer)
+	where src = position.source
+	where line = position.line
+	where strline = position.strline:gsub( "\t", " " )
+	where char_pointer = (" "):rep( position.character - 1 ) `concat` "^";

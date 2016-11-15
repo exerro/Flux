@@ -1,5 +1,6 @@
 
-// extern<load>
-function auto(auto ...) load(string code, src, auto env) /*void*/;
+extern (load)
+function auto(auto ...) load(string code, src, auto env) void;
 
+new int[7] ns;
 new int[5] numbers(0);

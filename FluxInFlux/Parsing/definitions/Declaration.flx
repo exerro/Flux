@@ -2,6 +2,7 @@
 import ASTNode;
 import TemplatedName;
 import TemplateList;
+import ExternReference;
 
 namespace Flux::Parsing;
 
@@ -21,10 +22,11 @@ class Declaration extends Flux::Parsing::ASTNode {
 	bool is_public;
 
 	TemplateList _template;
+	ExternReference extern_ref;
 
 	ASTNode definition;
 
-	Declaration(TemplatedName type, string name, Position position, bool is_const, is_public, TemplateList _template, ASTNode definition) {
+	Declaration(TemplatedName type, string name, Position position, bool is_const, is_public, TemplateList _template, ASTNode definition, ExternReference extern_ref) {
 		self.type = type;
 		self.name = name;
 		self.position = position;
@@ -32,14 +34,19 @@ class Declaration extends Flux::Parsing::ASTNode {
 		self.is_public = is_public;
 		self._template = _template;
 		self.definition = definition;
+		self.extern_ref = extern_ref;
 	}
 }
 
 string Declaration:serialize() {
 	string r = "";
 
+	if self.extern_ref {
+		r = self.extern_ref:serialize() `concat` "\n";
+	}
+
 	if self._template {
-		r = "template <" `concat` self._template:serialize() `concat` ">\n";
+		r = r `concat` "template <" `concat` self._template:serialize() `concat` ">\n";
 	}
 
 	r = r

@@ -3,29 +3,31 @@ namespace Flux::Parsing;
 
 class TemplateList {
 	string[] names;
-	Type[][] classes;
+	TemplatedName[][] classes;
+	Position position;
 
-	TemplateList(string[] names, Type[][] classes) {
+	TemplateList(string[] names, TemplatedName[][] classes, Position position) {
 		self.names = names;
 		self.classes = classes;
+		self.position = position;
 	}
 
-	TemplateList parse(Source source);
+	TemplateList parse(Source source, Position position);
 	string serialize();
 }
 
-TemplateList TemplateList:parse( Source source ) {
+TemplateList TemplateList:parse(Source source, Position position) {
 	Lexer lexer = source.lexer;
 	string[] names = [];
-	Type[][] classes = [];
+	TemplatedName[][] classes = [];
 
 	repeat {
 		names[#names + 1] = lexer:skipValue( Identifier ) || source:error "expected template type name";
-		Type[] classes_local = [];
+		TemplatedName[] classes_local = [];
 
 		if lexer:skip( Symbol, "[" ) {
 			repeat
-				classes_local[#classes_local + 1] = Flux::Parsing::Type:parse( source );
+				classes_local[#classes_local + 1] = Flux::Parsing::TemplatedName:parse( source );
 			while lexer:skip( Symbol, "," );
 
 			if !lexer:skip( Symbol, "]" ) source:error "expected ']'";
@@ -35,7 +37,7 @@ TemplateList TemplateList:parse( Source source ) {
 	}
 	while lexer:skip( Symbol, "," );
 
-	return new Flux::Parsing::TemplateList( names, classes );
+	return new Flux::Parsing::TemplateList( names, classes, position );
 }
 
 string TemplateList:serialize() {

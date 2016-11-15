@@ -1,5 +1,6 @@
 
 import ASTNode;
+import ExternReference;
 
 namespace Flux::Parsing;
 
@@ -7,9 +8,11 @@ class EnumDefinition extends Flux::Parsing::ASTNode {
 	string name;
 	string[] members;
 	bool is_public;
+	ExternReference extern_ref;
 
-	EnumDefinition(string name, string[] members, bool is_public, Position position) {
+	EnumDefinition(string name, ExternReference extern_ref, string[] members, bool is_public, Position position) {
 		self.name = name;
+		self.extern_ref = extern_ref;
 		self.members = members;
 		self.is_public = is_public;
 		self.position = position;
@@ -17,5 +20,6 @@ class EnumDefinition extends Flux::Parsing::ASTNode {
 }
 
 string EnumDefinition:serialize()
-	= (self.is_public && "public enum " || "private enum ") `concat` self.name
+	= (self.extern_ref && self.extern_ref:serialize() `concat` "\n" || "")
+	`concat` (self.is_public && "public enum " || "private enum ") `concat` self.name
 	`concat` " {\n\t" `concat` table.concat( self.members, ";\n\t" ) `concat` "\n}";

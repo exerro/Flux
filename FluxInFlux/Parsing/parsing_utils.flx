@@ -167,7 +167,7 @@ Block parseFunctionBody(Source source, bool is_vararg) {
 			else
 				source:error "expected '='";
 
-			statements[#statements + 1] = new Flux::Parsing::Declaration( _type, name, position, true, true, null, value );
+			statements[#statements + 1] = new Flux::Parsing::Declaration( _type, name, position, true, true, null, value, null );
 		}
 
 		statements[#statements + 1] = new Flux::Parsing::ReturnStatement( expr, position );

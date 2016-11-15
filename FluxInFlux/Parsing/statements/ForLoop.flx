@@ -48,7 +48,7 @@ bool ForLoop:parse(Source source) {
 	new Flux::Parsing::Block switch_block( false, position );
 	new Flux::Parsing::BreakStatement break_statement( position );
 	new Flux::Parsing::SwitchStatement switch_statement( condition, [[true_constant]], [block], break_block, position );
-	new Flux::Parsing::Declaration definition( type, name, type.position, false, false, null, value );
+	new Flux::Parsing::Declaration definition( type, name, type.position, false, false, null, value, null );
 	new Flux::Parsing::RepeatLoop repeat_loop( true_constant, switch_block, position );
 	new Flux::Parsing::Block do_block( false, position, [definition, repeat_loop] );
 

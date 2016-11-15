@@ -7,6 +7,7 @@ import imports.Source;
 import types;
 import expressions.AutoCast;
 import parsing_utils;
+import ExternReference;
 
 namespace Flux::Parsing;
 
@@ -20,13 +21,13 @@ bool is_definition(Source source);
 void parse(Source source);
 
 // parses a class or interface definition
-void parse_class(Source source, bool is_interface, TemplateList _template, DefinitionFlags modifiers);
+void parse_class(Source source, ExternReference extern_ref, TemplateList _template, DefinitionFlags modifiers, Position position);
 
 // parses an enum definition
-void parse_enum(Source source, DefinitionFlags modifiers);
+void parse_enum(Source source, ExternReference extern_ref, DefinitionFlags modifiers, Position position);
 
 // parses a generic definition
-void parse_definition(Source source);
+void parse_definition(Source source, ExternReference extern_ref, TemplateList _template, DefinitionFlags modifiers);
 
 // parses a method definition i.e. int x:f() or float y<T>:g()
 void parse_method_definition(Source source, DefinitionFlags modifiers, TypedName name);
@@ -35,6 +36,9 @@ void parse_var_definition(Source source, DefinitionFlags modifiers, TypedName na
 
 // parses a template list before a definition
 TemplateList parse_template_begin(Source source);
+
+// parses an external reference before a definition
+ExternReference parse_extern_begin(Source source);
 
 // parses the modifier keywords
 DefinitionFlags parse_modifiers(Source source); // public, private, static, const
@@ -59,6 +63,7 @@ bool is_definition(Source source) {
 		|| word == "template"
 		|| word == "const"
 		|| word == "void"
+		|| word == "extern"
 			return true;
 	}
 
@@ -96,12 +101,13 @@ bool is_definition(Source source) {
 	catch just to_fix_syntax {}
 	default { // catch any error and return false
 		lexer:jump( mark ); return false;
-	}//*/
+	}
 
 	lexer:jump( mark ); return true;
 }
 
 void parse(Source source) {
+	ExternReference extern_ref = Flux::Parsing::parse_extern_begin( source );
 	TemplateList _template = Flux::Parsing::parse_template_begin( source );
 	DefinitionFlags modifiers = Flux::Parsing::parse_modifiers( source );
 	Position position = source.lexer:get().position;
@@ -116,21 +122,24 @@ void parse(Source source) {
 	     || source.lexer:test( Keyword, "interface" )
 		 || source.lexer:test( Keyword, "final" )
 		 || source.lexer:test( Keyword, "abstract" ) {
-		return Flux::Parsing::parse_class( source, _template, modifiers, position );
+		return Flux::Parsing::parse_class( source, extern_ref, _template, modifiers, position );
 	}
 	else if source.lexer:skip( Keyword, "enum" ) {
-		return Flux::Parsing::parse_enum( source, modifiers, position );
+		if _template
+			source:error( "cannot give template to enum", _template.position );
+
+		return Flux::Parsing::parse_enum( source, extern_ref, modifiers, position );
 	}
 	else {
-		return Flux::Parsing::parse_definition( source, _template, modifiers );
+		return Flux::Parsing::parse_definition( source, extern_ref, _template, modifiers );
 	}
 }
 
-void parse_class(Source source, TemplateList _template, DefinitionFlags modifiers, Position position) {
+void parse_class(Source source, ExternReference extern_ref, TemplateList _template, DefinitionFlags modifiers, Position position) {
 
 }
 
-void parse_enum(Source source, DefinitionFlags modifiers, Position position) {
+void parse_enum(Source source, ExternReference extern_ref, DefinitionFlags modifiers, Position position) {
 	if !source.file.context:get_flag "is_root_level"
 		source:error( "invalid location to define enum", position );
 
@@ -158,18 +167,18 @@ void parse_enum(Source source, DefinitionFlags modifiers, Position position) {
 		source:error "expected '}' to close enum body";
 
 	source.file.lexer:skip( Symbol, ";" );
-	source.file:push( new Flux::Parsing::EnumDefinition( Flux::Parsing::resolveDefinitionName( source, name ), members, modifiers.is_public, position ) );
+	source.file:push( new Flux::Parsing::EnumDefinition( Flux::Parsing::resolveDefinitionName( source, name ), extern_ref, members, modifiers.is_public, position ) );
 
 	foreach member in members {
 		new Flux::Parsing::TemplatedName enum_name( name, [], position );
 		new Flux::Parsing::ReferenceExpression enum_lookup( enum_name, position );
 		new Flux::Parsing::DotIndex enum_member_lookup( enum_lookup, member, position );
 
-		source.file:push( new Flux::Parsing::Declaration( enum_name, member, position, true, modifiers.is_public, null, enum_member_lookup ) );
+		source.file:push( new Flux::Parsing::Declaration( enum_name, member, position, true, modifiers.is_public, null, enum_member_lookup, null, null ) );
 	}
 }
 
-void parse_definition(Source source, TemplateList _template, DefinitionFlags modifiers) {
+void parse_definition(Source source, ExternReference extern_ref, TemplateList _template, DefinitionFlags modifiers) {
 	if modifiers.is_public_set && !source.file.context:get_flag "is_root_level"
 		source:error( "cannot declare function-level definition as " `concat` (modifiers.is_public && "public" || "private"), modifiers.public_pos );
 
@@ -196,7 +205,7 @@ void parse_definition(Source source, TemplateList _template, DefinitionFlags mod
 		else if source.file.context:get_flag "is_parsing_body"
 			source:error( "cannot declare method in class body", source.file.lexer:peek( -1 ).position );
 
-		return Flux::Parsing::parse_method_definition( source, _template, modifiers, type_name );
+		return Flux::Parsing::parse_method_definition( source, extern_ref, _template, modifiers, type_name );
 	}
 	else if source.lexer:skip( Symbol, ":" ) {
 		if source.file.context:get_flag "is_parsing_body"
@@ -205,23 +214,23 @@ void parse_definition(Source source, TemplateList _template, DefinitionFlags mod
 		if type_name.name.name:find "[^%w_]" // i.e. T operator+:f()
 			source:error( "invalid class for method definition '" `concat` type_name.name.name `concat` "'", source.file.lexer:peek( -1 ).position );
 
-		return Flux::Parsing::parse_method_definition( source, _template, modifiers, type_name );
+		return Flux::Parsing::parse_method_definition( source, extern_ref, _template, modifiers, type_name );
 	}
 	else if modifiers.is_static {
 		source:error( "unexpected 'static' modifier before definition", modifiers.static_pos );
 	}
 	else if source.lexer:skip( Symbol, "(" ) {
-		return Flux::Parsing::parse_function_definition( source, _template, modifiers, type_name );
+		return Flux::Parsing::parse_function_definition( source, extern_ref, _template, modifiers, type_name );
 	}
 	else {
 		if type_name.name.name:find "[^%w_]"
 			source:error( "invalid name for definition '" `concat` type_name.name.name `concat` "'", type_name.name.position );
 
-		return Flux::Parsing::parse_var_definition( source, modifiers, type_name );
+		return Flux::Parsing::parse_var_definition( source, extern_ref, modifiers, type_name );
 	}
 }
 
-void parse_method_definition(Source source, TemplateList _template, DefinitionFlags modifiers, TypedName name) {
+void parse_method_definition(Source source, ExternReference extern_ref, TemplateList _template, DefinitionFlags modifiers, TypedName name) {
 	string method_name = Flux::Parsing::parseMethodName( source )
 	                  || source:error( "expected method name after ':'" );
 
@@ -263,13 +272,13 @@ void parse_method_definition(Source source, TemplateList _template, DefinitionFl
 
 	source.file:push( new Flux::Parsing::MethodDefinition(
 		_template, name.type, name.name, method_name, modifiers.is_static,
-		modifiers.is_public, parameter_types, definition, is_vararg
+		modifiers.is_public, parameter_types, definition, is_vararg, extern_ref
 	) );
 }
 
-void parse_function_definition(Source source, TemplateList _template, DefinitionFlags modifiers, TypedName name) {
+void parse_function_definition(Source source, ExternReference extern_ref, TemplateList _template, DefinitionFlags modifiers, TypedName name) {
 	auto start = source.file.lexer:mark();
-	bool names_given = false;
+	bool names_given = true;
 	TemplatedName type;
 
 	try {
@@ -280,8 +289,8 @@ void parse_function_definition(Source source, TemplateList _template, Definition
 			throw new ParserException( e );
 	}
 
-	if type != null && source.file.lexer:skip( Identifier )
-		names_given = true;
+	if type != null && !source.file.lexer:skip( Identifier )
+		names_given = false;
 
 	source.file.lexer:jump( start );
 
@@ -335,7 +344,32 @@ void parse_function_definition(Source source, TemplateList _template, Definition
 			modifiers.is_const,
 			modifiers.is_public,
 			_template,
-			null);
+			null,
+			extern_ref);
+
+		source.file:push( decl );
+	}
+	else if source.file.lexer:test( Keyword, "void" ) {
+		Position position = source.file.lexer:next().position;
+
+		if !extern_ref
+			source:error( "cannot define non-extern function as 'void'", position );
+
+		if !source.file.lexer:skip( Symbol, ";" )
+			source:error "expected ';' after 'void'";
+
+		new Flux::Parsing::Block body( true, position, [] );
+		new Flux::Parsing::FunctionExpression definition( parameters, name.type, body );
+		new Flux::Parsing::Declaration decl(
+			f_type,
+			name.name.name,
+			name.type.position,
+			modifiers.is_const,
+			modifiers.is_public,
+			_template,
+			definition,
+			extern_ref
+		);
 
 		source.file:push( decl );
 	}
@@ -353,7 +387,9 @@ void parse_function_definition(Source source, TemplateList _template, Definition
 			modifiers.is_const,
 			modifiers.is_public,
 			_template,
-			definition);
+			definition,
+			extern_ref
+		);
 
 		source.file:push( decl );
 	}
@@ -390,14 +426,15 @@ void parse_function_definition(Source source, TemplateList _template, Definition
 			modifiers.is_const,
 			modifiers.is_public,
 			_template,
-			overload_definition
+			overload_definition,
+			extern_ref
 		);
 
 		source.file:push( overload_decl );
 	}
 }
 
-void parse_var_definition(Source source, DefinitionFlags modifiers, TypedName name) {
+void parse_var_definition(Source source, ExternReference extern_ref, DefinitionFlags modifiers, TypedName name) {
 	Lexer lexer = source.lexer;
 	bool is_const = modifiers.is_const;
 	bool is_public = modifiers.is_public;
@@ -416,13 +453,13 @@ void parse_var_definition(Source source, DefinitionFlags modifiers, TypedName na
 
 			source.file:push( new Flux::Parsing::Declaration(
 				name.type, Flux::Parsing::resolveDefinitionName( source, str_name ),
-				name.position, is_const, is_public, null, expr
+				name.position, is_const, is_public, null, expr, extern_ref
 			));
 		}
 		else {
 			source.file:push( new Flux::Parsing::Declaration(
 				name.type, Flux::Parsing::resolveDefinitionName( source, str_name ),
-				name.position, is_const, is_public, null, null
+				name.position, is_const, is_public, null, null, extern_ref
 			) );
 		}
 
@@ -436,12 +473,14 @@ void parse_var_definition(Source source, DefinitionFlags modifiers, TypedName na
 	Flux::Parsing::expectSemicolon( source, "end of definition" );
 }
 
-TemplateList parse_template_begin(Source source)
+TemplateList parse_template_begin(Source source) {
+	Position position = source.lexer:get().position;
+
 	if source.lexer:skip( Keyword, "template" ) {
 		if !source.lexer:skip( Symbol, "<" )
 			source:error "expected '<' after 'template'";
 
-		TemplateList _template = Flux::Parsing::TemplateList:parse( source );
+		TemplateList _template = Flux::Parsing::TemplateList:parse( source, position );
 
 		if !source.lexer:skip( Symbol, ">" )
 			source:error "expected '>' after template list";
@@ -449,6 +488,36 @@ TemplateList parse_template_begin(Source source)
 		return _template;
 	}
 	else return null;
+}
+
+ExternReference parse_extern_begin(Source source) {
+	if source.lexer:skip( Keyword, "extern" ) {
+		if source.file.lexer:skip( Symbol, "(" ) {
+			string name = source.file.lexer:skipValue( Identifier )
+			           || source.file.lexer:skipValue( Keyword )
+					   || source:error( "expected name after '('" );
+
+			while true {
+				string sep = source.file.lexer:skipValue( Symbol, "." )
+				          || source.file.lexer:skipValue( Symbol, "::" );
+
+				if sep
+					name = name `concat` sep `concat` (source.file.lexer:skipValue( Identifier )
+				    	|| source.file.lexer:skipValue( Keyword )
+				    	|| source:error( "expected name after '" `concat` sep `concat` "'" ));
+				else break;
+			}
+
+			if !source.file.lexer:skip( Symbol, ")" )
+				source:error "expected ')' after external reference name";
+
+			return new Flux::Parsing::ExternReference( name, true );
+		}
+
+		return new Flux::Parsing::ExternReference( "", false );
+	}
+	else return null;
+}
 
 DefinitionFlags parse_modifiers(Source source) {
 	DefinitionFlags modifiers = {

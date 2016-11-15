@@ -91,7 +91,7 @@ bool NewStatement:parse(Source source) {
 	for (int i = 1; i <= #list_sizes; i++)
 		type = Flux::Parsing::types::list_type( type.position, type );
 
-	source.file:push( new Flux::Parsing::Declaration( type, def_name, position, is_const, is_public, null, value ) );
+	source.file:push( new Flux::Parsing::Declaration( type, def_name, position, is_const, is_public, null, value, null ) );
 
 	return true;
 }

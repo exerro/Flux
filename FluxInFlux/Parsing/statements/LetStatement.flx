@@ -148,7 +148,8 @@ bool LetStatement:parse(Source source) {
 			position,
 			is_const, is_public,
 			null,
-			expr
+			expr,
+			null
 		);
 
 		if parameters break;

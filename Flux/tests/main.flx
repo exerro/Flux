@@ -1,6 +1,6 @@
 
-using new Vec3( 0, 0, 0 ) in {
-	print( x, y, z );
-}
+// int f() void; - errors yay!
 
-new Vec3[5]();
+namespace math {
+	extern (math.pi) float PI = 3.14159265;
+}

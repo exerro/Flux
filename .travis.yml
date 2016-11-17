@@ -1,5 +1,6 @@
-addons:
-  apt:
-    packages:
-    - lua5.3
+dist: trusty
+sudo: required
+before_install:
+ - sudo apt-get update -qq
+ - sudo apt-get install -qq lua5.3addons:
 script: lua5.3 console.lua

@@ -1,0 +1,12 @@
+
+namespace Flux::IR;
+
+class Declaration {
+	string name;
+	bool is_public;
+	bool is_const;
+
+	Declaration(string name) {
+		self.name = name;
+	}
+}

@@ -1,0 +1,16 @@
+
+namespace Flux::IR;
+
+class Scope {
+	Declaration[] declarations;
+	Scope parent;
+
+	Scope(Scope parent) {
+		self.parent = parent;
+
+		self.declarations = [];
+	}
+
+	Declaration define(Declaration decl);
+	Declaration lookup(string name);
+}

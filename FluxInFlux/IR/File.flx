@@ -1,0 +1,18 @@
+
+import Scope;
+
+namespace Flux::IR;
+
+class File {
+	Scope foreign_scope;
+	Scope global_scope;
+	string name;
+
+	File(string name) {
+		self.name = name;
+		self.foreign_scope = new Flux::IR::Scope;
+		self.global_scope = new Flux::IR::Scope;
+	}
+
+	Declaration lookup(string name);
+}

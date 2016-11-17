@@ -1,26 +1,59 @@
 
-import Parsing.import.Source;
+import Parsing.imports.Source;
+import File;
 import Position;
 
 namespace Flux::IR;
 
 class State {
-	State() {}
+	File{string} files;
+
+	State() {
+		self.files = {};
+	}
+
+	private:
+	void initialise_ast_file(Parsing::File file);
+	void load_ast_file_types(Parsing::File file);
+	void load_ast_file_header(Parsing::File file);
+	void load_ast_file_source(Parsing::File file);
+
+	public:
 
 	void load_ast(Source source);
 
 	void error(string err, Position position);
 }
 
+void State:initialise_ast_file(Parsing::File file) {
+	new Flux::IR::File ir_file( file.name );
+
+	self.files[file.name] = ir_file;
+
+	print( "@" `concat` file.name );
+}
+
+void State:load_ast_file_types(Parsing::File file) {
+}
+
+void State:load_ast_file_header(Parsing::File file) {
+	foreach statement in file.header_statements {
+		print( "(header) " `concat` statement:serialize() `concat` "\n" );
+	}
+}
+
+void State:load_ast_file_source(Parsing::File file) {
+	foreach statement in file.statements {
+		print( statement:serialize() `concat` "\n" );
+	}
+}
+
 void State:load_ast(Source source) {
 	foreach k, file in source.files_included {
-		print( "@" `concat` file.name );
-		foreach statement in file.header_statements {
-			print( "(header) " `concat` statement:serialize() `concat` "\n" );
-		}
-		foreach statement in file.statements {
-			print( statement:serialize() `concat` "\n" );
-		}
+		self:initialise_ast_file( file );
+		self:load_ast_file_types( file );
+		self:load_ast_file_header( file );
+		self:load_ast_file_source( file );
 	}
 }
 

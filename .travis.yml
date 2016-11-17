@@ -1,0 +1,5 @@
+addons:
+  apt:
+    packages:
+    - lua5.3
+script: lua5.3 console.lua

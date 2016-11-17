@@ -1,8 +1,5 @@
 
-package.path = package.path .. ";/home/ben/Code/Flux/?/init.lua"
-package.path = package.path .. ";/home/ben/Code/Flux/?.lua"
-
-local Flux = require "Flux"
+local Flux = require "Flux.init"
 
 local source = Source "FluxInFlux"
 local emitter = Emitter()

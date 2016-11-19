@@ -14,3 +14,17 @@ class Scope {
 	Declaration define(Declaration decl);
 	Declaration lookup(string name);
 }
+
+Declaration Scope:define(Declaration decl) {
+	self.declarations[#self.declarations + 1] = decl;
+
+	return decl;
+}
+
+Declaration Scope:lookup(string name) {
+	foreach i, v in self.declarations
+		if v.name == name
+			return v;
+
+	return null;
+}

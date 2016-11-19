@@ -1,18 +1,34 @@
 
 import Scope;
+import Node;
 
 namespace Flux::IR;
 
 class File {
 	Scope foreign_scope;
-	Scope global_scope;
+	Scope local_scope;
 	string name;
+
+	Node[] statements;
 
 	File(string name) {
 		self.name = name;
 		self.foreign_scope = new Flux::IR::Scope;
-		self.global_scope = new Flux::IR::Scope;
+		self.local_scope = new Flux::IR::Scope;
+		self.statements = [];
 	}
 
 	Declaration lookup(string name);
+
+	Node push(Node node);
+}
+
+Declaration File:lookup(string name) {
+	return self.local_scope:lookup( name ) || self.foreign_scope:lookup( name );
+}
+
+Node File:push(Node node) {
+	self.statements[#self.statements + 1] = node;
+
+	return node;
 }

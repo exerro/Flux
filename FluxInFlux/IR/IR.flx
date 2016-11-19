@@ -1,4 +1,2 @@
 
 import State;
-
-let _ = print "Hello world!";

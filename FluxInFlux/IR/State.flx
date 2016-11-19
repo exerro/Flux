@@ -7,9 +7,12 @@ namespace Flux::IR;
 
 class State {
 	File{string} files;
+	File active_file;
+	Scope[] working_scope_stack;
 
 	State() {
 		self.files = {};
+		self.working_scope_stack = [];
 	}
 
 	private:
@@ -18,11 +21,13 @@ class State {
 	void load_ast_file_header(Parsing::File file);
 	void load_ast_file_source(Parsing::File file);
 
-	public:
+	string format_err_msg(string err, Position pos);
 
+	public:
 	void load_ast(Source source);
 
 	void error(string err, Position position);
+	void warn(string err, Position position);
 }
 
 void State:initialise_ast_file(Parsing::File file) {
@@ -49,19 +54,30 @@ void State:load_ast_file_source(Parsing::File file) {
 }
 
 void State:load_ast(Source source) {
-	foreach k, file in source.files_included {
+	foreach k, file in source.files_included
 		self:initialise_ast_file( file );
+		
+	foreach k, file in source.files_included
 		self:load_ast_file_types( file );
+
+	foreach k, file in source.files_included
 		self:load_ast_file_header( file );
+
+	foreach k, file in source.files_included
 		self:load_ast_file_source( file );
-	}
 }
 
-void State:error(string err, Position position)
-	= throw new ParserException(src `concat` "[" `concat` line `concat` "]: " `concat` err `concat` "\n\t"
+string State:format_err_msg(string err, Position position)
+	= src `concat` "[" `concat` line `concat` "]: " `concat` err `concat` "\n\t"
 		`concat` strline `concat` "\n\t"
-		`concat` char_pointer)
+		`concat` char_pointer
 	where src = position.source
 	where line = position.line
 	where strline = position.strline:gsub( "\t", " " )
 	where char_pointer = (" "):rep( position.character - 1 ) `concat` "^";
+
+void State:warn(string err, Position position)
+	= print( self:format_err_msg( err, position ) );
+
+void State:error(string err, Position position)
+	= throw new ParserException( self:format_err_msg( err, position ) );

@@ -6,6 +6,8 @@ import ASTNode;
 
 namespace Flux::Parsing;
 
+// class TypeDeclaration = struct { Type type, TemplatedName name }
+
 class File {
 	string name;
 	string path;
@@ -14,7 +16,7 @@ class File {
 
 	File[] imports;
 
-	TemplatedName[] types;
+	TypeDeclaration[] types;
 	ASTNode[] statements;
 	ASTNode[] header_statements;
 
@@ -47,7 +49,7 @@ class File {
 
 	void add_import(File file);
 
-	void define_type(TemplatedName t);
+	void define_type(Type t, TemplatedName name);
 	void push(ASTNode node);
 
 	Context push_context();

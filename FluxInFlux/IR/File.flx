@@ -18,13 +18,19 @@ class File {
 		self.statements = [];
 	}
 
-	Declaration lookup(string name);
+	Declaration[] lookup(string name);
+	Declaration[] lookup(string name, int template_count);
 
 	Node push(Node node);
 }
 
-Declaration File:lookup(string name) {
-	return self.local_scope:lookup( name ) || self.foreign_scope:lookup( name );
+Declaration[] File:lookup(string name, null int template_count) {
+	Declaration[] defs = self.local_scope:lookup( name, template_count );
+
+	foreach def in self.foreign_scope:lookup( name, template_count )
+		defs[#defs + 1] = def;
+
+	return defs;
 }
 
 Node File:push(Node node) {

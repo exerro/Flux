@@ -1,0 +1,16 @@
+
+import Definition;
+
+namespace Flux::IR;
+
+class EnumDefinition extends Flux::IR::Definition {
+	string[] members;
+
+	EnumDefinition(bool is_public, string name, string[] members) {
+		self.members = members;
+
+		foreach member in members print( member );
+	}
+
+	bool has_index(string name);
+}

@@ -2,6 +2,7 @@
 import Parsing.imports.Source;
 import File;
 import Position;
+import Declaration;
 
 namespace Flux::IR;
 
@@ -33,16 +34,30 @@ class State {
 void State:initialise_ast_file(Parsing::File file) {
 	new Flux::IR::File ir_file( file.name );
 
-	self.files[file.name] = ir_file;
-
 	print( "@" `concat` file.name );
+
+	return ir_file;
 }
 
 void State:load_ast_file_types(Parsing::File file) {
+	foreach t in file.types {
+		if t.type == Flux::Parsing::Type.ENUM {
+			print( t.name.name );
+			self.active_file.local_scope:define( new Flux::IR::Declaration( new Flux::IR::Type, t.name.name, t.is_public, t.is_const ) );
+		}
+		else {
+			throw new NoThankYou "oh no, looks like you've got something weird going on";
+		}
+	}
 }
 
 void State:load_ast_file_header(Parsing::File file) {
 	foreach statement in file.header_statements {
+		if (statement typeof Flux::Parsing::EnumDefinition) {
+			foreach def in self.active_file:lookup( statement.name ) {
+				print( table.concat( statement.members ) );
+			}
+		}
 		print( "(header) " `concat` statement:serialize() `concat` "\n" );
 	}
 }
@@ -55,16 +70,22 @@ void State:load_ast_file_source(Parsing::File file) {
 
 void State:load_ast(Source source) {
 	foreach k, file in source.files_included
-		self:initialise_ast_file( file );
-		
-	foreach k, file in source.files_included
+		self.files[k] = self:initialise_ast_file( file );
+
+	foreach k, file in source.files_included {
+		self.active_file = self.files[k];
 		self:load_ast_file_types( file );
+	}
 
-	foreach k, file in source.files_included
+	foreach k, file in source.files_included {
+		self.active_file = self.files[k];
 		self:load_ast_file_header( file );
+	}
 
-	foreach k, file in source.files_included
+	foreach k, file in source.files_included {
+		self.active_file = self.files[k];
 		self:load_ast_file_source( file );
+	}
 }
 
 string State:format_err_msg(string err, Position position)

@@ -12,7 +12,8 @@ class Scope {
 	}
 
 	Declaration define(Declaration decl);
-	Declaration lookup(string name);
+	Declaration[] lookup(string name);
+	Declaration[] lookup(string name, int template_count);
 }
 
 Declaration Scope:define(Declaration decl) {
@@ -21,10 +22,15 @@ Declaration Scope:define(Declaration decl) {
 	return decl;
 }
 
-Declaration Scope:lookup(string name) {
+Declaration Scope:lookup(string name, null int t_count) {
+	if t_count
+		throw new bad_thing "haha nope";
+
+	Declaration[] declarations = [];
+
 	foreach i, v in self.declarations
 		if v.name == name
-			return v;
+			declarations[#declarations + 1] = v;
 
-	return null;
+	return declarations;
 }

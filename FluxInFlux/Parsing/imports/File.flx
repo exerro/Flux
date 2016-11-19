@@ -1,4 +1,6 @@
 
+import definitions.Type;
+
 namespace Flux::Parsing;
 
 void File:initialise_lexer(string source_text) {
@@ -12,19 +14,20 @@ void File:add_import(File file) {
 	self.imports[#self.imports + 1] = file;
 }
 
-void File:define_type(TemplatedName type) {
-	self.types[#self.types + 1] = type;
+void File:define_type(Type t, TemplatedName name) {
+	self.types[#self.types + 1] = { type = t, name = name };
 }
 
 void File:push(ASTNode node) {
 	if #self.blocks > 0
 		self.blocks[#self.blocks]:push( node );
 	else {
-		if node typeof Flux::Parsing::EnumDefinition
-			self:define_type( Type.ENUM, new Flux::Parsing::TemplatedName( node.name, [], node.position ) );
+		if self.is_header {
+			if node typeof Flux::Parsing::EnumDefinition
+				self:define_type( Flux::Parsing::Type.ENUM, new Flux::Parsing::TemplatedName( node.name, [], node.position ) );
 
-		if self.is_header
 			self.header_statements[#self.header_statements + 1] = node;
+		}
 		else
 			self.statements[#self.statements + 1] = node;
 	}

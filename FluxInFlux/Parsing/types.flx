@@ -16,10 +16,10 @@ TemplatedName nullable_type(Position position, TemplatedName value); // Option
 TemplatedName parse(Source source);
 
 TemplatedName auto_type(Position position)
-	= new Flux::Parsing::TemplatedName( "auto", [], position );
+	= new Flux::Parsing::TemplatedName( "@auto@", [], position );
 
 TemplatedName void_type(Position position)
-	= new Flux::Parsing::TemplatedName( "void", [], position );
+	= new Flux::Parsing::TemplatedName( "@void@", [], position );
 
 TemplatedName function_type(Position position, TemplatedName returns, TemplatedName[] parameters) {
 	TemplatedName[] _template = [returns];
@@ -27,7 +27,7 @@ TemplatedName function_type(Position position, TemplatedName returns, TemplatedN
 	foreach i, v in parameters
 		_template[i + 1] = v;
 
-	return new Flux::Parsing::TemplatedName( "function", _template, position );
+	return new Flux::Parsing::TemplatedName( "@function@", _template, position );
 }
 
 TemplatedName vararg_function_type(Position position, TemplatedName returns, TemplatedName[] parameters) {
@@ -36,7 +36,7 @@ TemplatedName vararg_function_type(Position position, TemplatedName returns, Tem
 	foreach i, v in parameters
 		_template[i + 1] = v;
 
-	return new Flux::Parsing::TemplatedName( "vararg_function", _template, position );
+	return new Flux::Parsing::TemplatedName( "@vararg_function@", _template, position );
 }
 
 TemplatedName struct_type(Position position, string[] names, TemplatedName[] types) {
@@ -46,7 +46,7 @@ TemplatedName struct_type(Position position, string[] names, TemplatedName[] typ
 		_template[i] = new Flux::Parsing::TemplatedName( v, [types[i]], position );
 	}
 
-	return new Flux::Parsing::TemplatedName( "struct", _template, position );
+	return new Flux::Parsing::TemplatedName( "@struct@", _template, position );
 }
 
 TemplatedName list_type(Position position, TemplatedName value)
@@ -59,7 +59,7 @@ TemplatedName reference_type(Position position, TemplatedName value)
 	= new Flux::Parsing::TemplatedName( "Reference", [value], position );
 
 TemplatedName nullable_type(Position position, TemplatedName value)
-	= new Flux::Parsing::TemplatedName( "Option", [value], position );
+	= new Flux::Parsing::TemplatedName( "@option@", [value], position );
 
 TemplatedName parse(Source source) {
 	Lexer lexer = source.lexer;

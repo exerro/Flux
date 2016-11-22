@@ -1,6 +1,9 @@
 
 // utility functions
 
+let table::concat = table.concat;
+let a `concat` b = table::concat( [a, b] );
+
 template<T>
 string concattenate(T[] elements, null string seperator = "") {
 	string[] s = [];

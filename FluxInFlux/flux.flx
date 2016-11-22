@@ -1,8 +1,12 @@
 
 import utils;
 
-let table::concat = table.concat;
-let a `concat` b = table::concat( [a, b] );
+const string function_type_name = "@function@";
+const string vararg_function_type_name = "@vararg_function@";
+const string auto_type_name = "@auto@";
+const string void_type_name = "@void@";
+const string option_type_name = "@option@";
+const string struct_type_name = "@struct@";
 
 import Position;
 import Parsing.parsing;

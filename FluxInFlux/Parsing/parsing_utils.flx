@@ -160,7 +160,7 @@ Block parseFunctionBody(Source source, bool is_vararg) {
 			string name = lexer:skipValue( Identifier ) || source:error "expected name after 'where'";
 			Expression value;
 
-			new Flux::Parsing::TemplatedName _type( "auto", [], position );
+			new Flux::Parsing::TemplatedName _type( "@auto@", [], position );
 
 			if lexer:skip( Symbol, "=" )
 				value = Flux::Parsing::Expression:parse( source ) || source:error "expected expression after '='";

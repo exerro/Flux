@@ -1,4 +1,5 @@
 
+import references.locations.UpvalueReferenceLocation;
 import Parsing.imports.Source;
 import File;
 import Position;
@@ -27,10 +28,13 @@ class State {
 
 	string format_err_msg(string err, Position pos);
 
-	Declaration[] lookup(string name);
-	Declaration[] lookup_exact(string name);
-
 	public:
+	void push_scope(bool is_function_scope);
+	Scope pop_scope();
+
+	Reference[] lookup(string name);
+	Reference[] lookup_pattern(string name);
+
 	void load_ast(Source source);
 
 	void error(string err, Position position);
@@ -48,7 +52,7 @@ void State:initialise_ast_file(Parsing::File file) {
 void State:load_ast_file_types(Parsing::File file) {
 	foreach t in file.types {
 		if t.type == Flux::Parsing::Type.ENUM {
-			self.active_file.local_scope:define(
+			self.active_file.scope:define(
 				new Flux::IR::Declaration( Flux::IR::constants::enum_type(), t.name.name, t.is_public, t.is_const ) );
 		}
 		else {
@@ -62,6 +66,21 @@ void State:load_ast_file_header(Parsing::File file) {
 		if (statement typeof Flux::Parsing::EnumDefinition) {
 
 		}
+		else if (statement typeof Flux::Parsing::ReferenceExpression) {
+			foreach ref in self:lookup( statement.name.name )
+				print( ref:serialize() );
+		}
+		else if (statement typeof Flux::Parsing::DoStatement) {
+			self:push_scope();
+
+			foreach s in statement.block
+				if (s typeof Flux::Parsing::ReferenceExpression)
+					foreach ref in self:lookup( s.name.name )
+						print( ref:serialize() );
+
+			self:pop_scope();
+		}
+
 		print( "(header) " `concat` statement:serialize() `concat` "\n" );
 	}
 }
@@ -70,6 +89,63 @@ void State:load_ast_file_source(Parsing::File file) {
 	foreach statement in file.statements {
 		print( statement:serialize() `concat` "\n" );
 	}
+}
+
+void State:push_scope(bool is_function_scope) {
+	self.working_scope_stack[#self.working_scope_stack + 1] = new Flux::IR::Scope(
+		#self.working_scope_stack == 0 && self.active_file.scope || self.working_scope_stack[#self.working_scope_stack],
+		is_function_scope
+	);
+}
+
+Scope State:pop_scope()
+	= table.remove( self.working_scope_stack, #self.working_scope_stack );
+
+Reference[] State:lookup(string name) {
+	Reference[] references = [];
+	bool is_local = true;
+
+	for (int i = #self.working_scope_stack; i > 0; i--) {
+		Reference[] scope_refs = self.working_scope_stack[i]:lookup( name );
+
+		if #scope_refs > 0 {
+			foreach ref in scope_refs {
+				if !is_local
+					ref.location = new Flux::IR::UpvalueReferenceLocation();
+
+				references[#references + 1] = ref;
+			}
+		}
+
+		is_local = false;
+	}
+
+	foreach v in self.active_file:lookup( name )
+		references[#references + 1] = v;
+
+	return references;
+}
+
+Reference[] State:lookup_pattern(string name) {
+	Reference[] references = [];
+
+	for (int i = #self.working_scope_stack; i > 0; i--) {
+		Reference[] scope_refs = self.working_scope_stack[i]:lookup_pattern( name );
+
+		if #scope_refs > 0 {
+			foreach ref in scope_refs {
+				if !is_local
+					ref.location = new Flux::IR::UpvalueReferenceLocation();
+
+				references[#references + 1] = ref;
+			}
+		}
+	}
+
+	foreach v in self.active_file:lookup_pattern( name )
+		references[#references + 1] = v;
+
+	return references;
 }
 
 void State:load_ast(Source source) {

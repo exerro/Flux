@@ -1,0 +1,16 @@
+
+import ReferenceLocation;
+import File;
+
+namespace Flux::IR;
+
+class ExternalReferenceLocation extends Flux::IR::ReferenceLocation {
+	File file;
+
+	ExternalReferenceLocation(File file) {
+		self.file = file;
+	}
+}
+
+string ExternalReferenceLocation:serialize()
+	= "external";

@@ -1,0 +1,11 @@
+
+import ReferenceLocation;
+
+namespace Flux::IR;
+
+class UpvalueReferenceLocation extends Flux::IR::ReferenceLocation {
+	UpvalueReferenceLocation() {}
+}
+
+string UpvalueReferenceLocation:serialize()
+	= "upvalue";

@@ -1,6 +1,6 @@
 
 namespace Flux::IR;
 
-class Node {
+/*abstract*/ class Node {
 	Node() {}
 }

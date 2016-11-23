@@ -1,9 +1,9 @@
 
-import Definition;
+import Node;
 
 namespace Flux::IR;
 
-class EnumDefinition extends Flux::IR::Definition {
+class EnumDefinition extends Flux::IR::Node {
 	string[] members;
 
 	EnumDefinition(bool is_public, string name, string[] members) {

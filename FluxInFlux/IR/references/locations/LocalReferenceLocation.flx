@@ -1,0 +1,11 @@
+
+import ReferenceLocation;
+
+namespace Flux::IR;
+
+class LocalReferenceLocation extends Flux::IR::ReferenceLocation {
+	LocalReferenceLocation() {}
+}
+
+string LocalReferenceLocation:serialize()
+	= "local";

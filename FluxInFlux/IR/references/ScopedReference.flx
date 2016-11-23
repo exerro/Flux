@@ -1,0 +1,31 @@
+
+import Reference;
+
+namespace Flux::IR;
+
+class ScopedReference extends Flux::IR::Reference {
+	Scope scope;
+	int index;
+
+	ScopedReference(ReferenceLocation location, Scope scope, int index) {
+		self.location = location;
+		self.scope = scope;
+		self.index = index;
+	}
+}
+
+bool ScopedReference:exact_type(Type t)
+	= self.scope:get_index( self.index ).type:is( t );
+
+bool ScopedReference:casts_type(Type t)
+	= self.scope:get_index( self.index ).type:casts_to( t );
+
+Node ScopedReference:get_node() {
+	self.scope:get_index( self.index ):refer();
+
+	return self;
+}
+
+string ScopedReference:serialize()
+	= "(ref @" `concat` self.location:serialize() `concat` " "
+	`concat` self.index `concat` ")";

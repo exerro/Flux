@@ -21,6 +21,7 @@ v0.1.1
 		[ ] Class alias definitions (`class MyCallback = function int(float, string);`)
 		[ ] Class definitions
 			`template<T> class List [int, T] extends flux_native::primitive<List, T> {}`
+			Need to think about how you're gonna handle public/private
 		[ ] Add extern classes
 			`extern<some_class> class C {}`
 		[ ] Add #! removal from the first line of file

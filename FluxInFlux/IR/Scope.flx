@@ -1,12 +1,17 @@
 
+import references.locations.LocalReferenceLocation;
+import references.ScopedReference;
+
 namespace Flux::IR;
 
 class Scope {
 	Declaration[] declarations;
 	Scope parent;
+	bool is_function_scope;
 
-	Scope(Scope parent) {
+	Scope(Scope parent, bool is_function_scope) {
 		self.parent = parent;
+		self.is_function_scope = is_function_scope;
 
 		self.declarations = [];
 	}
@@ -25,12 +30,9 @@ Declaration Scope:define(Declaration decl) {
 Reference[] Scope:lookup(string name) {
 	Reference[] references = [];
 
-	for (int i = #self.declarations; i > 0; i--) {
-		Declaration v = self.declarations[i];
-
-		if v.name == name {}
-			// references[#references + 1] = v;
-	}
+	for (int i = #self.declarations; i > 0; i--)
+		if self.declarations[i].name == name
+			references[#references + 1] = new Flux::IR::ScopedReference( new Flux::IR::LocalReferenceLocation(), self, i );
 
 	return references;
 }
@@ -38,12 +40,9 @@ Reference[] Scope:lookup(string name) {
 Reference[] Scope:lookup_pattern(string pattern) {
 	Reference[] references = [];
 
-	for (int i = #self.declarations; i > 0; i--) {
-		Declaration v = self.declarations[i];
-
-		if v.name:find( pattern ) {}
-			// references[#references + 1] = v;
-	}
+	for (int i = #self.declarations; i > 0; i--)
+		if self.declarations[i].name:find( name )
+			references[#references + 1] = new Flux::IR::ScopedReference( new Flux::IR::LocalReferenceLocation(), self, i );
 
 	return references;
 }

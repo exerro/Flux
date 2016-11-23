@@ -1,8 +1,16 @@
 
 enum T {
-	A, B, C;
-	D, E;
-	F;
+	A;
 }
 
-typeof x typeof string;
+enum T2 {
+	N
+}
+
+T;
+T2;
+
+do {
+	T;
+	T2;
+}

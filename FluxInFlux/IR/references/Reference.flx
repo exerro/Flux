@@ -1,0 +1,15 @@
+
+import Node;
+
+namespace Flux::IR;
+
+/*abstract*/ class Reference extends Flux::IR::Node {
+	ReferenceLocation location;
+
+	bool exact_type(Type t);
+	bool casts_type(Type t);
+
+	Node get_node();
+
+	string serialize();
+}

@@ -1,20 +1,23 @@
 
+import references.locations.InternalReferenceLocation;
+import references.locations.ExternalReferenceLocation;
+
 import Scope;
 import Node;
 
 namespace Flux::IR;
 
 class File {
-	Scope foreign_scope;
-	Scope local_scope;
+	File[] import_list;
+	Scope scope;
 	string name;
 
 	Node[] statements;
 
 	File(string name) {
 		self.name = name;
-		self.foreign_scope = new Flux::IR::Scope;
-		self.local_scope = new Flux::IR::Scope;
+		self.import_list = [];
+		self.scope = new Flux::IR::Scope;
 		self.statements = [];
 	}
 
@@ -25,25 +28,33 @@ class File {
 }
 
 Reference[] File:lookup(string name) {
-	Reference[] defs = self.local_scope:lookup( name );
+	Reference[] defs = self.scope:lookup( name );
 
-	if #defs == 0
-		return self.foreign_scope:lookup( name );
+	foreach ref in defs
+		ref.location = new Flux::IR::InternalReferenceLocation( self );
 
-	foreach def in self.foreign_scope:lookup( name )
-		defs[#defs + 1] = def;
+	for (int i = #self.import_list; i > 0; i--) {
+		foreach def in self.import_list[i].scope:lookup( name ) {
+			def.location = new Flux::IR::ExternalReferenceLocation( self.import_list[i] );
+			defs[#defs + 1] = def;
+		}
+	}
 
 	return defs;
 }
 
 Reference[] File:lookup_pattern(string pattern) {
-	Reference[] defs = self.local_scope:lookup_pattern( pattern );
+	Reference[] defs = self.scope:lookup_pattern( name );
 
-	if #defs == 0
-		return self.foreign_scope:lookup_pattern( pattern );
+	foreach ref in defs
+		ref.location = new Flux::IR::InternalReferenceLocation( self );
 
-	foreach def in self.foreign_scope:lookup_pattern( pattern )
-		defs[#defs + 1] = def;
+	for (int i = #self.import_list; i > 0; i--) {
+		foreach def in self.import_list[i].scope:lookup_pattern( name ) {
+			def.location = new Flux::IR::ExternalReferenceLocation( self.import_list[i] );
+			defs[#defs + 1] = def;
+		}
+	}
 
 	return defs;
 }

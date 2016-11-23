@@ -1,0 +1,6 @@
+
+namespace Flux::IR;
+
+/*abstract*/ class ReferenceLocation {
+	string serialize();
+}

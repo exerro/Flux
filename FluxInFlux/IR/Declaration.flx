@@ -1,5 +1,5 @@
 
-import definitions.Definition;
+import Node;
 import Type;
 
 namespace Flux::IR;
@@ -10,7 +10,7 @@ class Declaration {
 	Type[] _template;
 	bool is_public;
 	bool is_const;
-	Definition definition;
+	Node definition;
 
 	Declaration(Type type, string name, bool is_public, is_const, null Type[] _template = []) {
 		self.type = type;
@@ -20,18 +20,19 @@ class Declaration {
 		self._template = _template;
 	}
 
-	Definition set_definition(Definition def);
-	Definition get_definition();
+	Node set_definition(Node def);
+	Node get_definition();
 	bool has_definition();
 }
 
-Definition Declaration:set_definition(Definition def) {
-	self.definition = def;
+Node Declaration:set_definition(Node def) {
+	if !self.definition
+		self.definition = def;
 
 	return def;
 }
 
-Definition Declaration:get_definition()
+Node Declaration:get_definition()
 	= self.definition;
 
 bool Declaration:has_definition()

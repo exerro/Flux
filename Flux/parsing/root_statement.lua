@@ -23,6 +23,7 @@ RootBlock: { "meta" = { "type" = string }, number = RootStatement } | {}
 
 local function parseImportStatement( source, pos )
 	local lexer = source.lexer
+	local pos = lexer:get().position
 	local name = lexer:skipValue "Identifier" or lexer:skipValue "String" or throw( lexer, "expected name after 'import'" )
 
 	while lexer:skip( "Symbol", "." ) do
@@ -167,7 +168,7 @@ end
 
 function serializeRootStatement( t )
 	local initial = t.filename and "@" .. ("%q"):format( t.filename ) .. "\n" or ""
-	
+
 	if t.type == "NamespaceStatement" then
 		local b = {}
 
@@ -202,7 +203,7 @@ function serializeRootStatement( t )
 end
 
 function compileRootStatement( emitter, t )
-	
+
 	if t.type == "NamespaceStatement" then
 		for i = 1, #t.block do
 			compileRootStatement( emitter, t.block[i] )

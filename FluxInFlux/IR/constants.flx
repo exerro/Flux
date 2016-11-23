@@ -1,0 +1,25 @@
+
+import Type;
+import Declaration;
+
+namespace Flux::IR::constants;
+
+new Flux::IR::Declaration auto_type_decl( null, "auto", true, true, [] );
+new Flux::IR::Declaration void_type_decl( null, "void", true, true, [] );
+new Flux::IR::Declaration throws_type_decl( null, "throws", true, true, [] );
+new Flux::IR::Declaration namespace_type_decl( null, "namespace", true, true, [] );
+new Flux::IR::Declaration function_type_decl( null, "function", true, true, [] );
+new Flux::IR::Declaration vararg_function_type_decl( null, "vararg_function", true, true, [] );
+new Flux::IR::Declaration class_type_decl( null, "class", true, true, [] );
+new Flux::IR::Declaration interface_type_decl( null, "interface", true, true, [] );
+new Flux::IR::Declaration enum_type_decl( null, "enum", true, true, [] );
+
+Type auto_type() = new Flux::IR::Type( auto_type_decl, [] );
+Type void_type() = new Flux::IR::Type( void_type_decl, [] );
+Type throws_type() = new Flux::IR::Type( throws_type_decl, [] );
+Type namespace_type() = new Flux::IR::Type( namespace_type_decl, [] );
+Type function_type(Type[] params) = new Flux::IR::Type( function_type_decl, params );
+Type vararg_function(Type[] params) = new Flux::IR::Type( vararg_function_decl, params );
+Type class_type(Type[] _template) = new Flux::IR::Type( class_type_decl, _template );
+Type interface_type(Type[] _template) = new Flux::IR::Type( interface_type_decl, _template );
+Type enum_type() = new Flux::IR::Type( enum_type_decl, [] );

@@ -2,5 +2,11 @@
 namespace Flux::IR;
 
 class Type /* (null) */ {
-	Type() {}
+	Declaration _class;
+	Type[] _template;
+
+	Type(Declaration _class, Type[] _template) {
+		self._class = _class;
+		self._template = _template;
+	}
 }

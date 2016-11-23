@@ -8,9 +8,15 @@ class EnumDefinition extends Flux::IR::Definition {
 
 	EnumDefinition(bool is_public, string name, string[] members) {
 		self.members = members;
-
-		foreach member in members print( member );
 	}
 
 	bool has_index(string name);
+}
+
+bool EnumDefinition:has_index(string name) {
+	foreach member in self.members
+		if name == member
+			return true;
+
+	return false;
 }

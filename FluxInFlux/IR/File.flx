@@ -19,15 +19,30 @@ class File {
 	}
 
 	Declaration[] lookup(string name);
-	Declaration[] lookup(string name, int template_count);
+	Declaration[] lookup_pattern(string pattern);
 
 	Node push(Node node);
 }
 
-Declaration[] File:lookup(string name, null int template_count) {
-	Declaration[] defs = self.local_scope:lookup( name, template_count );
+Reference[] File:lookup(string name) {
+	Reference[] defs = self.local_scope:lookup( name );
 
-	foreach def in self.foreign_scope:lookup( name, template_count )
+	if #defs == 0
+		return self.foreign_scope:lookup( name );
+
+	foreach def in self.foreign_scope:lookup( name )
+		defs[#defs + 1] = def;
+
+	return defs;
+}
+
+Reference[] File:lookup_pattern(string pattern) {
+	Reference[] defs = self.local_scope:lookup_pattern( pattern );
+
+	if #defs == 0
+		return self.foreign_scope:lookup_pattern( pattern );
+
+	foreach def in self.foreign_scope:lookup_pattern( pattern )
 		defs[#defs + 1] = def;
 
 	return defs;

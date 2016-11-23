@@ -13,7 +13,7 @@ class Scope {
 
 	Declaration define(Declaration decl);
 	Declaration[] lookup(string name);
-	Declaration[] lookup(string name, int template_count);
+	Declaration[] lookup_pattern(string pattern);
 }
 
 Declaration Scope:define(Declaration decl) {
@@ -22,15 +22,28 @@ Declaration Scope:define(Declaration decl) {
 	return decl;
 }
 
-Declaration Scope:lookup(string name, null int t_count) {
-	if t_count
-		throw new bad_thing "haha nope";
+Reference[] Scope:lookup(string name) {
+	Reference[] references = [];
 
-	Declaration[] declarations = [];
+	for (int i = #self.declarations; i > 0; i--) {
+		Declaration v = self.declarations[i];
 
-	foreach i, v in self.declarations
-		if v.name == name
-			declarations[#declarations + 1] = v;
+		if v.name == name {}
+			// references[#references + 1] = v;
+	}
 
-	return declarations;
+	return references;
+}
+
+Reference[] Scope:lookup_pattern(string pattern) {
+	Reference[] references = [];
+
+	for (int i = #self.declarations; i > 0; i--) {
+		Declaration v = self.declarations[i];
+
+		if v.name:find( pattern ) {}
+			// references[#references + 1] = v;
+	}
+
+	return references;
 }

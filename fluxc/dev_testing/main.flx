@@ -1,8 +1,4 @@
 
-T;
+int b = 0;
 
-test_enum;
-
-f;
-
-x;
+a;

@@ -16,6 +16,8 @@ void main(string path) {
 
 	foreach k, file in state.files {
 		print( file.name `concat` ":" );
+		foreach im in file.import_list
+			print( "imports " `concat` im.name );
 		int i = 0;
 		foreach decl in file.scope.declarations
 			print( ++i, decl.name );

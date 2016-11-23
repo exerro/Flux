@@ -1,8 +1,2 @@
 
 import test;
-
-enum T {
-	abc;
-}
-
-int f;

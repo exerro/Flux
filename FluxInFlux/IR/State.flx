@@ -80,6 +80,8 @@ void State:load_ast_file_header(Parsing::File file) {
 
 		print( "(header) " `concat` statement:serialize() `concat` "\n" );
 	}
+
+	self.active_file:finalise_external_scope();
 }
 
 void State:load_ast_file_source(Parsing::File file) {
@@ -94,8 +96,8 @@ void State:load_ast_file_source(Parsing::File file) {
 		if (statement typeof Flux::Parsing::ReferenceExpression) {
 			print( "Looking up " `concat` statement.name.name );
 
-			foreach ref in self:lookup( statement.name.name )
-				print( ref:serialize() );
+			foreach i, ref in self:lookup( statement.name.name )
+				print( i, ref:serialize() );
 		}
 	}
 }

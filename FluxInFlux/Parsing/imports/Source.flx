@@ -1,12 +1,14 @@
 
 namespace Flux::Parsing;
 
+/*private*/ string normalise(string s) = true && s:
+	gsub( "//+", "/" ):
+	gsub(  "/$",  "" ):
+	gsub(  "^/",  "" );
+
 void Source:setup_file(string name, string path, string extension) {
 	if !self.files_included[path]
 		self.files_included[path] = new Flux::Parsing::File( name, path, self );
-
-	if self.file
-		self.file:add_import( path );
 
 	self.file = self.files_included[path];
 	self.active_files[#self.active_files + 1] = self.file;
@@ -53,24 +55,27 @@ bool Source:import_file(string name) {
 			int found_pos = current_include_path:find "/";
 
 			while found_pos {
-				table.insert( paths_to_check, 1, current_include_path:sub( 1, found_pos ) );
+				table.insert( paths_to_check, 1, Flux::Parsing::normalise( current_include_path:sub( 1, found_pos ) ) );
 				found_pos = current_include_path:find( "/", found_pos + 1 );
 			}
 		}
 
 		while end_pos {
-			paths_to_check[#paths_to_check + 1] = path:sub( start_pos, end_pos - 1 );
+			paths_to_check[#paths_to_check + 1] = Flux::Parsing::normalise( path:sub( start_pos, end_pos - 1 ) );
 			start_pos = end_pos + 1;
 			end_pos = path:find( ";", end_pos + 1 );
 		}
 
-		paths_to_check[#paths_to_check + 1] = path:sub( start_pos );
+		paths_to_check[#paths_to_check + 1] = Flux::Parsing::normalise( path:sub( start_pos ) );
 	}
 
 	foreach path in paths_to_check {
 		string file_path = path `concat` "/" `concat` filename;
 
 		if Flux::is_file( file_path `concat` ".flxh" ) {
+			if self.file
+				self.file:add_import( file_path );
+
 			if !self.files_included[file_path] {
 				self:setup_file( name, file_path, ".flxh" );
 				self:parse_content();
@@ -86,6 +91,9 @@ bool Source:import_file(string name) {
 			return true;
 		}
 		else if Flux::is_file( file_path `concat` ".flx" ) {
+			if self.file
+				self.file:add_import( file_path );
+
 			if !self.files_included[file_path] {
 				self:setup_file( name, file_path, ".flx" );
 				self.file.is_header = false;

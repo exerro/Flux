@@ -1,6 +1,2 @@
 
-private enum test_enum {
-	A, B, C;
-}
-
-private int x;
+import main;

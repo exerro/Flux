@@ -55,7 +55,7 @@ PrimaryExpression:
 	| ThrowExpression
 	| FunctionExpression
 	| BracketExpression
-	| TableExpression 
+	| TableExpression
 	| ArrayExpression
 	| MatchExpression
 	| NewExpression
@@ -891,12 +891,12 @@ function compileExpression( emitter, t )
 
 		elseif t.operator == "!" then
 			emitter:pushWord "not"
-			
+
 			return compileExpression( emitter, t.value )
 
 		else
 			emitter:pushSymbol( t.operator )
-			
+
 			return compileExpression( emitter, t.value )
 
 		end
@@ -1115,7 +1115,7 @@ function compileExpression( emitter, t )
 	elseif t.type == "BinaryExpression" then
 		local operator = t.operator
 		local f = emitter.pushOperator
-		
+
 		if operator == "**" then
 			operator = "^"
 
@@ -1260,7 +1260,7 @@ function compileExpression( emitter, t )
 	elseif t.type == "Cast" then
 
 	end
-	
+
 	emitter:push( "<compilation of " .. t.type .. " isn't written>" )
 
 end
@@ -1281,9 +1281,14 @@ function compileExpressionStatement( emitter, t )
 			return emitter:pushSymbol ";"
 
 		elseif t.lvalue.type == "DotIndex" then
-			emitter:pushSymbol "("
-			compileExpression( emitter, t.lvalue.value )
-			emitter:pushSymbol ")."
+			if t.lvalue.value.type == "Reference" then
+				emitter:pushWord( t.lvalue.value.name )
+				emitter:pushSymbol "."
+			else
+				emitter:pushSymbol "("
+				compileExpression( emitter, t.lvalue.value )
+				emitter:pushSymbol ")."
+			end
 			emitter:pushWord( t.lvalue.index )
 			emitter:pushOperator "="
 			compileExpression( emitter, t.rvalue )

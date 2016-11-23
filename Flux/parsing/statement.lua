@@ -412,7 +412,7 @@ function parseStatement( source )
 			end
 
 		end
-		
+
 		lexer:back()
 	end
 
@@ -579,14 +579,16 @@ function compileStatement( emitter, t )
 
 			compileBlock( emitter, t.block )
 		else
-			local name = emitter:getName()
+			local name = t.expression.type == "Reference" and t.expression.name or emitter:getName()
 			local name1 = t.name1 or emitter:getName()
 
-			emitter:pushWord "local"
-			emitter:pushWord( name )
-			emitter:pushOperator "="
+			if t.expression.type ~= "Reference" then
+				emitter:pushWord "local"
+				emitter:pushWord( name )
+				emitter:pushOperator "="
 
-			compileExpression( emitter, t.expression )
+				compileExpression( emitter, t.expression )
+			end
 
 			emitter:pushLineBreak()
 			emitter:pushWord "for"

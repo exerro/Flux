@@ -7,6 +7,7 @@ import Declaration;
 import constants;
 import definitions.EnumDefinition;
 import lookup_utils;
+import statements.Statement;
 
 namespace Flux::IR;
 
@@ -32,6 +33,8 @@ class State {
 	void push_scope(bool is_function_scope);
 	Scope pop_scope();
 
+	Declaration declare(Declaration decl);
+
 	Reference[] lookup(string name);
 	Reference[] lookup_pattern(string name);
 
@@ -52,12 +55,16 @@ void State:initialise_ast_file(Parsing::File file) {
 void State:load_ast_file_types(Parsing::File file) {
 	foreach t in file.types {
 		if t.type == Flux::Parsing::Type.ENUM {
-			self.active_file.scope:define(
+			self:declare(
 				new Flux::IR::Declaration( Flux::IR::constants::enum_type(), t.name.name, t.is_public, t.is_const ) );
 		}
 		else {
 			throw new NoThankYou "oh no, looks like you've got something weird going on";
 		}
+	}
+
+	foreach path in file.imports {
+		self.active_file.import_list[#self.active_file.import_list + 1] = self.files[path];
 	}
 }
 
@@ -66,20 +73,11 @@ void State:load_ast_file_header(Parsing::File file) {
 		if (statement typeof Flux::Parsing::EnumDefinition) {
 
 		}
-		else if (statement typeof Flux::Parsing::ReferenceExpression) {
-			foreach ref in self:lookup( statement.name.name )
-				print( ref:serialize() );
-		}
-		else if (statement typeof Flux::Parsing::DoStatement) {
-			self:push_scope();
 
-			foreach s in statement.block
-				if (s typeof Flux::Parsing::ReferenceExpression)
-					foreach ref in self:lookup( s.name.name )
-						print( ref:serialize() );
+		Node node = Flux::IR::Statement:fromAST( self, statement );
 
-			self:pop_scope();
-		}
+		if node != Flux::IR::Node.nothing
+			self.active_file:push( node );
 
 		print( "(header) " `concat` statement:serialize() `concat` "\n" );
 	}
@@ -88,6 +86,18 @@ void State:load_ast_file_header(Parsing::File file) {
 void State:load_ast_file_source(Parsing::File file) {
 	foreach statement in file.statements {
 		print( statement:serialize() `concat` "\n" );
+
+		Node node = Flux::IR::Statement:fromAST( self, statement );
+
+		if node != Flux::IR::Node.nothing
+			self.active_file:push( node );
+
+		if (statement typeof Flux::Parsing::ReferenceExpression) {
+			print( "Looking up " `concat` statement.name.name );
+
+			foreach ref in self:lookup( statement.name.name )
+				print( ref:serialize() );
+		}
 	}
 }
 
@@ -100,6 +110,15 @@ void State:push_scope(bool is_function_scope) {
 
 Scope State:pop_scope()
 	= table.remove( self.working_scope_stack, #self.working_scope_stack );
+
+Declaration State:declare(Declaration decl) {
+	if #self.working_scope_stack > 0
+		self.working_scope_stack[#self.working_scope_stack]:declare( decl );
+	else
+		self.active_file.scope:declare( decl );
+
+	return decl;
+}
 
 Reference[] State:lookup(string name) {
 	Reference[] references = [];

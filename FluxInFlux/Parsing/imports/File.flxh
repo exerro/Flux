@@ -14,7 +14,7 @@ class File {
 
 	Source source;
 
-	File[] imports;
+	string[] imports;
 
 	TypeDeclaration[] types;
 	ASTNode[] statements;
@@ -47,7 +47,7 @@ class File {
 
 	void initialise_lexer(string source);
 
-	void add_import(File file);
+	void add_import(string file);
 
 	void define_type(Type t, TemplatedName name);
 	void push(ASTNode node);

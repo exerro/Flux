@@ -1,6 +1,8 @@
 
+import test;
+
 enum T {
 	abc;
 }
 
-T;
+int f;

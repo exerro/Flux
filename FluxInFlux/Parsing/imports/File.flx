@@ -10,7 +10,7 @@ void File:initialise_lexer(string source_text) {
 	self.contexts[1] = self.context;
 }
 
-void File:add_import(File file) {
+void File:add_import(string file) {
 	self.imports[#self.imports + 1] = file;
 }
 

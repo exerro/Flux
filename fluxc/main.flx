@@ -13,4 +13,11 @@ void main(string path) {
 		error( "Failed to find '" `concat` files[1] `concat` "' file in " `concat` source.environment["PATH"], 0 );
 
 	state:load_ast( source );
+
+	foreach k, file in state.files {
+		print( file.name `concat` ":" );
+		int i = 0;
+		foreach decl in file.scope.declarations
+			print( ++i, decl.name );
+	}
 }

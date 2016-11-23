@@ -6,7 +6,7 @@ void Source:setup_file(string name, string path, string extension) {
 		self.files_included[path] = new Flux::Parsing::File( name, path, self );
 
 	if self.file
-		self.file:add_import( self.files_included[path] );
+		self.file:add_import( path );
 
 	self.file = self.files_included[path];
 	self.active_files[#self.active_files + 1] = self.file;

@@ -1,6 +1,8 @@
 
 namespace Flux::IR;
 
-/*abstract*/ class Node {
+class Node {
 	Node() {}
+
+	static Node nothing = new Flux::IR::Node;
 }

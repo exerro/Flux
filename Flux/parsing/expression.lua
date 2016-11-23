@@ -1249,9 +1249,14 @@ function compileExpression( emitter, t )
 
 		compileExpression( emitter, t.value )
 
-		emitter:pushSymbol ").class:find("
-		emitter:pushString( " " .. t.class.name .. " " )
-		emitter:pushSymbol ")"
+		emitter:pushSymbol ")."
+		emitter:pushWord "class"
+
+		if t.class then
+			emitter:pushSymbol ":find("
+			emitter:pushString( " " .. t.class.name .. " " )
+			emitter:pushSymbol ")"
+		end
 
 		return
 

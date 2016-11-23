@@ -1,0 +1,24 @@
+
+import Parsing.Block;
+import statements.Statement;
+
+namespace Flux::IR;
+
+class Block {
+	Node[] nodes;
+
+	Block(Node[] nodes) {
+		self.nodes = nodes;
+	}
+
+	static Block fromAST(State state, Parsing::Block block)
+}
+
+Block Block:fromAST(State state, Parsing::Block block) {
+	Flux::IR::Node[] nodes = [];
+
+	foreach statement in block
+		nodes[#nodes + 1] = Flux::IR::Statement:fromAST( state, statement );
+
+	return new Flux::Parsing::Block( nodes );
+}

@@ -1,0 +1,8 @@
+
+import Parsing.ASTNode;
+
+namespace Flux::IR;
+
+interface IASTConverter {
+	static Node fromAST(State state, Parsing::ASTNode node);
+}

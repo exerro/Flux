@@ -16,12 +16,12 @@ class Scope {
 		self.declarations = [];
 	}
 
-	Declaration define(Declaration decl);
+	Declaration declare(Declaration decl);
 	Declaration[] lookup(string name);
 	Declaration[] lookup_pattern(string pattern);
 }
 
-Declaration Scope:define(Declaration decl) {
+Declaration Scope:declare(Declaration decl) {
 	self.declarations[#self.declarations + 1] = decl;
 
 	return decl;

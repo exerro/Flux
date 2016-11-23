@@ -1,0 +1,8 @@
+
+import Node;
+
+namespace Flux::IR;
+
+class Expression extends Flux::IR::Node {
+	
+}

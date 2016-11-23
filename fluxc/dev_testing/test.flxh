@@ -1,0 +1,6 @@
+
+enum test_enum {
+	A, B, C;
+}
+
+int x;

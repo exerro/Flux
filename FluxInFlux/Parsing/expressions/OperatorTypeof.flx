@@ -7,16 +7,14 @@ class OperatorTypeof extends RightUnaryExpression {
 	Expression value;
 	TemplatedName type;
 
-	OperatorTypeof( Expression value, null TemplatedName type, null Position position = value.position ) {
+	OperatorTypeof( Expression value, TemplatedName type, null Position position = value.position ) {
 		self.value = value;
 		self.type = type;
 		self.position = position;
 	}
-
-	static ASTNode parse(Source source);
 }
 
-ASTNode OperatorTypeof:parse( Source source, null Expression value )
+ASTNode OperatorTypeof:parse( Source source, Expression value )
 	= isCalled && new Flux::Parsing::OperatorTypeof( value, type, position )
 	where lexer = source.lexer
 	where position = lexer:get().position
@@ -25,7 +23,4 @@ ASTNode OperatorTypeof:parse( Source source, null Expression value )
 	where value = value || isCalled && Flux::Parsing::LeftUnaryExpression:parse(source);
 
 string OperatorTypeof:serialize()
-	= match self._type {
-		null => "typeof " `concat` Flux::Parsing::serializeExpression( self.value );
-		default => Flux::Parsing::serializeExpression( self.value ) `concat` " typeof " `concat` self._type:serialize();
-	};
+	= Flux::Parsing::serializeExpression( self.value ) `concat` " typeof " `concat` self.type:serialize();

@@ -1,6 +1,6 @@
 
-enum test_enum {
+private enum test_enum {
 	A, B, C;
 }
 
-int x;
+private int x;

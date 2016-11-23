@@ -27,22 +27,28 @@ Declaration Scope:declare(Declaration decl) {
 	return decl;
 }
 
-Reference[] Scope:lookup(string name) {
+Reference[] Scope:lookup(string name, bool privates, null int upper_index = #self.declarations) {
 	Reference[] references = [];
 
-	for (int i = #self.declarations; i > 0; i--)
-		if self.declarations[i].name == name
+	for (int i = upper_index; i > 0; i--) {
+		Declaration decl = self.declarations[i];
+
+		if decl.name == name && (privates || decl.is_public)
 			references[#references + 1] = new Flux::IR::ScopedReference( new Flux::IR::LocalReferenceLocation(), self, i );
+	}
 
 	return references;
 }
 
-Reference[] Scope:lookup_pattern(string pattern) {
+Reference[] Scope:lookup_pattern(string pattern, bool privates, null int upper_index = #self.declarations) {
 	Reference[] references = [];
 
-	for (int i = #self.declarations; i > 0; i--)
-		if self.declarations[i].name:find( name )
+	for (int i = upper_index; i > 0; i--) {
+		Declaration decl = self.declarations[i];
+
+		if decl.name:find( name ) && (privates || decl.is_public)
 			references[#references + 1] = new Flux::IR::ScopedReference( new Flux::IR::LocalReferenceLocation(), self, i );
+	}
 
 	return references;
 }

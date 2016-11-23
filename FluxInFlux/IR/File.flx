@@ -11,6 +11,7 @@ class File {
 	File[] import_list;
 	Scope scope;
 	string name;
+	int external_scope_index_ptr;
 
 	Node[] statements;
 
@@ -21,20 +22,26 @@ class File {
 		self.statements = [];
 	}
 
+	void finalise_external_scope();
+
 	Declaration[] lookup(string name);
 	Declaration[] lookup_pattern(string pattern);
 
 	Node push(Node node);
 }
 
+void File:finalise_external_scope() {
+	self.external_scope_index_ptr = #self.scope.declarations;
+}
+
 Reference[] File:lookup(string name) {
-	Reference[] defs = self.scope:lookup( name );
+	Reference[] defs = self.scope:lookup( name, true );
 
 	foreach ref in defs
 		ref.location = new Flux::IR::InternalReferenceLocation( self );
 
 	for (int i = #self.import_list; i > 0; i--) {
-		foreach def in self.import_list[i].scope:lookup( name ) {
+		foreach def in self.import_list[i].scope:lookup( name, false, self.import_list[i].external_scope_index_ptr ) {
 			def.location = new Flux::IR::ExternalReferenceLocation( self.import_list[i] );
 			defs[#defs + 1] = def;
 		}
@@ -44,13 +51,13 @@ Reference[] File:lookup(string name) {
 }
 
 Reference[] File:lookup_pattern(string pattern) {
-	Reference[] defs = self.scope:lookup_pattern( name );
+	Reference[] defs = self.scope:lookup_pattern( name, true );
 
 	foreach ref in defs
 		ref.location = new Flux::IR::InternalReferenceLocation( self );
 
 	for (int i = #self.import_list; i > 0; i--) {
-		foreach def in self.import_list[i].scope:lookup_pattern( name ) {
+		foreach def in self.import_list[i].scope:lookup_pattern( name, false, self.import_list[i].external_scope_index_ptr ) {
 			def.location = new Flux::IR::ExternalReferenceLocation( self.import_list[i] );
 			defs[#defs + 1] = def;
 		}

@@ -14,8 +14,8 @@ void File:add_import(string file) {
 	self.imports[#self.imports + 1] = file;
 }
 
-void File:define_type(Type t, TemplatedName name) {
-	self.types[#self.types + 1] = { type = t, name = name };
+void File:define_type(Type t, TemplatedName name, bool is_public) {
+	self.types[#self.types + 1] = { type = t, name = name, is_public = is_public };
 }
 
 void File:push(ASTNode node) {
@@ -24,12 +24,16 @@ void File:push(ASTNode node) {
 	else {
 		if self.is_header {
 			if node typeof Flux::Parsing::EnumDefinition
-				self:define_type( Flux::Parsing::Type.ENUM, new Flux::Parsing::TemplatedName( node.name, [], node.position ) );
+				self:define_type( Flux::Parsing::Type.ENUM, new Flux::Parsing::TemplatedName( node.name, [], node.position ), node.is_public );
 
 			self.header_statements[#self.header_statements + 1] = node;
 		}
-		else
+		else {
+			if node typeof Flux::Parsing::EnumDefinition
+				self:error( "enum must be defined in header file", node.position );
+
 			self.statements[#self.statements + 1] = node;
+		}
 	}
 }
 

@@ -55,8 +55,7 @@ void State:initialise_ast_file(Parsing::File file) {
 void State:load_ast_file_types(Parsing::File file) {
 	foreach t in file.types {
 		if t.type == Flux::Parsing::Type.ENUM {
-			self:declare(
-				new Flux::IR::Declaration( Flux::IR::constants::enum_type(), t.name.name, t.is_public, t.is_const ) );
+			self:declare( new Flux::IR::Declaration( Flux::IR::constants::enum_type(), t.name.name, t.is_public, true ) );
 		}
 		else {
 			throw new NoThankYou "oh no, looks like you've got something weird going on";
@@ -125,7 +124,7 @@ Reference[] State:lookup(string name) {
 	bool is_local = true;
 
 	for (int i = #self.working_scope_stack; i > 0; i--) {
-		Reference[] scope_refs = self.working_scope_stack[i]:lookup( name );
+		Reference[] scope_refs = self.working_scope_stack[i]:lookup( name, true );
 
 		if #scope_refs > 0 {
 			foreach ref in scope_refs {

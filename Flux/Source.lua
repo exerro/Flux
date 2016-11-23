@@ -109,6 +109,8 @@ end
 
 
 function Source:import( name, position )
+	local paths = {}
+
 	for path in self.path:gmatch "[^;]+" do
 		local ip = self.current_include_path[#self.current_include_path] or ""
 		local s = 0
@@ -119,6 +121,8 @@ function Source:import( name, position )
 			local ips = ip:sub( 1, s )
 			local p = (path .. "/" .. ips .. "/" .. name:gsub( "%.", "/" )):gsub( "//+", "/" )
 			local found = isfile( p .. ".flxh" ) or isfile( p .. ".flxc" ) or isfile( p .. ".flx" )
+
+			paths[#paths + 1] = p
 
 			if not found then
 				p = (path .. "/" .. name:gsub( "%.", "/" )):gsub( "//+", "/" )
@@ -147,7 +151,7 @@ function Source:import( name, position )
 		until not s
 	end
 
-	throw( self.lexer, "attempt to import file '" .. name .. "': file not found", position )
+	throw( self.lexer, "attempt to import file '" .. name .. "': file not found\nPaths tried:\n\t" .. table.concat( paths, "\n\t" ), position )
 end
 
 function Source:parseContent( content, source, filename )

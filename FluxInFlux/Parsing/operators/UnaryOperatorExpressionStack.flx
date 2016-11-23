@@ -1,7 +1,7 @@
 
 namespace Flux::Parsing;
 
-void UnaryOperatorExpressionStack:get_top_left_opcode()
+UnaryOpcode UnaryOperatorExpressionStack:get_top_left_opcode()
 	= self.left_opcode_cache[#self.left_opcode_cache];
 
 void UnaryOperatorExpressionStack:combine_left_operator() {
@@ -46,7 +46,8 @@ void UnaryOperatorExpressionStack:parse_right_unary_operators(Source source) {
 	UnaryOpcode opcode = Flux::Parsing::Operator::get_unary_opcode( source );
 
 	while opcode != Flux::Parsing::Operator::UnaryOpcode.None {
-		while Flux::Parsing::Operator::get_unary_precedence( self:get_top_left_opcode(), opcode ) {
+		while #self.left_operator_cache > 0 && (Flux::Parsing::Operator::get_unary_precedence( self:get_top_left_opcode(), opcode )
+		|| self:get_top_left_opcode() == Flux::Parsing::Operator::UnaryOpcode.Typeof && opcode == Flux::Parsing::Operator::UnaryOpcode.Typeof) {
 			self:combine_left_operator();
 		}
 

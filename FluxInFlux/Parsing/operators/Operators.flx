@@ -38,6 +38,8 @@ void set_unary_precedence(UnaryOpcode a, UnaryOpcode b) {
 }
 
 bool get_unary_precedence(UnaryOpcode a, UnaryOpcode b) {
+	print( a, b );
+
 	if Flux::Parsing::Operator::unary_precedences[a]
 		return Flux::Parsing::Operator::unary_precedences[a][b];
 	return false;
@@ -230,6 +232,7 @@ void init_standard_operators() {
 	set_unary_precedence( UnaryOpcode.PlusPlus, UnaryOpcode.Unp ); // +x++ -> +(x++)
 	set_unary_precedence( UnaryOpcode.Deref, UnaryOpcode.PlusPlus ); // *x++ -> (*x)++
 
+	// x-- rather than ++x
 	set_unary_precedence( UnaryOpcode.MinusMinus, UnaryOpcode.Len ); // #x-- -> #(x--)
 	set_unary_precedence( UnaryOpcode.MinusMinus, UnaryOpcode.Not ); // !x-- -> !(x--)
 	set_unary_precedence( UnaryOpcode.MinusMinus, UnaryOpcode.BNot ); // ~x-- -> ~(x--)
@@ -237,6 +240,16 @@ void init_standard_operators() {
 	set_unary_precedence( UnaryOpcode.MinusMinus, UnaryOpcode.Unp ); // +x-- -> +(x--)
 	set_unary_precedence( UnaryOpcode.Deref, UnaryOpcode.MinusMinus ); // *x-- -> (*x)--
 
+	// typeof x -> T = (typeof x) -> T
+	set_unary_precedence( UnaryOpcode.Call, UnaryOpcode.Typeof ); // typeof f() -> typeof (f())
+	set_unary_precedence( UnaryOpcode.MethodCall, UnaryOpcode.Typeof ); // typeof x:f() -> typeof (x:f())
+	set_unary_precedence( UnaryOpcode.DotIndex, UnaryOpcode.Typeof ); // typeof a.b -> typeof (a.b)
+	set_unary_precedence( UnaryOpcode.Index, UnaryOpcode.Typeof ); // typeof a[b] -> typeof (a[b])
+
+	set_unary_precedence( UnaryOpcode.Typeof, UnaryOpcode.Cast ); // typeof a -> b -> (typeof a) -> b
+	set_unary_precedence( UnaryOpcode.Typeof, UnaryOpcode.Extends ); // typeof a extends b -> (typeof a) extends b
+	set_unary_precedence( UnaryOpcode.Typeof, UnaryOpcode.Implements ); // typeof a implements b -> (typeof a) implements b
+	set_unary_precedence( UnaryOpcode.Typeof, UnaryOpcode.Typeof ); // typeof a typeof b -> (typeof a) typeof b
 }
 
 let _ = (function() {

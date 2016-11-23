@@ -15,5 +15,5 @@ class LeftUnaryExpression extends Flux::Parsing::PrimaryExpression {
 }
 
 string LeftUnaryExpression:serialize()
-	= self.op `concat` value
+	= self.op `concat` (self.op == "typeof" && " " || "") `concat` value
 	where value = Flux::Parsing::serializeExpression(self.value);

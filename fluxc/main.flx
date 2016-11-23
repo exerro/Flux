@@ -1,10 +1,10 @@
 
-import flux;
+import FluxInFlux.flux;
 
-void main() {
+void main(string path) {
 	string[] files = [ "main" ];
 
-	new Flux::Parsing::Source source( "./Flux/tests" );
+	new Flux::Parsing::Source source( path );
 	new Flux::IR::State state();
 
 	Flux::Parsing::Operator::init_standard_operators();

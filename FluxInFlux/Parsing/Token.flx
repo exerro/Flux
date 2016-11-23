@@ -9,7 +9,7 @@ string getTokenTypeString( TokenType type )
 		return type;
 
 Token Token:EOF(Position position)
-	= new Token( Flux::Parsing::TokenType.EOF, "EOF", position );
+	= new Flux::Parsing::Token( Flux::Parsing::TokenType.EOF, "EOF", position );
 
 string Token:tostring()
 	= Flux::Parsing::getTokenTypeString( self.type ) `concat` '<' `concat` self.value `concat` '>';

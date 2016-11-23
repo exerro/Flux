@@ -114,7 +114,7 @@ void Lexer:consumeBacktick() {
 
 	self.position += len + 2;
 
-	self.buffer[#self.buffer + 1] = Token( "Backtick", content, self:getPosition( len + 2 ) );
+	self.buffer[#self.buffer + 1] = Flux::Parsing::Token( "Backtick", content, self:getPosition( len + 2 ) );
 }
 
 void Lexer:consumeWord() {
@@ -224,7 +224,7 @@ void Lexer:consume() {
 	}
 
 	if self.position > #self.text
-		self.buffer[#self.buffer + 1] = Token.EOF( self:getPosition() );
+		self.buffer[#self.buffer + 1] = Flux::Parsing::Token.EOF( self:getPosition() );
 
 	else if self.text:find( "^@[%w_%-]", self.position )
 		self:consumeInstruction();

@@ -1,5 +1,6 @@
 
 import Node;
+import ReferenceLocation;
 
 namespace Flux::IR;
 
@@ -9,7 +10,7 @@ namespace Flux::IR;
 	bool exact_type(Type t);
 	bool casts_type(Type t);
 
-	Node get_node();
+	void set_location(ReferenceLocation location);
 
-	string serialize();
+	Node get_node();
 }

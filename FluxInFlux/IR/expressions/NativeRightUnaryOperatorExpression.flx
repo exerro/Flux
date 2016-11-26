@@ -1,0 +1,20 @@
+
+import Expression;
+import Node;
+
+namespace Flux::IR;
+
+class NativeRightUnaryOperatorExpression extends Flux::IR::Expression {
+	Node operand;
+	string op;
+
+	NativeRightUnaryOperatorExpression(Node operand, string op) {
+		self.operand = operand;
+		self.op = op;
+	}
+}
+
+string NativeRightUnaryOperatorExpression:serialize()
+	= "nativeunr(" `concat` self.op
+	`concat` "," `concat` self.operand:serialize()
+	`concat` ")";

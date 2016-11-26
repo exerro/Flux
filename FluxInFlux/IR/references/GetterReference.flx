@@ -1,6 +1,42 @@
 
 import Reference;
+import ReferenceLocation;
+import expressions.FunctionCall;
 
 namespace Flux::IR;
 
-// TODO
+class GetterReference extends Flux::IR::Reference {
+	ScopedReference getter_ref;
+
+	GetterReference(ScopedReference getter_ref) {
+		self.location = getter_ref.location;
+		self.getter_ref = getter_ref;
+	}
+}
+
+bool GetterReference:exact_type(Type t) {
+	// the type of getter_ref must be function<T>
+	// so it's safe to assume the return type of the getter is...
+	return self.getter_ref:get_decl().type._template[1]:is( t );
+}
+
+bool GetterReference:casts_type(Type t) {
+	// the type of getter_ref must be function<T>
+	// so it's safe to assume the return type of the getter is...
+	return self.getter_ref:get_decl().type._template[1]:casts_to( t );
+}
+
+void GetterReference:set_location(ReferenceLocation l) {
+	self.location = l;
+	self.getter_ref:set_location( l );
+}
+
+Node GetterReference:get_node() {
+	return new Flux::IR::FunctionCall(
+		self.getter_ref,
+		[]
+	);
+}
+
+string GetterReference:serialize()
+	= "getter(" `concat` self.getter_ref:serialize() `concat` ")";

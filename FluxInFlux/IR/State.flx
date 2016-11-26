@@ -77,8 +77,6 @@ void State:load_ast_file_header(Parsing::File file) {
 
 		if node != Flux::IR::Node.nothing
 			self.active_file:push( node );
-
-		print( "(header) " `concat` statement:serialize() `concat` "\n" );
 	}
 
 	self.active_file:finalise_external_scope();
@@ -86,19 +84,10 @@ void State:load_ast_file_header(Parsing::File file) {
 
 void State:load_ast_file_source(Parsing::File file) {
 	foreach statement in file.statements {
-		print( statement:serialize() `concat` "\n" );
-
 		Node node = Flux::IR::Statement:fromAST( self, statement );
 
 		if node != Flux::IR::Node.nothing
 			self.active_file:push( node );
-
-		if (statement typeof Flux::Parsing::ReferenceExpression) {
-			print( "Looking up " `concat` statement.name.name );
-
-			foreach i, ref in self:lookup( statement.name.name )
-				print( i, ref:serialize() );
-		}
 	}
 }
 
@@ -131,7 +120,7 @@ Reference[] State:lookup(string name) {
 		if #scope_refs > 0 {
 			foreach ref in scope_refs {
 				if !is_local
-					ref.location = new Flux::IR::UpvalueReferenceLocation();
+					ref:set_location( new Flux::IR::UpvalueReferenceLocation(#self.working_scope_stack - i) );
 
 				references[#references + 1] = ref;
 			}
@@ -148,6 +137,7 @@ Reference[] State:lookup(string name) {
 
 Reference[] State:lookup_pattern(string name) {
 	Reference[] references = [];
+	bool is_local = true;
 
 	for (int i = #self.working_scope_stack; i > 0; i--) {
 		Reference[] scope_refs = self.working_scope_stack[i]:lookup_pattern( name );
@@ -155,11 +145,13 @@ Reference[] State:lookup_pattern(string name) {
 		if #scope_refs > 0 {
 			foreach ref in scope_refs {
 				if !is_local
-					ref.location = new Flux::IR::UpvalueReferenceLocation();
+					ref:set_location( new Flux::IR::UpvalueReferenceLocation(#self.working_scope_stack - i) );
 
 				references[#references + 1] = ref;
 			}
 		}
+
+		is_local = false;
 	}
 
 	foreach v in self.active_file:lookup_pattern( name )
@@ -201,4 +193,4 @@ void State:warn(string err, Position position)
 	= print( self:format_err_msg( err, position ) );
 
 void State:error(string err, Position position)
-	= throw new ParserException( self:format_err_msg( err, position ) );
+	= throw new TypeException( self:format_err_msg( err, position ) );

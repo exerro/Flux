@@ -12,6 +12,8 @@ class ScopedReference extends Flux::IR::Reference {
 		self.scope = scope;
 		self.index = index;
 	}
+
+	Declaration get_decl();
 }
 
 bool ScopedReference:exact_type(Type t)
@@ -20,12 +22,15 @@ bool ScopedReference:exact_type(Type t)
 bool ScopedReference:casts_type(Type t)
 	= self.scope:get_index( self.index ).type:casts_to( t );
 
-Node ScopedReference:get_node() {
-	self.scope:get_index( self.index ):refer();
+void ScopedReference:set_location(ReferenceLocation location)
+	self.location = location;
 
-	return self;
-}
+Node ScopedReference:get_node()
+	= self;
+
+Declaration ScopedReference:get_decl()
+	= self.scope:get_index( self.index );
 
 string ScopedReference:serialize()
-	= "(ref @" `concat` self.location:serialize() `concat` " "
+	= "scoperef(" `concat` self.location:serialize() `concat` ","
 	`concat` self.index `concat` ")";

@@ -1,0 +1,19 @@
+
+import Node;
+
+namespace Flux::IR;
+
+class FunctionCall extends Flux::IR::Node {
+	Node value;
+	Node[] parameters = [];
+
+	FunctionCall(Node value, Node[] parameters) {
+		self.value = value;
+		self.parameters = parameters;
+	}
+}
+
+string FunctionCall:serialize()
+	= #self.parameters > 0
+	&& "call(" `concat` self.value:serialize() `concat` "," `concat` (self.parameters `concattenate` ",") `concat` ")"
+	|| "call(" `concat` self.value:serialize() `concat` ")";

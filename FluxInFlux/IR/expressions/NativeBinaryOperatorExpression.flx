@@ -1,0 +1,23 @@
+
+import Expression;
+import Node;
+
+namespace Flux::IR;
+
+class NativeBinaryOperatorExpression extends Flux::IR::Expression {
+	Node left_operand;
+	Node right_operand;
+	string op;
+
+	NativeBinaryOperatorExpression(Node left_operand, right_operand, string op) {
+		self.left_operand = left_operand;
+		self.right_operand = right_operand;
+		self.op = op;
+	}
+}
+
+string NativeBinaryOperatorExpression:serialize()
+	= "nativebin(" `concat` self.op
+	`concat` "," `concat` self.left_operand:serialize()
+	`concat` "," `concat` self.right_operand:serialize()
+	`concat` ")";

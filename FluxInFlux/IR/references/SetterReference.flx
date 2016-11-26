@@ -1,0 +1,38 @@
+
+import Reference;
+import ReferenceLocation;
+
+namespace Flux::IR;
+
+class SetterReference extends Flux::IR::Reference {
+	ScopedReference setter_ref;
+
+	SetterReference(ScopedReference setter_ref) {
+		self.location = setter_ref.location;
+		self.setter_ref = setter_ref;
+	}
+}
+
+bool SetterReference:exact_type(Type t) {
+	// the type of setter_ref must be function<T>
+	// so it's safe to assume the return type of the getter is...
+	return self.setter_ref:get_decl().type._template[1]:is( t );
+}
+
+bool SetterReference:casts_type(Type t) {
+	// the type of setter_ref must be function<T>
+	// so it's safe to assume the return type of the getter is...
+	return self.setter_ref:get_decl().type._template[1]:casts_to( t );
+}
+
+void SetterReference:set_location(ReferenceLocation l) {
+	self.location = l;
+	self.setter_ref:set_location( l );
+}
+
+Node SetterReference:get_node() {
+	throw new MajorFuckup "a setter should really never have get_node() called on it :/";
+}
+
+string SetterReference:serialize()
+	= "setter(" `concat` self.setter_ref:serialize() `concat` ")";

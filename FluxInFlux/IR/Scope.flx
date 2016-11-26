@@ -1,6 +1,8 @@
 
 import references.locations.LocalReferenceLocation;
 import references.ScopedReference;
+import references.GetterReference;
+import references.SetterReference;
 
 namespace Flux::IR;
 
@@ -35,6 +37,20 @@ Reference[] Scope:lookup(string name, bool privates, null int upper_index = #sel
 
 		if decl.name == name && (privates || decl.is_public)
 			references[#references + 1] = new Flux::IR::ScopedReference( new Flux::IR::LocalReferenceLocation(), self, i );
+
+		else if decl.name == "getter " `concat` name && (privates || decl.is_public)
+			references[#references + 1] = new Flux::IR::GetterReference(
+				new Flux::IR::ScopedReference(
+					new Flux::IR::LocalReferenceLocation(), self, i
+				)
+			);
+
+		else if decl.name == "setter " `concat` name && (privates || decl.is_public)
+			references[#references + 1] = new Flux::IR::SetterReference(
+				new Flux::IR::ScopedReference(
+					new Flux::IR::LocalReferenceLocation(), self, i
+				)
+			);
 	}
 
 	return references;

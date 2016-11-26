@@ -12,26 +12,28 @@ class Statement extends Flux::IR::Node implements Flux::IR::IASTConverter {
 
 }
 
+string Statement:serialize() = "<statement>";
+
 Node Statement:fromAST(State state, Parsing::ASTNode ast_node) {
 
 	if (ast_node typeof Flux::Parsing::Declaration) {
 		Flux::IR::Type type = Flux::IR::constants::auto_type();
 		Flux::IR::Type[] _template = [];
 
+		// do lookup stuff first
+
 		Declaration decl = state:declare(
 			new Flux::IR::Declaration( type, ast_node.name, ast_node.is_public, ast_node.is_const, _template )
 		);
 
 		if ast_node.definition != null {
-			decl:set_definition( haha_nope );
+			decl:set_definition( Flux::IR::Expression:fromAST( state, ast_node ) );
 		}
 
 		return Flux::IR::Node.nothing;
 	}
 	else { // it's an expression
-		// return Flux::Parsing::Expression.fromAST( ast_node );
-
-		return Flux::IR::Node.nothing;
+		return Flux::IR::Expression:fromAST( state, ast_node );
 	}
 
 }

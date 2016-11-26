@@ -4,8 +4,12 @@ import ReferenceLocation;
 namespace Flux::IR;
 
 class UpvalueReferenceLocation extends Flux::IR::ReferenceLocation {
-	UpvalueReferenceLocation() {}
+	int layer;
+
+	UpvalueReferenceLocation(int layer) {
+		self.layer = layer;
+	}
 }
 
 string UpvalueReferenceLocation:serialize()
-	= "upvalue";
+	= "upvalue," `concat` self.layer;

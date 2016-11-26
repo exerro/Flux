@@ -9,4 +9,7 @@ class Type /* (null) */ {
 		self._class = _class;
 		self._template = _template;
 	}
+
+	bool is(Type t);
+	bool casts_to(Type t);
 }

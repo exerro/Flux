@@ -1,2 +1,56 @@
 
 namespace Flux::IR;
+
+Reference[] filter_get_mode(Reference[] references);
+Reference[] filter_set_mode(Reference[] references);
+Reference[] filter_top_level(Reference[] references);
+Reference[] filter_function_argc(Reference[] references, int argc);
+Reference[] filter_function_call(Reference[] references, Type[] types);
+Reference filter_single(Reference[] references);
+Reference assert_single(State state, Position position, Reference[] references);
+void assert_Type(State state, Position position, Reference ref);
+
+Reference[] filter_get_mode(Reference[] references) {
+	Reference[] return_refs = [];
+
+	foreach i, ref in references {
+		if !(ref typeof Flux::IR::SetterReference)
+			return_refs[#return_refs + 1] = ref;
+	}
+
+	return return_refs;
+}
+
+Reference[] filter_set_mode(Reference[] references) {
+	Reference[] return_refs = [];
+
+	foreach i, ref in references {
+		if !(ref typeof Flux::IR::GetterReference)
+			return_refs[#return_refs + 1] = ref;
+	}
+
+	return return_refs;
+}
+
+Reference[] filter_function_argc(Reference[] references) {
+	return references;
+	// don't forget about operator()!
+}
+
+Reference[] filter_function_call(Reference[] references, Type[] types) {
+	return references;
+}
+
+Reference filter_single(Reference[] references)
+	= references[1];
+
+Reference assert_single(State state, Position position, Reference[] references) {
+	if #references > 0
+		return filter_single( references );
+	else
+		state:error( "undefined reference to oh idk what this error message should be ugh", position );
+}
+
+void assert_Type(State state, Position position, Reference ref) {
+
+}

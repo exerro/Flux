@@ -1,0 +1,24 @@
+
+import IASTConverter;
+import State;
+import Parsing.ASTNode;
+import Parsing.expressions.ConstantType;
+import Type;
+
+namespace Flux::IR;
+
+class LiteralExpression extends Flux::IR::Expression implements Flux::IR::IASTConverter {
+	string value;
+
+	LiteralExpression(Type type, string value) {
+		self.type = type;
+		self.value = value;
+	}
+}
+
+Node LiteralExpression:fromAST(State state, ASTNode ast_node) {
+	// determine type based on ConstantType enum
+	return new Flux::IR::LiteralExpression( Flux::IR::constants::auto_type(), ast_node.value );
+}
+
+string LiteralExpression:serialize() = "lit(" `concat` self.value `concat` ")";

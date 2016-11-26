@@ -38,11 +38,11 @@ Reference[] File:lookup(string name) {
 	Reference[] defs = self.scope:lookup( name, true );
 
 	foreach ref in defs
-		ref.location = new Flux::IR::InternalReferenceLocation( self );
+		ref:set_location( new Flux::IR::InternalReferenceLocation( self ) );
 
 	for (int i = #self.import_list; i > 0; i--) {
 		foreach def in self.import_list[i].scope:lookup( name, false, self.import_list[i].external_scope_index_ptr ) {
-			def.location = new Flux::IR::ExternalReferenceLocation( self.import_list[i] );
+			def:set_location( new Flux::IR::ExternalReferenceLocation( self.import_list[i] ) );
 			defs[#defs + 1] = def;
 		}
 	}
@@ -54,11 +54,11 @@ Reference[] File:lookup_pattern(string pattern) {
 	Reference[] defs = self.scope:lookup_pattern( name, true );
 
 	foreach ref in defs
-		ref.location = new Flux::IR::InternalReferenceLocation( self );
+		ref:set_location( new Flux::IR::InternalReferenceLocation( self ) );
 
 	for (int i = #self.import_list; i > 0; i--) {
 		foreach def in self.import_list[i].scope:lookup_pattern( name, false, self.import_list[i].external_scope_index_ptr ) {
-			def.location = new Flux::IR::ExternalReferenceLocation( self.import_list[i] );
+			def:set_location( new Flux::IR::ExternalReferenceLocation( self.import_list[i] ) );
 			defs[#defs + 1] = def;
 		}
 	}

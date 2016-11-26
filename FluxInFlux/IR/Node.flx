@@ -4,5 +4,12 @@ namespace Flux::IR;
 class Node {
 	Node() {}
 
+	string serialize();
+
+	static Node unserialize(string s);
+
 	static Node nothing = new Flux::IR::Node;
 }
+
+Node Node:unserialize(string s)
+	= throw new NotYetImplemented "node unserialization isn't implemented";

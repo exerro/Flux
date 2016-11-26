@@ -1,8 +1,76 @@
 
+import IASTConverter;
 import Node;
+import State;
+import Parsing.ASTNode;
+import LiteralExpression;
+import NativeBinaryOperatorExpression;
+import NativeLeftUnaryOperatorExpression;
+import NativeRightUnaryOperatorExpression;
+import references.ReferenceList;
 
 namespace Flux::IR;
 
-class Expression extends Flux::IR::Node {
-	
+string{string} assignment_operators = {
+	["+="] = "+";
+};
+
+class Expression extends Flux::IR::Node implements Flux::IR::IASTConverter {
+	Type type;
 }
+
+Node Expression:fromAST(State state, ASTNode ast_node) {
+	if (ast_node typeof Flux::Parsing::ConstantExpression) {
+		return Flux::IR::LiteralExpression:fromAST( state, ast_node );
+	}
+	else if (ast_node typeof Flux::Parsing::BinaryExpression) {
+		if (ast_node.lvalue typeof Flux::Parsing::ReferenceExpression) {
+			if ast_node.op == "=" {
+				// do stuff
+			}
+			else {
+				string op = Flux::IR::assignment_operators[ast_node.op];
+
+				if op {
+					// do stuff
+
+					return Flux::IR::Node.nothing;
+				}
+			}
+		}
+
+		Node lvalue = Flux::IR::Expression:fromAST( state, ast_node.lvalue );
+		Node rvalue = Flux::IR::Expression:fromAST( state, ast_node.rvalue );
+
+		return new Flux::IR::NativeBinaryOperatorExpression( lvalue, rvalue, ast_node.op );
+	}
+	else if (ast_node typeof Flux::Parsing::LeftUnaryExpression) {
+		Node value = Flux::IR::Expression:fromAST( state, ast_node.value );
+
+		return new Flux::IR::NativeLeftUnaryOperatorExpression( value, ast_node.op );
+	}
+	else if (ast_node typeof Flux::Parsing::RightUnaryExpression) {
+		Node value = Flux::IR::Expression:fromAST( state, ast_node.value );
+
+		return new Flux::IR::NativeRightUnaryOperatorExpression( value, ast_node.op );
+	}
+	else if (ast_node typeof Flux::Parsing::ReferenceExpression) {
+		Reference[] refs = state:lookup( ast_node.name.name );
+		// idk but there might be a problem here
+		// it might need to filter on templates, but idk
+
+		if #refs == 0
+			state:error( "undefined reference to '" `concat` ast_node.name.name `concat` "'", ast_node.position );
+
+		refs = Flux::IR::filter_get_mode( refs );
+
+		if #refs == 0
+			state:error( "reference to '" `concat` ast_node.name.name `concat` "' has no 'get' mode", ast_node.position );
+
+		return Flux::IR::filter_single( refs ):get_node();
+	}
+	else
+		return Flux::IR::Node.nothing;
+}
+
+string Expression:serialize() = "<expression>";

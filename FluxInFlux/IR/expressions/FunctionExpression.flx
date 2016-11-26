@@ -1,0 +1,47 @@
+
+import Node;
+import misc.Block;
+import Parsing.ASTNode;
+import constants;
+
+namespace Flux::IR;
+
+class FunctionExpression extends Flux::IR::Node {
+	Type returns;
+	Type[] parameters;
+	string[] parameter_names;
+	Block body;
+	Scope scope;
+
+	FunctionExpression(Type returns, Type[] parameters, string[] parameter_names, Block body, Scope scope) {
+		self.returns = returns;
+		self.parameters = parameters;
+		self.parameter_names = parameter_names;
+		self.body = body;
+		self.scope = scope;
+	}
+}
+
+Node FunctionExpression:fromAST(State state, ASTNode ast_node) {
+	Type returns = Flux::IR::constants::auto_type(); // work from ast_node.returns
+	Type[] parameters = [];
+	string[] parameter_names = [];
+
+	state:push_scope();
+
+	Block body = Flux::IR::Block:fromAST( state, ast_node.body );
+	Scope scope = state:pop_scope();
+
+	foreach param in ast_node.parameters {
+		parameters[#parameters + 1] = Flux::IR::constants::auto_type(); // work from param.type
+		parameter_names[#parameter_names + 1] = param.name;
+	}
+
+	return new Flux::IR::FunctionExpression( returns, parameters, parameter_names, body, scope );
+}
+
+string FunctionExpression:serialize()
+	= "funcexpr(" `concat` self.returns:serialize() `concat` ",paramt("
+		`concat` (self.parameters `concattenate` ",") `concat` "),paramn("
+		`concat` (self.parameter_names `concattenate` ",") `concat` "),"
+		`concat` self.body:serialize() `concat` ")";

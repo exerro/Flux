@@ -11,14 +11,23 @@ class Block {
 		self.nodes = nodes;
 	}
 
-	static Block fromAST(State state, Parsing::Block block)
+	string serialize();
+
+	static Block fromAST(State state, Parsing::Block block);
 }
 
 Block Block:fromAST(State state, Parsing::Block block) {
 	Flux::IR::Node[] nodes = [];
 
-	foreach statement in block
-		nodes[#nodes + 1] = Flux::IR::Statement:fromAST( state, statement );
+	foreach statement in block {
+		Node node = Flux::IR::Statement:fromAST( state, statement );
 
-	return new Flux::Parsing::Block( nodes );
+		if node != Flux::IR::Node.nothing
+			nodes[#nodes + 1] = node;
+	}
+
+	return new Flux::IR::Block( nodes );
 }
+
+string Block:serialize()
+	= self.nodes `concattenate` ",\n";

@@ -7,7 +7,7 @@ import LiteralExpression;
 import NativeBinaryOperatorExpression;
 import NativeLeftUnaryOperatorExpression;
 import NativeRightUnaryOperatorExpression;
-import references.ReferenceList;
+import FunctionExpression;
 
 namespace Flux::IR;
 
@@ -68,6 +68,9 @@ Node Expression:fromAST(State state, ASTNode ast_node) {
 			state:error( "reference to '" `concat` ast_node.name.name `concat` "' has no 'get' mode", ast_node.position );
 
 		return Flux::IR::filter_single( refs ):get_node();
+	}
+	else if (ast_node typeof Flux::Parsing::FunctionExpression) {
+		return Flux::IR::FunctionExpression:fromAST( state, ast_node );
 	}
 	else
 		return Flux::IR::Node.nothing;

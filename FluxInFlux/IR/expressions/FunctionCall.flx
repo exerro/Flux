@@ -1,5 +1,6 @@
 
 import Node;
+import Parsing.ASTNode;
 
 namespace Flux::IR;
 
@@ -11,6 +12,10 @@ class FunctionCall extends Flux::IR::Node {
 		self.value = value;
 		self.parameters = parameters;
 	}
+}
+
+Node FunctionCall:fromAST(State state, ASTNode ast_node) {
+	throw new NiceTry "oh no you don't";
 }
 
 string FunctionCall:serialize()

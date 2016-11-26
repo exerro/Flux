@@ -3,3 +3,9 @@ int b = 0;
 int getter x() = 0;
 
 x + b;
+
+function() {
+	int n = 0;
+	n;
+	function() n;
+};

@@ -12,4 +12,6 @@ class Type /* (null) */ {
 
 	bool is(Type t);
 	bool casts_to(Type t);
+
+	string serialize() = "type";
 }

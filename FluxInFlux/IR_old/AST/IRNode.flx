@@ -1,3 +1,0 @@
-
-string IRNode:tostring()
-	= "This thing has no tostring()";

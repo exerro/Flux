@@ -1,66 +1,92 @@
 # Flux
 
-Flux is a statically typed C-like language, that will initially compile to Lua, although more compilation targets are planned.
+Flux is a statically typed Java-like language, that will initially compile to Lua.
+More compilation targets are planned (e.g. Java, JavaScript, C, LLVM).
 
-### Development
-
-Right now, a Lua-based Flux parser exists that can do a basic conversion from Flux to Lua.
-This has allowed a Flux parser written in Flux to be started (in development now), that will also do the type checking, optimisation, and proper compilation.
+Flux is in its early stages right now, having recently been rewritten in Java to use ANTLR as the parsing backend.
 
 ### Syntax examples
 
-Distance between two vectors.
+Enums (tagged unions) and pattern matching
 ```
-float distance(Vec2 a, b = new Vec2( 0, 0 )) = math::sqrt( dx * dx + dy * dy )
-	where dx = a.x - b.x
-	where dy = a.y - b.y;
-```
-
-Factorial calculation.
-```
-let x `!` = match x {
-	0, 1 => 1;
-	default => x * (x - 1) `!`;
-};
-```
-
-Two dimensional array class.
-```
-template<T>
-class 2DArray<T> {
-	private T[][] elements;
-
-	2DArray(int dim1 = 0, dim2 = 0, T value = new T) {
-    	foreach (i in 0 .. dim2-1) { // note the brackets are optional
-			elements[i] = [];
-			for (int n = 0, n < dim1, n++)
-				elements[i][n] = value;
+enum AST {
+	enum Statement {
+		IfStatement(Expression, Block, Block?)
+		ReturnStatement(Expression)
+		Call(string, Expression[])
+	}
+	enum Expression {
+		enum Primary {
+			Integer(int)
+			Boolean(bool)
+			String(string)
 		}
- 	}
-
-	getter elements() {
-		return table::deep_copy( elements );
+		Binary(string, Expression, Expression)
 	}
-
-	T operator[](int i1, i2)
-		= elements[i2] && elements[i2][i1];
-
-	void operator[]=(int i1, i2, T value) {
-		elements[i2] = elements[i2] || [];
-		elements[i2][i1] = value;
-	}
+	Block(Statement[])
 }
 
-new 2DArray<int> myArray(5, 5);
-print( myArray[3, 4] );
+AST prog = Statement.IfStatement(
+	Binary(">", Primary.Integer(5), Primary.Integer(2)),
+	Block([
+		Call("print", [Primary.String "It works!"])
+	]),
+	null
+)
+
+match (prog) {
+	Statement.IfStatement(condition, block, elseBlock) -> print "IfStatement"
+	                                                   -> print "Another AST type"
+}
+
+let (x, y) = (1, 2)
+let {x = i} = { x = x, y = y }
+print( i )
 ```
 
+Classes
 ```
-template<T>
-void add_one_to(T& n)
-	n++;
+class Button(int x, int y, int w, int h) extends Element {
+	private string text = ""
 
-int& x = 0;
-add_one_to( x );
-print( x ); // 1
+	Button(string text) { // note that x, y, w and h are handled automatically due to the class declaration
+		self.text = text
+	}
+
+	string get text() {
+		return self.text
+	}
+
+	void set text(string value) {
+		return (self as Element).setProperty( "text", self.text, value )
+	}
+
+	void draw(Canvas);
+}
+
+void Button.draw(Canvas canvas) {
+	canvas.drawRectangle(0, 0, w, h)
+	canvas.drawText(text, 0, 0, w, h)
+}
+```
+
+Operator overloading and templates
+```
+let string str * int rep = str.repeat(rep)
+
+struct Vec2<`T>(T x, T y) {
+	Vec2<T> operator+(Vec2<T> other)
+		= new Vec2<T>(x + other.x, y + other.y)
+
+	string tostring()
+		= "(" + x + ", " + y + ")"
+}
+
+Vec2<T> Vec2<T>::origin<`T>()
+	= new Vec2<T>(0, 0)
+
+let v1 = new Vec2(5, 3)
+let v2 = new Vec2(3, 6)
+let v3 = Vec2<int>::origin()
+print(v1 + v2 + v3) // (8, 9)
 ```

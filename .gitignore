@@ -1,9 +1,1 @@
-common/fonts/*
-common/socket/*
-common/animation.lua
-common/font.lua
-common/net.lua
-common/vector.lua
 log.txt
-fluxc.lua
-debug.bat

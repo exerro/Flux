@@ -1,9 +1,0 @@
-
-import IRDefinition;
-
-class IRFunctionDefinition extends IRDefinition {
-
-	IRFunctionDefinition() {
-		
-	}
-}

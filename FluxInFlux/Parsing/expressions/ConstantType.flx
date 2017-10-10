@@ -1,9 +1,0 @@
-
-namespace Flux::Parsing;
-
-enum ConstantType {
-	Null;
-	String, Character;
-	Integer, Float, Byte;
-	Boolean;
-}

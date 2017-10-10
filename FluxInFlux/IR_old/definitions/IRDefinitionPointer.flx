@@ -1,7 +1,0 @@
-
-IRDefinition IRDefinitionPointer:definition()
-	= self.heap:get( self.index );
-
-bool IRDefinitionPointer:eq(IRDefinitionPointer ptr) {
-	return self.index == ptr.index && self.heap == ptr.heap;
-}

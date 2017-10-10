@@ -1,8 +1,0 @@
-
-enum T {
-	A, B, C;
-	D, E;
-	F;
-}
-
-typeof x typeof string;

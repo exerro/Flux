@@ -1,9 +1,0 @@
-
-namespace Flux::Parsing;
-
-enum Type {
-	CLASS;
-	INTERFACE;
-	ENUM;
-	CLASS_ALIAS;
-}
